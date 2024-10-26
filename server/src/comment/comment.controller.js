@@ -103,7 +103,8 @@ export const getChildCommentList = async (req, res, next) => {
 export const addComment = async (req, res, next) => {
     const { type, for_id, from_id, from_name, from_avatar, content } = req.body;
 
-    const params = [type, for_id, from_id, from_name, from_avatar, content]
+    const createdAt = new Date()
+    const params = [type, for_id, from_id, from_name, from_avatar, content, createdAt]
     try {
         const result = await commentService.blogCommentAddService(params);
         const userinfo = await commentService.getUserInfoByUserId(from_id);

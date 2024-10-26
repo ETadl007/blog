@@ -2,7 +2,7 @@
 import { ref, h, reactive, onMounted, onBeforeUnmount } from "vue";
 import { user } from "@/store";
 
-import { returnTime } from "@/utils/tool";
+import { returnTime, convertDateIfNecessary } from "@/utils/tool";
 import { addLike, cancelLike } from "@/api/like";
 import { getTalkList } from "@/api/talk";
 
@@ -233,7 +233,7 @@ onBeforeUnmount(() => {
                     </div>
                   </div>
                   <div class="like flex justify-between items-center !mt-[15px]">
-                    <div class="time">{{ returnTime(talk.createdAt) }}前</div>
+                    <div class="time">{{ returnTime(convertDateIfNecessary(talk.createdAt)) }}前</div>
                     <div>
                       <i
                         class="comment-icon iconfont icon-speechbubble"

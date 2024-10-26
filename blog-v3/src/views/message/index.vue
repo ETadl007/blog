@@ -24,6 +24,7 @@ import {
   filterMessage,
   _getLocalItem,
   _removeLocalItem,
+  convertDateIfNecessary
 } from "@/utils/tool";
 import { user } from "@/store/index";
 
@@ -355,7 +356,7 @@ onBeforeUnmount(() => {
                 </div>
                 <div class="bottom">
                   <div class="left flex items-center">
-                    <div class="time">{{ returnTime(message.createdAt) }}前</div>
+                    <div class="time">{{ returnTime(convertDateIfNecessary(message.createdAt)) }}前</div>
                     <div
                       class="message-comment cursor-pointer !mr-[10px]"
                       @click="comment(message)"

@@ -7,7 +7,7 @@ import { PAGE_SIZE } from '../app/app.config.js';
 
 export const getTalkList = async (req, res, next) => {
     // 当前页码
-    let { current = 1, size } = req.body;
+    let { current = 1, size, user_id = null } = req.body;
 
     // 每页内容数量
     const limit = parseInt(PAGE_SIZE, 10) || 6;
@@ -15,10 +15,8 @@ export const getTalkList = async (req, res, next) => {
     // 偏移量
     const offset = (current - 1) * limit;
 
-    const params = [limit, offset]
-
     try {
-        const talk = await talkService.getTalkList(params);
+        const talk = await talkService.getTalkList({limit, offset, user_id});
         const total = await talkService.getTalkCount();
         res.send({
             status: 0,

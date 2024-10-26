@@ -11,7 +11,7 @@ import * as likeService from '../like/like.service.js'
 
 export const getMessage = async (req, res, next) => {
     // 当前页码
-    let { current = 1, size, type } = req.body;
+    let { current = 1, size, type, user_id = null } = req.body;
 
     // 每页内容数量
     const limit = parseInt(PAGE_SIZE, 10) || 6;
@@ -19,10 +19,8 @@ export const getMessage = async (req, res, next) => {
     // 偏移量
     const offset = (current - 1) * limit;
 
-    const params = [limit, offset]
-
     try {
-        const message = await messageService.getMessageList(params);
+        const message = await messageService.getMessageList({limit, offset, user_id});
         const total = await messageService.getMessageTotal();
         res.send({
             status: 0,
@@ -70,8 +68,10 @@ export const addMessage = async (req, res, next) => {
 
         // 过滤敏感词
         message = await filterSensitive(message)
-        const params = [message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag]
-        const result = await messageService.addMessage(params);
+
+        const createdAt = new Date()
+
+        const result = await messageService.addMessage({message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt});
 
         // 发布消息推送
         if (user_id !== 1) {

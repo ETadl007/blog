@@ -180,7 +180,8 @@ export const blogCommentAddService = async (params) => {
         from_id = ?,
         from_name = ?,
         from_avatar = ?,
-        content = ?
+        content = ?,
+        createdAt = ?
     `;
 
     const [data] = await connecttion.promise().query(commentAddSql, params);
@@ -230,6 +231,9 @@ export const blogCommentCancelThumbsUpService = async (params) => {
 export const applyComment = async (comment) => {
 
     const { parent_id, type, for_id, from_id, from_avatar, from_name, to_id, to_name, to_avatar, content, ip } = comment;
+
+    const createdAt = new Date()
+
     const commentAddSql = `
     INSERT INTO
         blog_comment
@@ -245,7 +249,8 @@ export const applyComment = async (comment) => {
         to_name = ?,
         to_avatar = ?,
         content = ?,
-        ip = ?
+        ip = ?,
+        createdAt = ?
     `;
 
 
@@ -281,7 +286,7 @@ export const applyComment = async (comment) => {
     `;
 
     try {
-        const [data] = await connecttion.promise().query(commentAddSql, [parent_id, type, for_id, from_id, from_avatar, from_name, to_id, to_name, to_avatar, content, ip]);
+        const [data] = await connecttion.promise().query(commentAddSql, [parent_id, type, for_id, from_id, from_avatar, from_name, to_id, to_name, to_avatar, content, ip, createdAt]);
         const [userInfo] = await connecttion.promise().query(userInfoSql, [comment.from_id]);
 
         return userInfo[0];

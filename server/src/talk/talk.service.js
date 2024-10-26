@@ -1,11 +1,14 @@
 import { connecttion } from "../app/database/mysql.js";
+import { getIsLikeByIdAndType } from '../like/like.service.js'
 
 /**
  * 获取说说列表
  */
 
-export const getTalkList = async (params) => {
-    const talkSql = `
+export const getTalkList = async ({ limit, offset, user_id }) => {
+
+    try {
+        const talkSql = `
     SELECT 
         ta.*, 
         bu.username AS nick_name, 
@@ -24,8 +27,23 @@ export const getTalkList = async (params) => {
     LIMIT ? 
     OFFSET ?;
     `;
-    const [data] = await connecttion.promise().query(talkSql, params);
-    return data;
+        const [data] = await connecttion.promise().query(talkSql, [limit, offset]);
+
+        // 判断当前登录的用户是否以点赞
+        const isLikePromises = data.map(async (item) => {
+            return getIsLikeByIdAndType({ for_id: item.id, type: 2, user_id: user_id || item.ip });
+        });
+
+        const likeResults = await Promise.all(isLikePromises);
+        data.forEach((item, index) => {
+            item.is_like = likeResults[index];
+        });
+
+        return data;
+    } catch (error) {
+        console.log(error)
+        throw error
+    }
 }
 
 /**

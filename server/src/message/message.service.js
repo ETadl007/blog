@@ -1,11 +1,13 @@
 import { connecttion } from "../app/database/mysql.js";
+import { getIsLikeByIdAndType } from "../like/like.service.js"
+
 
 /**
  * 获取留言列表
  */
 
-export const getMessageList = async (params) => {
-    
+export const getMessageList = async ({limit, offset, user_id}) => {
+
     const messageSql = `
     SELECT 
         m.id,
@@ -36,7 +38,18 @@ export const getMessageList = async (params) => {
     LIMIT ?
     OFFSET ?
     `;
-    const [data] = await connecttion.promise().query(messageSql, params);
+    const [data] = await connecttion.promise().query(messageSql, [limit, offset]);
+    
+    // 判断当前登录的用户是否以点赞
+    const isLikePromises = data.map(async (item) => {
+        return getIsLikeByIdAndType({ for_id: item.id, type: 3, user_id: user_id || item.ip });
+    });
+
+    const likeResults = await Promise.all(isLikePromises);
+    data.forEach((item, index) => {
+        item.is_like = likeResults[index];
+    });
+
     return data;
 }
 
@@ -82,14 +95,14 @@ export const getMessageTotal = async () => {
  * 发布留言
  */
 
-export const addMessage = async (params) => {
+export const addMessage = async ({message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt}) => {
 
     const createMessageSql = `
     INSERT INTO 
-        blog_message (message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag)
+        blog_message (message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt)
     VALUES 
-        (?, ?, ?, ?, ?, ?, ?, ?, ?);`; 
-    const [data] = await connecttion.promise().query(createMessageSql, params);
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+    const [data] = await connecttion.promise().query(createMessageSql, [message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt]);
     return data.affectedRows > 0 ? true : false;
 }
 
