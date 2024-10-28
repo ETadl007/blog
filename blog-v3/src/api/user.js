@@ -76,7 +76,7 @@ export const imgUpload = async (data) => {
 
   return new Promise((resolve) => {
     http
-      .post("/api/upload/img", formData, {
+      .post("/api/upload/user/img", formData, {
         config: {
           headers: {
             "Content-Type": "multipart/form-data",

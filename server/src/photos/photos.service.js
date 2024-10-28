@@ -1,10 +1,10 @@
 import { connecttion } from "../app/database/mysql.js";
 
 /**
- * 获取所有相册
+ * 获取相册列表
  */
 
-export const getAllPhotos = async () => {
+export const getAlbumList = async () => {
     const photosAllSql = `
     SELECT 
         * 
@@ -22,7 +22,7 @@ export const getAllPhotos = async () => {
  * 获取相册所有照片
  */
 
-export const getAllPhotosByAlbumId = async (albumId) => {
+export const getAllAlbumList = async (albumId) => {
     const photosAllSql = `
     SELECT 
         * 

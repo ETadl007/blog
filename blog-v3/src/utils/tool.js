@@ -179,11 +179,6 @@ export const convertDateIfNecessary = (dateStr) => {
   // 尝试解析日期
   let date = new Date(dateStr);
 
-  if (!(date instanceof Date) || isNaN(date.getTime())) {
-    console.error('Invalid date:', dateStr);
-    return null;
-  }
-
   // 格式化日期
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');

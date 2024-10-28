@@ -13,6 +13,6 @@ export const storeTag = async (req, res, next) => {
             data: tag
         });
     } catch (err) {
-        next(err)
+        next(new Error('GETTAGLISTERROR'))
     }
 }

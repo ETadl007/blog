@@ -1,5 +1,4 @@
 import * as categoryService from './category.service.js';
-import { PAGE_SIZE } from '../app/app.config.js'
 
 /**
  *  获取分类列表
@@ -16,7 +15,8 @@ export const getCategoryList = async (req, res, next) => {
         });
 
     } catch (err) {
-        next(err);
+        console.log(err);
+        next(new Error('GETCATEGORYLISTERROR'));
     }
 
 }

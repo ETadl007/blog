@@ -56,6 +56,8 @@ const changeTab = (key, label) => {
   searchTag.value = "";
   if (label == "全部") {
     param.tag = "";
+    param.message = "";
+    
   }
   param.current = 1;
   pageGetMessageList();
@@ -267,7 +269,7 @@ onBeforeUnmount(() => {
         <el-col :span="24">
           <div class="search-tab" @click.stop="showSearchInput">
             <ul class="tab">
-              <li v-for="item in tabList" :key="item.key" @click="changeTab(item.key, item.label)">
+              <li v-for="item in tabList" :key="item.key" @click="changeTab(item.key, item.label)" class="item">
                 <div :class="[item.key == activeTab ? 'message-active-tab' : '', 'tab-li']">
                   {{ item.label }}
                 </div>
@@ -289,6 +291,11 @@ onBeforeUnmount(() => {
                 ></el-input>
               </div>
             </Transition>
+            <ul class="tab item-right">
+              <li>
+                <div class="message-active-tab tab-li">当前计数：{{ total }}</div>
+              </li>
+            </ul>
           </div>
         </el-col>
         <el-skeleton :loading="loading" style="height: 100%" animated>
@@ -426,13 +433,13 @@ onBeforeUnmount(() => {
   &-body {
     min-height: 35rem;
     .search-tab {
+      display: flex;
       width: 100%;
       min-height: 3rem;
       background-color: rgba(0, 0, 0, 0.1);
       border-radius: 8px;
     }
     .tab {
-      width: 100%;
       min-height: 3rem;
       padding: 0.5rem;
       display: flex;
@@ -443,12 +450,11 @@ onBeforeUnmount(() => {
       font-size: 1.2rem;
       font-weight: 600;
 
-      li {
+      .item {
         margin-right: 1rem;
       }
 
       .tab-li {
-        height: 2rem;
         line-height: 2rem;
         text-align: center;
         padding: 0 0.6rem;
@@ -560,6 +566,11 @@ onBeforeUnmount(() => {
     font-size: 16px;
   }
 }
+
+.item-right{
+    margin-left: auto;
+}
+
 .observer {
   display: flex;
   justify-content: center;

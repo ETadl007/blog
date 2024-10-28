@@ -72,3 +72,41 @@ export const authGuard = async (req, res, next) => {
         return next(new Error('UNAUTHORIZED'));
     }
 }
+
+export const validateUserIdMiddleware = (req, res, next) => {
+
+    // 获取请求体中的 user_id
+    const { user_id } = req.body;
+
+    // 检查请求体中是否有 user_id
+    if (!user_id) {
+        return res.status(400).send({
+            status: 1,
+            message: '错误的请求',
+            data: null
+        });
+    }
+
+    // 确保 req.username 已经被正确设置
+    if (!req.username || !req.body.user_id) {
+        return res.status(401).send({
+            status: 1,
+            message: '未授权，请先登录',
+            data: null
+        });
+    }
+
+    // 验证JWT令牌
+    const { id } = req.username;
+    
+    // 验证 user_id 是否与 JWT 中的 id 匹配
+    if (id !== user_id) {
+        return res.status(403).send({
+            status: 1,
+            message: '不允许的操作',
+            data: null
+        });
+    }
+
+    next();
+};

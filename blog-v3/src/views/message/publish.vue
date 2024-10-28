@@ -14,7 +14,7 @@ import { addMessage, updateMessage, getMessageTag } from "@/api/message";
 import { _getLocalItem, _removeLocalItem, _setLocalItem } from "@/utils/tool";
 import { debounce } from "@/utils/tool";
 import { fontSizeList, fontWeightList, predefineColors, opTabList } from "./useMessage";
-import { imgUpload } from "@/api/user";
+import { imgUpload } from "@/api/message";
 
 import Upload from "@/components/Upload/upload.vue";
 

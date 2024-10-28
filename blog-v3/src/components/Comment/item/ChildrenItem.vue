@@ -92,7 +92,6 @@ const getComment = async (type) => {
     const { list, total } = res.data;
     commentList.value = list;
     commentTotal.value = total - 0;
-    console.log(commentTotal.value);
     
   } else {
     ElNotification({

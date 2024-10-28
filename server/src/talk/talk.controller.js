@@ -29,44 +29,8 @@ export const getTalkList = async (req, res, next) => {
             }
         });
     } catch (err) {
-        next(err)
-    }
-}
-
-/**
- * 说说点赞
- */
-
-export const likeTalk = async (req, res, next) => {
-    const { talkId } = req.body;
-    try {        
-        const result = await talkService.addTalkLike(talkId);
-        res.send({
-            status: 0,
-            message: '点赞成功',
-            data: result
-        });
-    } catch (error) {
-        console.log(error);
-        next(new Error('LIKEERROR'))
-    }
-}
-
-/**
- * 取消说说点赞
- */
-
-export const unlikeTalk = async (req, res, next) => {
-    const { talkId } = req.body;  
-    try {
-        const result = await talkService.cancelTalkLike(talkId);
-        res.send({
-            status: 0,
-            message: '取消点赞成功',
-            data: result
-        });
-    } catch (error) {
-        console.log(error);
-        next(new Error('CANCELLIKEERROR'))
+        console.log(err);
+        
+        next(new Error('GETTALKLISTERROR'))
     }
 }

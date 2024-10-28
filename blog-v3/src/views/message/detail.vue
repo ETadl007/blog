@@ -7,7 +7,7 @@
 import { reactive, onMounted, h } from "vue";
 import { storeToRefs } from "pinia";
 
-import { returnTime, _getLocalItem, _setLocalItem, containHTML } from "@/utils/tool";
+import { returnTime, _getLocalItem, _setLocalItem, containHTML, convertDateIfNecessary } from "@/utils/tool";
 import { addLike, cancelLike } from "@/api/like";
 import { user } from "@/store/index";
 
@@ -115,7 +115,7 @@ onMounted(() => {
           </div>
           <div class="bottom">
             <div class="left flex items-center">
-              <div class="time">{{ returnTime(message.createdAt) }}前</div>
+              <div class="time">{{ returnTime(convertDateIfNecessary(message.createdAt)) }}前</div>
               <div class="index-tag">#{{ message.tag }}</div>
             </div>
             <div class="flex justify-start items-center option">

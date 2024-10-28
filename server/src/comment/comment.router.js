@@ -35,17 +35,6 @@ router.post('/api/comment/add', authGuard, filterSensitiveMiddleware, commentCon
 
 router.post('/api/comment/apply', authGuard, filterSensitiveMiddleware, commentController.addReplyComment);
 
-
-/**
- * 点赞评论
- */
-router.post('/api/like/addLike', authGuard, likeService.addLike)
-
-/**
- * 取消点赞评论
- */
-router.post('/api/like/cancelLike', authGuard, likeService.cancelLike)
-
 /**
  * 删除评论
  */

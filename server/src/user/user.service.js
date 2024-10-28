@@ -98,7 +98,7 @@ export const getUserinfo = async (id) => {
  * 更新当前登录用户信息
  */
 
-export const updateOwnUserInfo = async (info) => {
+export const updateOwnUserInfo = async ({nick_name, avatar, id}) => {
     
     const statment = `
         UPDATE 
@@ -111,7 +111,7 @@ export const updateOwnUserInfo = async (info) => {
     `;
     try {
         
-        const [data] = await connecttion.promise().query(statment, info);
+        const [data] = await connecttion.promise().query(statment, [nick_name, avatar, id]);
         return data.affectedRows === 1 ? true : false;
         
     } catch (error) {

@@ -36,25 +36,47 @@ export const checkAndDeleteExistingFile = async (userId) => {
 
 
 /**
- * 文件上传
+ * 用户更新头像上传
  */
-export const uploadFile = async (file, user_id) => {
+export const userUpoadFile = async (file, user_id, nick_name) => {
 
     try {
-        // 检查并删除现有文件
+        // 只有在更新头像时才删除旧头像
         await checkAndDeleteExistingFile(user_id);
 
         const { fieldname, filename, originalname, size, mimetype, path } = file;
 
         const sql = `
             INSERT INTO 
-                blog_files (user_id, fieldname, filename, originalname, mimetype, size, path) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+                blog_files (user_id, fieldname, filename, originalname, mimetype, size, path, nick_name) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        const values = [user_id, fieldname, filename, originalname, mimetype, size, path];
+        const [result] = await connecttion.promise().query(sql, [user_id, fieldname, filename, originalname, mimetype, size, path, nick_name]);
 
-        const [result] = await connecttion.promise().query(sql, values);
+        return result;
+    } catch (error) {
+        console.error('上传文件时发生错误:', error);
+        throw error;
+    }
+};
+
+/**
+ * 图片上传
+ */
+
+export const upoadFile = async (file, user_id, nick_name) => {
+
+    try {
+        const { fieldname, filename, originalname, size, mimetype, path } = file;
+
+        const sql = `
+            INSERT INTO 
+                blog_files (user_id, fieldname, filename, originalname, mimetype, size, path, nick_name) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        const [result] = await connecttion.promise().query(sql, [user_id, fieldname, filename, originalname, mimetype, size, path, nick_name]);
 
         return result;
     } catch (error) {

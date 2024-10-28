@@ -12,10 +12,20 @@ const router = express.Router({
  * 用户头像上传
  */
 
+router.post('/api/upload/user/img', TimesLimiter({
+    prefixKey: "post/img",
+    message: "上传图片过于频繁 请稍后再试",
+    max: 10,
+}), authGuard, uploadConfig, validateImage, uploadsController.userUpload);
+
+
+/**
+ * 图片上传
+ */
 router.post('/api/upload/img', TimesLimiter({
     prefixKey: "post/img",
     message: "上传图片过于频繁 请稍后再试",
     max: 10,
-}), authGuard, uploadConfig, validateImage, uploadsController.upload);
+}), uploadConfig, validateImage, uploadsController.upload);
 
 export default router;

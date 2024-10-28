@@ -1,25 +1,6 @@
 import { connecttion } from "../app/database/mysql.js";
 
 /**
- * 获取当前用户对当前文章/说说/留言 是否点赞
- */
-
-
-export const isLike = async (params) => {
-    const statement = `
-        SELECT 
-            *
-        FROM 
-            blog_like
-        WHERE 
-            user_id = ? AND type = ? AND for_id = ?
-    `;
-        
-    const [data] = await connecttion.promise().query(statement, params);
-    return data[0] ? true : false;
-}
-
-/**
  * 点赞
  */
 export const addLike = async ({ for_id, type, user_id }) => {  
@@ -147,6 +128,7 @@ export const cancelLike = async ({ for_id, type, user_id }) => {
  */
 
 export const getIsLikeByIdAndType = async ({ for_id, type, user_id }) => {
+
     try {
 
         const getIsLikeByIdAndTypeSql = `
@@ -161,8 +143,48 @@ export const getIsLikeByIdAndType = async ({ for_id, type, user_id }) => {
         const [rows] = await connecttion.promise().query(getIsLikeByIdAndTypeSql, [for_id, type, user_id]);
     
         return rows.length > 0;
-      } catch (error) {
-        console.error('获取点赞状态时发生错误:', error);
-        throw error;
+      } catch (err) {
+        console.error('获取点赞状态时发生错误:', err);
+        throw err;
       }
+}
+
+/**
+ * 判断文章/说说/留言 是否存在
+ */
+
+export const blogLikeExists = async ({ for_id, type }) => {
+
+    let table;
+    switch (type) {
+        case 'article':
+            table = 'blog_article';
+            break;
+        case 'talk':
+            table = 'blog_talk';
+            break;
+        case 'comment':
+            table = 'blog_comment';
+            break;
+        case 'message':
+            table = 'blog_message';
+            break;
+        default:
+            throw new Error('Invalid type');
+    }
+
+    const sql = `
+    SELECT
+        *
+    FROM
+        ${table}
+    WHERE
+        id = ?
+    `
+
+    // 执行查询
+    const [articleExistResult] = await connecttion.promise().query(sql, [for_id]);
+
+    // 返回结果
+    return articleExistResult.length > 0;
 }

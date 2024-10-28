@@ -9,18 +9,12 @@ export const getNotifyList = async (req, res, next) => {
     // 当前页码
     const { current, size, userId } = req.body;
 
-    // 每页内容数量
-    const limit = parseInt(PAGE_SIZE, 10) || 10;
-
     // 偏移量
-    const offset = (current - 1) * limit;
-
-    const params = [userId, limit, offset]
-
+    const offset = (current - 1) * size;
 
     try {
 
-        const notifyList = await notifyService.getNotifyList(params);
+        const notifyList = await notifyService.getNotifyList({userId, size, offset});
 
         // 总条数
         const total = await notifyService.getNotifyTotal(userId);
@@ -37,7 +31,8 @@ export const getNotifyList = async (req, res, next) => {
         })
 
     } catch (err) {
-        next(err);
+        console.log(err);
+        next(new Error('GETNOTIFYLISTERROR'));
     }
 }
 
@@ -57,12 +52,13 @@ export const readNotifyList = async (req, res, next) => {
 
         res.send({
             status: 0,
-            message: '阅读消息列表成功',
+            message: '阅读消息成功',
             data: data[0]
         })
 
     } catch (err) {
-        next(err);
+        console.log(err);
+        next(new Error('READNOTIFYERROR'));
     }
 }
 
@@ -86,7 +82,8 @@ export const deleteNotifyList = async (req, res, next) => {
             data: data[0]
         })
     } catch (err) {
-        next(err);
+        console.log(err);
+        next(new Error('DELETENOTIFYERROR'));
     }
 }
 
@@ -96,8 +93,8 @@ export const deleteNotifyList = async (req, res, next) => {
 export const addNotify = async ({ user_id, type, to_id, message }) => {
     try {
         await notifyService.createNotify({ user_id, type, to_id, message });
-    } catch (error) {
-        console.error(error);
-        next(error);
+    } catch (err) {
+        console.error(err);
+        next(new Error('NEWNOTIFYERROR'));
     }
 }

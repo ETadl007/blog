@@ -21,8 +21,9 @@ export const getCommentTotal = async (req, res, next) => {
             msg: '获取评论总数成功',
             data: commentTotal
         });
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        console.log(err);
+        next(new Error('GETCOMMENTTOTALERROR'));
     }
 }
 
@@ -59,8 +60,9 @@ export const getParentCommentList = async (req, res, next) => {
 
         });
 
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        console.log(err);
+        next(new Error('GETPARENTCOMMENTLISTERROR'));
     }
 }
 
@@ -91,8 +93,8 @@ export const getChildCommentList = async (req, res, next) => {
             }
         });
 
-    } catch (error) {
-        next(error);
+    } catch (err) {
+        next(new Error('GETCHILDCOMMENTLISTERROR'));
     }
 }
 
@@ -115,8 +117,8 @@ export const addComment = async (req, res, next) => {
                 res: userinfo
             }
         });
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
         next(new Error('ADDCOMMENTERROR'));
     }
 }
@@ -154,51 +156,9 @@ export const addReplyComment = async (req, res, next) => {
             }
         });
 
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
         next(new Error('ADDREPLYCOMMENTERROR'));
-    }
-}
-
-/**
- * 点赞评论
- */
-
-export const likeComment = async (req, res, next) => {
-    const { id } = req.params;
-    try {
-        const result = await commentService.blogCommentThumbsUpService(id);
-        res.send({
-            status: 0,
-            message: "点赞成功",
-            data: {
-                res: result
-            }
-        });
-    } catch (error) {
-        console.log(error);
-        next(new Error('LIKECOMMENTERROR'));
-    }
-}
-
-/**
- * 取消点赞评论
- */
-
-export const cancelLikeComment = async (req, res, next) => {
-    const { id } = req.params;
-    try {
-        const result = await commentService.blogCommentCancelThumbsUpService(id);
-        res.send({
-            status: 0,
-            message: "取消点赞成功",
-            data: {
-                res: result
-            }
-        });
-    } catch (error) {
-        console.log(error);
-        next(new Error('CANCELLIKECOMMENTERROR'));
     }
 }
 
@@ -218,8 +178,8 @@ export const deleteComment = async (req, res, next) => {
                 res: result
             }
         });
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
         next(new Error('DELETECOMMENTERROR'));
     }
 

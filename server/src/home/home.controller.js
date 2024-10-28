@@ -11,7 +11,8 @@ export const storeStatistic = async (req, res, next) => {
             msg: '获取数据统计成功',
             data
         });
-    }catch (error) {
-        next(error);
+    }catch (err) {
+        console.log(err);
+        next(new Error('GETDATASTATISTICERROR'));
     }
 }

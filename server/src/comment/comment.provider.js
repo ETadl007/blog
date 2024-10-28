@@ -1,9 +1,9 @@
 // 查询片段
 export const sqlFragment = {
     commentOrderNew: `
-        createdAt DESC
+        comment.createdAt DESC
     `,
     commentOrderHot: `
-        thumbs_up DESC
+        comment.thumbs_up DESC
     `
 }

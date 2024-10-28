@@ -32,7 +32,8 @@ export const getTalkList = async (req, res, next) => {
             }
         });
     } catch (err) {
-        next(err)
+        console.log(err);
+        next(new Error('GETLINKSERROR'))
     }
 }
 
@@ -66,12 +67,12 @@ export const addOrUpdateLinks = async (req, res, next) => {
             data: result
         });
         
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
         const msg = req.body.id ? "修改" : "发布";
-        res.status(500).send({
+        res.status(400).send({
             error: `${msg}友链失败`, 
-            details: error.message
+            details: err.message
         });
         
     }

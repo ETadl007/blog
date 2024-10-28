@@ -4,7 +4,7 @@ import { connecttion } from "../app/database/mysql.js";
  * 获取通知列表
  */
 
-export const getNotifyList = async (params) => {
+export const getNotifyList = async ({userId, size, offset}) => {
     const statement = `
         SELECT 
             *
@@ -17,7 +17,7 @@ export const getNotifyList = async (params) => {
         LIMIT ?
         OFFSET ?
     `;
-    const [data] = await connecttion.promise().query(statement, params);
+    const [data] = await connecttion.promise().query(statement, [userId, size, offset]);
     return data;
 }
 

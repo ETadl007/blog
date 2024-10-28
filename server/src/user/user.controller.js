@@ -26,8 +26,8 @@ export const store = async (req, res, next) => {
             message: '注册成功',
             data: user
         });
-    }catch (error) {
-        console.log(error);
+    }catch (err) {
+        console.log(err);
         next(new Error('ILLEGAL_USER_NAME'))
     }
 }
@@ -46,8 +46,8 @@ export const getUserInfoById = async (req, res, next) => {
             data: user
         });
         
-    }catch (error) {
-        console.log(error);
+    }catch (err) {
+        console.log(err);
         next(new Error('GET_USER_INFO_FAILED'))
     }
 }
@@ -62,18 +62,17 @@ export const updateOwnUserInfo = async (req, res, next) => {
     
     // 过滤敏感词
     nick_name = await filterSensitive(nick_name);
-    const info = [nick_name, avatar, id]
     
     try {
-        const user = await userService.updateOwnUserInfo(info);
+        const user = await userService.updateOwnUserInfo({nick_name, avatar, id});
 
         res.send({
             status: 0,
             message: '修改用户成功',
             data: user
         });
-    }catch (error) {
-        console.log(error);
+    }catch (err) {
+        console.log(err);
         next(new Error('UPDATE_USER_INFO_FAILED'))
     }
 
@@ -94,8 +93,8 @@ export const updatePassword = async (req, res, next) => {
             message: '修改密码成功',
             data: user
         });
-    }catch (error) {
-        console.log(error);
+    }catch (err) {
+        console.log(err);
         next(new Error('UPDATE_PASSWORD_FAILED'))
     }
 }

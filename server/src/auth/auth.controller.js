@@ -42,8 +42,8 @@ export const login = async (req, res, next) => {
             })
         }
 
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
         next(new Error("LOGIN_FAILED"))
     }
 

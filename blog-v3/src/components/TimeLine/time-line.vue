@@ -4,6 +4,8 @@ import { useRouter } from "vue-router";
 import SkeletonItem from "../SkeletonItem/skeleton-item.vue";
 import Pagination from "../Pagination/pagination.vue";
 
+import { convertDateIfNecessary } from '@/utils/tool'
+
 const emit = defineEmits(["pagination"]);
 
 let layout = " prev, pager, next"; //分页组件会展示的功能项
@@ -82,7 +84,7 @@ const goToArticle = (article) => {
                 {{ article.article_title }}
               </div>
               <div class="timeline-info__time">
-                {{ article.createdAt }}
+                {{ convertDateIfNecessary(article.createdAt) }}
               </div>
             </div>
           </div>

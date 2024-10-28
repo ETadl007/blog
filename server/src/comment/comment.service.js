@@ -8,21 +8,21 @@ import { getIsLikeByIdAndType } from "../like/like.service.js"
 export const blogCommentService = async (for_id, type, parent_id) => {
 
     try {
-         // 构建查询条件
-    let condition;
-    let params;
+        // 构建查询条件
+        let condition;
+        let params;
 
-    if (parent_id === undefined) {
-      // 查询父级评论总数
-      condition = 'parent_id IS NULL';
-      params = [for_id, type];
-    } else {
-      // 查询特定父级评论的子评论总数
-      condition = 'parent_id = ?';
-      params = [for_id, type, parent_id];
-    }
+        if (parent_id === undefined) {
+            // 查询父级评论总数
+            condition = 'parent_id IS NULL';
+            params = [for_id, type];
+        } else {
+            // 查询特定父级评论的子评论总数
+            condition = 'parent_id = ?';
+            params = [for_id, type, parent_id];
+        }
 
-    const commentTotalSql = `
+        const commentTotalSql = `
     SELECT 
         count(*) AS count 
     FROM 
@@ -30,8 +30,8 @@ export const blogCommentService = async (for_id, type, parent_id) => {
     WHERE 
         for_id = ? AND type = ? AND ${condition};
     `;
-    const [data] = await connecttion.promise().query(commentTotalSql, params);
-    return data[0]["count"];
+        const [data] = await connecttion.promise().query(commentTotalSql, params);
+        return data[0]["count"];
     } catch (error) {
         console.log(error);
         throw error
@@ -45,7 +45,7 @@ export const blogCommentTotalService = async (for_id, type) => {
 
     try {
 
-    const commentTotalSql = `
+        const commentTotalSql = `
     SELECT 
         count(*) AS count 
     FROM 
@@ -53,8 +53,8 @@ export const blogCommentTotalService = async (for_id, type) => {
     WHERE 
         for_id = ? AND type = ?;
     `;
-    const [data] = await connecttion.promise().query(commentTotalSql, [for_id, type]);
-    return data[0]["count"];
+        const [data] = await connecttion.promise().query(commentTotalSql, [for_id, type]);
+        return data[0]["count"];
     } catch (error) {
         console.log(error);
         throw error
@@ -70,31 +70,33 @@ export const blogCommentParentListService = async ({ for_id, type, limit, offset
 
     try {
         const commentParentListSql = `
-    SELECT
-        id,
-        parent_id,
-        for_id,
-        type,
-        from_id,
-        from_name,
-        from_avatar,
-        to_id,
-        to_name,
-        to_avatar,
-        content,
-        thumbs_up,
-        createdAt,
-        updatedAt,
-        ip 
-    FROM
-        blog_comment
-    WHERE
-        for_id = ? AND type = ? AND parent_id IS NULL
-    ORDER BY
-        ${orderArr}
-    LIMIT ?
-    OFFSET ?
-    `;
+        SELECT
+            comment.id,
+            comment.parent_id,
+            comment.for_id,
+            comment.type,
+            comment.from_id,
+            comment.from_name,
+            user.avatar AS from_avatar,
+            comment.to_id,
+            comment.to_name,
+            comment.to_avatar,
+            comment.content,
+            comment.thumbs_up,
+            comment.createdAt,
+            comment.updatedAt,
+            comment.ip 
+        FROM
+            blog_comment AS comment
+        INNER JOIN
+            blog_user AS user ON comment.from_id = user.id
+        WHERE
+            comment.for_id = ? AND comment.type = ? AND comment.parent_id IS NULL
+        ORDER BY
+            ${orderArr}
+        LIMIT ?
+        OFFSET ?
+        `;
         const [data] = await connecttion.promise().query(commentParentListSql, [for_id, type, limit, offset]);
 
         // 判断当前登录的用户是否以点赞
@@ -120,32 +122,32 @@ export const blogCommentParentListService = async ({ for_id, type, limit, offset
  * 分页获取子级评论列表
  */
 
-export const blogCommentChildrenListService = async ({parent_id, limit, offset, user_id}) => {
+export const blogCommentChildrenListService = async ({ parent_id, limit, offset, user_id }) => {
     const commentChildrenListSql = `
     SELECT
-        id,
-        parent_id,
-        for_id,
-        type,
-        from_id,
-        from_name,
-        from_avatar,
-        to_id,
-        to_name,
-        to_avatar,
-        content,
-        thumbs_up,
-        createdAt,
-        updatedAt,
-        ip 
+        comment.id,
+        comment.parent_id,
+        comment.for_id,
+        comment.type,
+        comment.from_id,
+        comment.from_name,
+        user.avatar AS from_avatar,
+        comment.to_id,
+        comment.to_name,
+        comment.to_avatar,
+        comment.content,
+        comment.thumbs_up,
+        comment.createdAt,
+        comment.updatedAt,
+        comment.ip  
     FROM
-        blog_comment
-        
+        blog_comment AS comment
+    INNER JOIN
+        blog_user AS user ON comment.from_id = user.id
     WHERE
-        parent_id = ?
-        
+        comment.parent_id = ?
     ORDER BY
-        createdAt DESC
+        comment.createdAt DESC
     LIMIT ?
     OFFSET ?
     `;
@@ -186,42 +188,6 @@ export const blogCommentAddService = async (params) => {
 
     const [data] = await connecttion.promise().query(commentAddSql, params);
     return data;
-}
-
-/**
- * 点赞评论
- */
-
-export const blogCommentThumbsUpService = async (params) => {
-    const commentThumbsUpSql = `
-    UPDATE
-        blog_comment
-    SET
-        thumbs_up = thumbs_up + 1
-    WHERE
-        id = ?
-    `;
-
-    const [data] = await connecttion.promise().query(commentThumbsUpSql, params);
-    return data.affectedRows > 0;
-}
-
-/**
- * 取消点赞评论
- */
-
-export const blogCommentCancelThumbsUpService = async (params) => {
-    const commentCancelThumbsUpSql = `
-    UPDATE
-        blog_comment
-    SET
-        thumbs_up = thumbs_up - 1
-    WHERE
-        id = ?
-    `;
-
-    const [data] = await connecttion.promise().query(commentCancelThumbsUpSql, params);
-    return data.affectedRows > 0;
 }
 
 /**

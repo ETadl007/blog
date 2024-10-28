@@ -361,7 +361,7 @@ export const blogArticleSearchService = async (content) => {
     FROM 
         blog_article
     WHERE
-    article_content LIKE CONCAT('%', ?, '%') AND status = 1
+        article_content LIKE CONCAT('%', ?, '%') AND status = 1
     ORDER BY
         view_times DESC
         
