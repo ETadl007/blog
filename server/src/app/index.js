@@ -38,7 +38,7 @@ app.use(TimesLimiter({
  *  跨域设置
  */
 app.use(cors({
-  origin: ['http://localhost:8080', 'http://10.0.20.1:8080', 'http://127.0.0.1:8080', 'http://localhost:8888', 'http://172.20.10.5:8088'], // 可设置多个跨域
+  origin: ['http://localhost:8080', 'http://10.0.20.1:8080', 'http://127.0.0.1:8080', 'http://localhost:8888', 'http://192.168.1.104:8088'], // 可设置多个跨域
   credentials: true // 允许客户端携带验证信息
 }));
 
