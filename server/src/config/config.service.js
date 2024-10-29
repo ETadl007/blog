@@ -7,7 +7,24 @@ import { connecttion } from "../app/database/mysql.js";
 export const getWebConfig = async () => {
     const configSql = `
     SELECT 
-        * 
+        id,
+        blog_name,
+        (SELECT avatar FROM blog_user WHERE id = 1) AS blog_avatar,
+        avatar_bg,
+        personal_say,
+        blog_notice,
+        qq_link,
+        we_chat_link,
+        github_link,
+        git_ee_link,
+        bilibili_link,
+        view_time,
+        createdAt,
+        updatedAt,
+        we_chat_group,
+        qq_group,
+        we_chat_pay,
+        ali_pay
     FROM 
         blog_config
     `;
