@@ -22,6 +22,7 @@ router.post('/api/like/addLike',
         limit: 10,
     }),
     (req, res, next) => {
+        // 文章点赞可游客点赞
         if (req.body.type === 1) {
             return next();
         }else {

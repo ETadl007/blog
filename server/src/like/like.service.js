@@ -163,11 +163,11 @@ export const blogLikeExists = async ({ for_id, type }) => {
         case 'talk':
             table = 'blog_talk';
             break;
-        case 'comment':
-            table = 'blog_comment';
-            break;
         case 'message':
             table = 'blog_message';
+            break;
+        case 'comment':
+            table = 'blog_comment';
             break;
         default:
             throw new Error('Invalid type');
@@ -181,7 +181,6 @@ export const blogLikeExists = async ({ for_id, type }) => {
     WHERE
         id = ?
     `
-
     // 执行查询
     const [articleExistResult] = await connecttion.promise().query(sql, [for_id]);
 

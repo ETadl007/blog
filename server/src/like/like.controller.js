@@ -30,8 +30,8 @@ export const getLikeStatus = async (req, res, next) => {
 const typeMap = {
     1: 'article',
     2: 'talk',
-    3: 'comment',
-    4: 'message'
+    3: 'message',
+    4: 'comment'
 }
 
 export const addLike = async (req, res, next) => {
@@ -62,17 +62,6 @@ export const addLike = async (req, res, next) => {
                 data: null
             });
         }
-
-        // // 如果type属于文章，则可游客点赞，否则需要登录
-        // if (type === 1) {
-        //     const result = await likeService.addLike({ for_id, type, user_id });
-        //     res.send({
-        //         status: 0,
-        //         message: '点赞成功',
-        //         data: result
-        //     })
-        //     return;
-        // }
 
         // 判断用户是否已经点赞过
         const isLiked = await likeService.getIsLikeByIdAndType({ user_id, type, for_id });
