@@ -3,7 +3,7 @@ import { connecttion } from "../app/database/mysql.js"
 /**
  *  获取文章列表
  */
-export const blogArticleListService = async (params) => {
+export const blogArticleListService = async ({ limit, offset }) => {
 
     let articleListSql = `
     SELECT 
@@ -38,7 +38,7 @@ export const blogArticleListService = async (params) => {
     `;
 
     // 执行查询
-    const [articleListResult] = await connecttion.promise().query(articleListSql, params);
+    const [articleListResult] = await connecttion.promise().query(articleListSql, [limit, offset]);
 
     // 返回结果
     return articleListResult
@@ -69,7 +69,7 @@ export const blogArticleExistService = async (id) => {
 /**
  *  获取前台时间轴列表
  */
-export const blogTimelineGetArticleList = async (params) => {
+export const blogTimelineGetArticleList = async ({ limit, offset }) => {
 
     // SQL 语句
     let TimelineSql = `
@@ -83,18 +83,29 @@ export const blogTimelineGetArticleList = async (params) => {
                 'createdAt', createdAt
             )
         ) AS articleList
-    FROM 
-        blog_article 
+    FROM (
+        SELECT
+            id,
+            article_title,
+            article_cover,
+            createdAt
+        FROM 
+            blog_article 
+        WHERE
+            status = 1
+        ORDER BY 
+            createdAt DESC
+        LIMIT ?
+        OFFSET ?
+    ) AS subquery
     GROUP BY 
-        YEAR(createdAt)
+        year
     ORDER BY 
-        MAX(createdAt) DESC 
-    LIMIT ?
-    OFFSET ?
+        MAX(createdAt) DESC
     `;
 
     // 执行查询
-    const [TimelineResult] = await connecttion.promise().query(TimelineSql, params);
+    const [TimelineResult] = await connecttion.promise().query(TimelineSql, [limit, offset])
 
     // 返回结果
     return TimelineResult
@@ -114,11 +125,11 @@ export const blogArticleTotalService = async (params) => {
  */
 const increaseViewTimes = async (id) => {
     try {
-      const [result] = await connecttion.promise().query('UPDATE blog_article SET view_times = view_times + 1 WHERE id = ?', [id]);
-      return result.affectedRows > 0;
+        const [result] = await connecttion.promise().query('UPDATE blog_article SET view_times = view_times + 1 WHERE id = ?', [id]);
+        return result.affectedRows > 0;
     } catch (error) {
-      console.error('增加浏览次数时发生错误:', error);
-      throw error;
+        console.error('增加浏览次数时发生错误:', error);
+        throw error;
     }
 };
 
@@ -166,7 +177,7 @@ export const blogArticleByIdService = async (params) => {
     const article = articleByIdResult[0];
 
     if (!article) {
-      return null; // 文章不存在，返回 null
+        return null; // 文章不存在，返回 null
     }
 
     // 增加文章的浏览次数

@@ -10,16 +10,14 @@ export const getArticleList = async (req, res, next) => {
     let { current = 1, size } = req.params;
 
     // 每页内容数量
-    const limit = parseInt(PAGE_SIZE, 10) || 10;
+    const limit = parseInt(size, 10) || parseInt(PAGE_SIZE, 10);
 
     // 偏移量
     const offset = (current - 1) * limit;
 
-    const params = [limit, offset]
-
     try {
         // 获取文章列表
-        const articleList = await articleService.blogArticleListService(params);
+        const articleList = await articleService.blogArticleListService({limit, offset});
         // 获取文章数量
         const articleCount = await articleService.blogArticleTotalService();
         res.status(200).send({
@@ -45,19 +43,17 @@ export const getArticleList = async (req, res, next) => {
  */
 export const getArticleTimeLineList = async (req, res, next) => {
     // 当前页码
-    let { current = 1, size } = req.params;
+    let { current, size } = req.params;
 
     // 每页内容数量
-    const limit = parseInt(PAGE_SIZE, 10) || 10;
+    const limit = parseInt(size, 10) || parseInt(PAGE_SIZE, 10);
 
     // 偏移量
     const offset = (current - 1) * limit;
 
-    const params = [limit, offset]
-
     try {
         // 获取前台时间轴列表
-        const articleTimeLineList = await articleService.blogTimelineGetArticleList(params);
+        const articleTimeLineList = await articleService.blogTimelineGetArticleList({limit, offset});
         // 获取文章数量
         const articleCount = await articleService.blogArticleTotalService();
         res.status(200).send({

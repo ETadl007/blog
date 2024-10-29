@@ -28,7 +28,7 @@ const getArchives = async () => {
     if (res.status == 0) {
       const { total, list } = res.data;
       archives.value = list;
-      archivesTotal.value = total - 1;
+      archivesTotal.value = total - 0;
     }
   } finally {
     loading.value = false;
