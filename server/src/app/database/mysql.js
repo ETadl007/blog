@@ -13,4 +13,15 @@ const connecttion = mysql.createConnection({
     charset: 'utf8mb4'
 });
 
+/**
+ * 测试连接数据库
+ */
+connecttion.connect((err) => {
+    if (err) {
+        console.log("数据库连接失败", err.message);
+        return;
+    }
+    console.log("数据库连接成功！");
+});
+
 export { connecttion };

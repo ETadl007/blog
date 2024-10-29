@@ -8,7 +8,7 @@ const router = express.Router({
 /**
  * 获取数据统计
  */
-router.get('/api/statistic', statisticController.storeStatistic);
+router.get('/statistic', statisticController.storeStatistic);
 
 /**
  * 导出路由

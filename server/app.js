@@ -1,20 +1,69 @@
 import app from './src/main.js'
 import { APP_PORT } from './src/app/app.config.js';
-import { connecttion } from "./src/app/database/mysql.js";
 
 
+// 获取端口
+const port = normalizePort(APP_PORT || '3000');
 
-app.listen(APP_PORT, () => {
-    console.log(`服务已启动！ http://localhost:${APP_PORT}`);
+// 监听端口
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
 });
+
+// 错误处理
+app.on('error', onError);
+app.on('listening', onListening);
 
 /**
- * 测试连接数据库
+ * Normalize a port into a number, string, or false.
  */
-connecttion.connect((err) => {
-    if (err) {
-        console.log("数据库连接失败", err.message);
-        return;
-    }
-    console.log("数据库连接成功！");
-});
+function normalizePort(val) {
+  const port = parseInt(val, 10);
+
+  if (isNaN(port)) {
+    // named pipe
+    return val;
+  }
+
+  if (port >= 0) {
+    // port number
+    return port;
+  }
+
+  return false;
+}
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+function onError(error) {
+    
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+
+  const bind = typeof port === 'string' ? 'Pipe ' + port : 'Port ' + port;
+
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(bind + ' requires elevated privileges');
+      process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(bind + ' is already in use');
+      process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}
+
+/**
+ * Event listener for HTTP server "listening" event.
+ */
+function onListening() {
+  const addr = this.address();
+  const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+  console.log('Listening on ' + bind);
+}

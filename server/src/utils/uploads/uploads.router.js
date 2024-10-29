@@ -12,7 +12,7 @@ const router = express.Router({
  * 用户头像上传
  */
 
-router.post('/api/upload/user/img', TimesLimiter({
+router.post('/upload/user/img', TimesLimiter({
     prefixKey: "post/img",
     message: "上传图片过于频繁 请稍后再试",
     max: 10,
@@ -22,7 +22,7 @@ router.post('/api/upload/user/img', TimesLimiter({
 /**
  * 图片上传
  */
-router.post('/api/upload/img', TimesLimiter({
+router.post('/upload/img', TimesLimiter({
     prefixKey: "post/img",
     message: "上传图片过于频繁 请稍后再试",
     max: 10,

@@ -9,19 +9,19 @@ const router = express.Router({
 /**
  * 分页获取消息列表
  */
-router.post('/api/notify/getNotifyList', notifyController.getNotifyList);
+router.post('/notify/getNotifyList', notifyController.getNotifyList);
 
 /**
  * 阅读消息列表
  */
 
-router.put('/api/notify/update/:id', authGuard, notifyController.readNotifyList);
+router.put('/notify/update/:id', authGuard, notifyController.readNotifyList);
 
 /**
  * 删除消息列表
  */
 
-router.delete('/api/notify/delete/:id', authGuard, notifyController.deleteNotifyList);
+router.delete('/notify/delete/:id', authGuard, notifyController.deleteNotifyList);
 
 /**
  * 导出路由

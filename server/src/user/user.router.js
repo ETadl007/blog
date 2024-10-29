@@ -11,24 +11,24 @@ const router = express.Router({
 /**
  * 用户注册
  */
-router.post('/api/user/register', validateUserData, hashPassword,  userController.store);
+router.post('/user/register', validateUserData, hashPassword,  userController.store);
 
 /**
  * 获取当前登录用户信息
  */
     
-router.get("/api/user/getUserInfoById/:id", userController.getUserInfoById);
+router.get("/user/getUserInfoById/:id", userController.getUserInfoById);
 
 /**
  * 更新当前登录用户信息
  */
-router.put("/api/user/updateOwnUserInfo/", authGuard, userController.updateOwnUserInfo);
+router.put("/user/updateOwnUserInfo/", authGuard, userController.updateOwnUserInfo);
 
 
 /**
  * 修改密码
  */
-router.put("/api/user/updatePassword", authGuard, validatePassword, userController.updatePassword);
+router.put("/user/updatePassword", authGuard, validatePassword, userController.updatePassword);
 
 /**
  * 导出路由

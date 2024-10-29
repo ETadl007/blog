@@ -2,7 +2,7 @@ import express from "express";
 
 const app = express();
 
-const port = 8888; // 自定义端口号（不要与已存在端口冲突）
+const port = 8080; // 自定义端口号（不要与已存在端口冲突）
 
 app.use(express.static("dist")); // dist 是项目的打包资源路径
 

@@ -9,18 +9,18 @@ const router = express.Router({
 /**
  * 获取友链列表
  */
-router.post('/api/links/getLinksList', linksController.getTalkList);
+router.post('/links/getLinksList', linksController.getTalkList);
 
 
 /**
  * 新增友链
  */
-router.post('/api/links/add', authGuard, linksController.addOrUpdateLinks);
+router.post('/links/add', authGuard, linksController.addOrUpdateLinks);
 
 /**
  * 修改友链
  */
-router.post('/api/links/frontUpdate', authGuard, linksController.addOrUpdateLinks);
+router.post('/links/frontUpdate', authGuard, linksController.addOrUpdateLinks);
 
 
 /**

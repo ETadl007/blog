@@ -10,32 +10,32 @@ const router = express.Router({
 /**
  * 获取留言列表
  */
-router.post('/api/message/getMessageList', messageController.getMessage);
+router.post('/message/getMessageList', messageController.getMessage);
 
 /**
  * 获取热门标签
  */
-router.get('/api/message/getHotTagList', messageController.getMessageHotTags);
+router.get('/message/getHotTagList', messageController.getMessageHotTags);
 
 /**
  * 发布留言
  */
-router.post('/api/message/add', messageController.addMessage);
+router.post('/message/add', messageController.addMessage);
 
 /**
  * 点赞留言
  */
-router.post('/api/message/like', likeController.addLike);
+router.post('/message/like', likeController.addLike);
 
 /**
  * 删除留言
  */
-router.put('/api/message/delete', authGuard, messageController.deleteMessage);
+router.put('/message/delete', authGuard, messageController.deleteMessage);
 
 /**
  * 修改留言
  */
-router.post('/api/message/update', messageController.updateMessage);
+router.post('/message/update', messageController.updateMessage);
 
 /**
  * 导出路由

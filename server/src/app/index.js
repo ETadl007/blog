@@ -1,5 +1,4 @@
 import express from 'express';
-import cors from 'cors';
 import articleRouter from '../article/article.router.js';
 import configRouter from '../config/config.router.js';
 import tagRouter from '../tag/tag.router.js';
@@ -32,14 +31,6 @@ app.use(TimesLimiter({
   prefixKey: "",
   limit: 100, // 这里设置一个合理的全局限制
   message: "小黑子，你在刷接口！！",
-}));
-
-/**
- *  跨域设置
- */
-app.use(cors({
-  origin: ['http://localhost:8080', 'http://10.0.20.1:8080', 'http://127.0.0.1:8080', 'http://localhost:8888', 'http://192.168.1.104:8088'], // 可设置多个跨域
-  credentials: true // 允许客户端携带验证信息
 }));
 
 /**

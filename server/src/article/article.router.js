@@ -9,64 +9,64 @@ const router = express.Router({
 /**
  * 获取文章列表
  */
-router.get('/api/article/blogHomeGetArticleList/:current/:size',  articleController.getArticleList);
+router.get('/article/blogHomeGetArticleList/:current/:size',  articleController.getArticleList);
 
 /**
  * 获取前台时间轴列表
  */
-router.get('/api/article/blogTimelineGetArticleList/:current/:size', articleController.getArticleTimeLineList);
+router.get('/article/blogTimelineGetArticleList/:current/:size', articleController.getArticleTimeLineList);
 
 /**
  * 根据文章id获取文章详情
  */
-router.get('/api/article/getArticleById/:id', articleController.getArticleDetail);
+router.get('/article/getArticleById/:id', articleController.getArticleDetail);
 
 /**
  * 根据文章id获取推荐文章
  */
 
-router.get('/api/article/getRecommendArticleById/:id', articleController.getArticleRecommend);
+router.get('/article/getRecommendArticleById/:id', articleController.getArticleRecommend);
 
 /**
  * 通过标签id 获取到文章列表
  */
 
-router.post('/api/article/getArticleListByTagId', articleController.getArticleByTagId);
+router.post('/article/getArticleListByTagId', articleController.getArticleByTagId);
 
 /**
  * 通过分类id 获取到文章列表
  */
 
-router.post('/api/article/getArticleListByCategoryId', articleController.getArticleByCategoryId);
+router.post('/article/getArticleListByCategoryId', articleController.getArticleByCategoryId);
 
 
 /**
  * 获取热门文章
  */
 
-router.get('/api/article/getHotArticle', articleController.getArticleHot);
+router.get('/article/getHotArticle', articleController.getArticleHot);
 
 /**
  * 文章搜索
  */
 
-router.get('/api/article/getArticleListByContent/:content', articleController.getArticleBySearch);
+router.get('/article/getArticleListByContent/:content', articleController.getArticleBySearch);
 
 /**
  * 文章点赞
  */
-router.post('api/like/addLike', likeControllerfrom.addLike)
+router.post('/like/addLike', likeControllerfrom.addLike)
 
 
 /**
  * 取消点赞
  */
-router.post('/api/like/cancelLike', likeControllerfrom.cancelLike)
+router.post('/like/cancelLike', likeControllerfrom.cancelLike)
 
 /**
  *文章增加阅读时长 
  */
-router.put('/api/article/addReadingDuration/:id/:duration', articleController.addReadingDuration)
+router.put('/article/addReadingDuration/:id/:duration', articleController.addReadingDuration)
 
 /**
  * 导出路由

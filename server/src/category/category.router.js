@@ -8,7 +8,7 @@ const router = express.Router({
 /**
  * 获取文章列表
  */
-router.get('/api/category/getCategoryDictionary', CategoryController.getCategoryList);
+router.get('/category/getCategoryDictionary', CategoryController.getCategoryList);
 
 /**
  * 导出路由

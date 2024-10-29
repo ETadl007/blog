@@ -8,7 +8,7 @@ const router = express.Router({
 /**
  * 获取说说列表
  */
-router.post('/api/talk/blogGetTalkList', talkController.getTalkList);
+router.post('/talk/blogGetTalkList', talkController.getTalkList);
 
 /**
  * 导出路由

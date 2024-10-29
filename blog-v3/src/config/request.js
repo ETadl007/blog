@@ -157,6 +157,4 @@ http.interceptors.response.use(
   }
 );
 
-http.defaults.baseURL = "http://localhost:8888"
-
 export default http;

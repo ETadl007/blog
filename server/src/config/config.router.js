@@ -8,13 +8,13 @@ const router = express.Router({
 /**
  * 获取网站配置
  */
-router.get('/api/config', configController.storeWebConfig);
+router.get('/config', configController.storeWebConfig);
 
 
 /**
  * 更新访问量
  */
-router.put('/api/config/addView', configController.addView)
+router.put('/config/addView', configController.addView)
 
 /**
  * 导出路由
