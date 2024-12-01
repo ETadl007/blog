@@ -1,13 +1,15 @@
 import { connecttion } from "../app/database/mysql.js"
+import moment from 'moment';
 
 /**
- *  获取文章列表
+ *  分页获取文章 按照置顶和发布时间倒序排序
  */
 export const blogArticleListService = async ({ limit, offset }) => {
 
     let articleListSql = `
     SELECT 
-        a.id, a.category_id, 
+        a.id, 
+        a.category_id, 
         a.createdAt,
         a.updatedAt, 
         a.author_id,
@@ -22,13 +24,18 @@ export const blogArticleListService = async ({ limit, offset }) => {
         a.thumbs_up_times,
         a.reading_duration, 
         a.order AS article_order,
-        JSON_ARRAYAGG(IFNULL(t.tag_name, '')) AS tagNameList
+        JSON_ARRAYAGG(IFNULL(t.tag_name, '')) AS tagNameList,
+        c.category_name AS categoryName
     FROM 
         blog_article a 
     LEFT JOIN
         blog_article_tag at ON a.id = at.article_id
     LEFT JOIN 
         blog_tag t ON at.tag_id = t.id
+    LEFT JOIN
+        blog_category c ON a.category_id = c.id
+    WHERE 
+        a.status = 1
     GROUP BY 
         a.id 
     ORDER BY 
@@ -44,6 +51,93 @@ export const blogArticleListService = async ({ limit, offset }) => {
     return articleListResult
 
 }
+
+/**
+ * 条件分页查询文章列表
+ */
+export const getArticleList = async (p) => {
+    const { article_title, status, is_top, tag_id, category_id, current, size } = p;
+    const offset = (current - 1) * size;
+    const limit = size * 1;
+
+    let whereClause = []
+    let params = []
+
+    if (article_title) {
+        whereClause.push("a.article_title LIKE ?")
+        params.push(`%${article_title}%`)
+    }
+
+    if (is_top) {
+        whereClause.push("a.is_top = ?")
+        params.push(is_top)
+    }
+
+    if (status !== undefined) {
+        if (status) {
+            whereClause.push("a.status = ?")
+            params.push(status)
+        }
+    }
+
+    if (category_id) {
+        whereClause.push("a.category_id = ?")
+        params.push(category_id)
+    }
+
+    let articleIdList = [];
+    if (tag_id) {
+        const [tagResult] = await connecttion.promise().query('SELECT article_id FROM blog_tag WHERE tag_id = ?', [tag_id]);
+        articleIdList = tagResult.map(row => row.article_id);
+        if (articleIdList.length) {
+            whereClause.push('a.id IN (?)');
+            params.push(articleIdList);
+        }
+    }
+    let whereSql = whereClause.length > 0 ? `WHERE ${whereClause.join(" AND ")}` : ""
+
+    const sql = `
+    SELECT 
+        a.id, 
+        a.category_id, 
+        a.createdAt,
+        a.updatedAt, 
+        a.author_id,
+        a.article_title, 
+        substr(a.article_content, 1, 50) AS article_content,
+        a.article_cover, 
+        a.is_top, 
+        a.status, 
+        a.type, 
+        a.view_times, 
+        a.article_description, 
+        a.thumbs_up_times,
+        a.reading_duration, 
+        a.order AS article_order,
+        JSON_ARRAYAGG(IFNULL(t.tag_name, '')) AS tagNameList,
+        c.category_name AS categoryName
+    FROM 
+        blog_article a 
+    LEFT JOIN
+        blog_article_tag at ON a.id = at.article_id
+    LEFT JOIN 
+        blog_tag t ON at.tag_id = t.id
+    LEFT JOIN
+        blog_category c ON a.category_id = c.id
+    ${whereSql}
+    GROUP BY 
+        a.id 
+    ORDER BY 
+        a.is_top ASC, article_order ASC, a.createdAt DESC
+    LIMIT ?
+    OFFSET ?    
+    `
+    const [data] = await connecttion.promise().query(sql, [...params, limit, offset])
+
+    return data
+
+}
+
 
 /**
  *  根据文章id查询文章
@@ -145,7 +239,7 @@ export const blogArticleByIdService = async (params) => {
             a.updatedAt, 
             a.author_id,
             a.article_title, 
-            substr(a.article_content, 1, 50) AS article_content,
+            a.article_content,
             a.article_cover, 
             a.is_top, 
             a.status, 
@@ -438,4 +532,221 @@ export const addReadingDuration = async (id, duration) => {
     }
 
     return false
+}
+
+/**
+ * 根据标题获取文章是否已经存在
+ */
+
+export const getArticleInfoByTitle = async ({ id, article_title }) => {
+
+    let res;
+
+    const ArticleByTitleSql = `
+    SELECT 
+        id
+    FROM
+        blog_article
+    WHERE
+        article_title = ?
+    LIMIT 1
+    `;
+
+    const [data] = await connecttion.promise().query(ArticleByTitleSql, [article_title]);
+
+    if (data.length > 0) {
+        const article = data[0].id;
+        if (id) {
+            res = article != id ? true : false
+        } else {
+            res = true
+        }
+
+    } else {
+        res = false
+    }
+    return res
+}
+
+/**
+ * 新增文章
+ */
+export const createArticle = async (article) => {
+
+    const {
+        article_title,
+        author_id,
+        category_id,
+        article_content,
+        article_cover = null, // 默认值为 null
+        is_top = 0,
+        status = 1,
+        type = 0,
+        origin_url = null,
+        view_times = 0,
+        article_description = null,
+        thumbs_up_times = 0,
+        reading_duration = 0,
+        order = 0,
+    } = article;
+
+    const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
+    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
+
+    const sql = `
+    INSERT INTO blog_article (
+      article_title,
+      author_id,
+      category_id,
+      article_content,
+      article_cover,
+      is_top,
+      status,
+      type,
+      origin_url,
+      createdAt,
+      updatedAt,
+      view_times,
+      article_description,
+      thumbs_up_times,
+      reading_duration,
+      \`order\`
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `
+    const [result] = await connecttion.promise().query(sql, [
+        article_title,
+        author_id,
+        category_id,
+        article_content,
+        article_cover,
+        is_top,
+        status,
+        type,
+        origin_url,
+        createdAt,
+        updatedAt,
+        view_times,
+        article_description,
+        thumbs_up_times,
+        reading_duration,
+        order
+    ]);
+    return { id: result.insertId, ...article };;
+}
+
+/**
+ * 修改文章
+ */
+export const updateArticle = async (article) => {
+    const {
+        id,
+        article_title,
+        author_id,
+        category_id,
+        article_content,
+        article_cover = null, // 默认值为 null
+        is_top = 0,
+        status = 1,
+        type = 0,
+        origin_url = null,
+        view_times = 0,
+        article_description = null,
+        thumbs_up_times = 0,
+        reading_duration = 0,
+        order = 0,
+    } = article;
+
+    const sql = `
+    UPDATE blog_article SET
+      article_title = ?,
+      author_id = ?,
+      category_id = ?,
+      article_content = ?,
+      article_cover = ?,
+      is_top = ?,
+      status = ?,
+      type = ?,
+      origin_url = ?,
+      updatedAt = ?,
+      view_times = ?,
+      article_description = ?,
+      thumbs_up_times = ?,
+      reading_duration = ?,
+      \`order\` = ?
+    WHERE
+      id = ?
+    `;
+
+    // 更新时间
+    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
+
+    try {
+        const [result] = await connecttion.promise().query(sql, [
+            article_title,
+            author_id,
+            category_id,
+            article_content,
+            article_cover,
+            is_top,
+            status,
+            type,
+            origin_url,
+            updatedAt,
+            view_times,
+            article_description,
+            thumbs_up_times,
+            reading_duration,
+            order,
+            id,
+        ]);
+        return result.affectedRows > 0;
+    } catch (error) {
+        console.error('更新文章失败:', error);
+        throw error;
+    }
+};
+
+/**
+ * 删除文章
+ */
+export const deleteArticle = async (id, status) => {
+    let res;
+
+    if (Number(status) !== 3) {
+        const [result] = await connecttion.promise().query('UPDATE blog_article SET status = 3 WHERE id = ?', [id]);
+        res = result.affectedRows > 0 ? true : false;
+    } else {
+        // 删除文章
+        const [result] = await connecttion.promise().query('DELETE FROM blog_article WHERE id = ?', [id]);
+        res = result.affectedRows > 0 ? true : false;
+        // 删除文章标签关系
+        await connecttion.promise().query('DELETE FROM blog_article_tag WHERE article_id = ?', [id]);
+    }
+
+    return res
+}
+
+/**
+ * 修改文章置顶信息
+ */
+export const updateTop = async (id, is_top) => {
+    const [result] = await connecttion.promise().query('UPDATE blog_article SET is_top = ? WHERE id = ?', [is_top, id]);
+    return result.affectedRows > 0 ? true : false;
+}
+
+/**
+ * 公开或隐藏文章
+ */
+export const toggleArticlePublic = async (id, status) => {
+    status = Number(status) === 2 ? 1 : 2;
+    const [result] = await connecttion.promise().query('UPDATE blog_article SET status = ? WHERE id = ?', [status, id]);
+    return result.affectedRows > 0 ? true : false;
+}
+
+/**
+ * 恢复文章
+ */
+export const revertArticle = async (id) => {
+    const [result] = await connecttion.promise().query('UPDATE blog_article SET status = 1 WHERE id = ?', [id]);
+    return result.affectedRows > 0 ? true : false;
 }

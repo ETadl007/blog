@@ -70,9 +70,7 @@ export const addMessage = async (req, res, next) => {
         // 过滤敏感词
         message = await filterSensitive(message)
 
-        const createdAt = new Date()
-
-        const result = await messageService.addMessage({ message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt });
+        const result = await messageService.addMessage({ message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag });
 
         // 发布消息推送
         if (user_id !== 1) {

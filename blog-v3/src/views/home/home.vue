@@ -8,6 +8,7 @@ import { getAllTag } from "@/api/tag";
 import { homeGetStatistic } from "@/api/home";
 import { randomFontColor, numberFormate } from "@/utils/tool";
 
+import PageHeader from "@/components/PageHeader/index.vue";
 import HomeArticleList from "@/components/HomeArticle/home-article-list.vue";
 import RightSide from "@/components/RightSide/right-side.vue";
 import MobileTopSkeleton from "@/components/RightSide/components/skeleton/mobile-top-skeleton.vue";
@@ -144,6 +145,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <PageHeader />
   <div class="home_center_box">
     <el-row>
       <el-col :xs="24" :sm="18">
@@ -189,80 +191,6 @@ onMounted(async () => {
                   <div class="flex_r_between">
                     <span>博客访问次数：</span>
                     <span class="value">{{ numberFormate(configDetail.view_time) }}</span>
-                  </div>
-                  <div class="group">
-                    交流群
-                    <div class="flex justify-end items-start flex-nowrap">
-                      <div v-image="configDetail.we_chat_group">
-                        <el-image
-                          class="img"
-                          :src="configDetail.we_chat_group"
-                          fit="cover"
-                          :preview-src-list="[configDetail.we_chat_group]"
-                          preview-teleported
-                          lazy
-                        >
-                          <template #error>
-                            <div class="w-[100%] h-[100%] grid place-items-center">
-                              <svg-icon name="image404" :width="4" :height="4"></svg-icon>
-                            </div>
-                          </template>
-                        </el-image>
-                      </div>
-                      <div v-image="configDetail.qq_group">
-                        <el-image
-                          class="img !ml-[10px]"
-                          :src="configDetail.qq_group"
-                          fit="cover"
-                          :preview-src-list="[configDetail.qq_group]"
-                          preview-teleported
-                          lazy
-                        >
-                          <template #error>
-                            <div class="w-[100%] h-[100%] grid place-items-center">
-                              <svg-icon name="image404" :width="4" :height="4"></svg-icon>
-                            </div>
-                          </template>
-                        </el-image>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="group">
-                    支持作者
-                    <div class="flex justify-end items-start flex-nowrap">
-                      <div v-image="configDetail.ali_pay">
-                        <el-image
-                          class="img"
-                          :src="configDetail.ali_pay"
-                          fit="cover"
-                          :preview-src-list="[configDetail.ali_pay]"
-                          preview-teleported
-                          lazy
-                        >
-                          <template #error>
-                            <div class="w-[100%] h-[100%] grid place-items-center">
-                              <svg-icon name="image404" :width="4" :height="4"></svg-icon>
-                            </div>
-                          </template>
-                        </el-image>
-                      </div>
-                      <div v-image="configDetail.we_chat_pay">
-                        <el-image
-                          class="img !ml-[10px]"
-                          :src="configDetail.we_chat_pay"
-                          fit="cover"
-                          :preview-src-list="[configDetail.we_chat_pay]"
-                          preview-teleported
-                          lazy
-                        >
-                          <template #error>
-                            <div class="w-[100%] h-[100%] grid place-items-center">
-                              <svg-icon name="image404" :width="4" :height="4"></svg-icon>
-                            </div>
-                          </template>
-                        </el-image>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </RightSideItem>

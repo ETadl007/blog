@@ -3,7 +3,6 @@ import { nextTick, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import { numberFormate } from "@/utils/tool";
-import { convertDateIfNecessary } from '@/utils/tool'
 
 import ArticleSkeleton from "./components/article-skeleton.vue";
 import Tooltip from "../ToolTip/tooltip.vue";
@@ -133,12 +132,12 @@ watch(
                   <span class="to_pointer">
                     <i class="iconfont icon-calendar2"></i>
                     <span class="meta-label">发表于</span>
-                    <span class="meta-value">{{ convertDateIfNecessary(item.createdAt) }}</span>
+                    <span class="meta-value">{{ item.createdAt }}</span>
                   </span>
                   <span class="to_pointer">
                     <i class="iconfont icon-schedule"></i>
                     <span class="meta-label">更新于</span>
-                    <span class="meta-value">{{ convertDateIfNecessary(item.updatedAt) }}</span>
+                    <span class="meta-value">{{ item.updatedAt }}</span>
                   </span>
                   <span class="article-meta__separator"></span>
                   <span class="to_pointer" @click="operate('category', item)">

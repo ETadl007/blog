@@ -1,34 +1,6 @@
-import * as userService from '../user/user.service.js';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
 import { PUBLIC_KEY } from '../app/app.config.js';
 
-/**
- * 验证用户登录数据
- */
-export const validateLoginData = async (req, res, next) => {
-
-    // 获取数据
-    const { username, password } = req.body;
-
-    // 验证必填数据
-    if (!username) return next(new Error('NAME_IS_REQUIRED'))
-    if (!password) return next(new Error('PASSWORD_IS_REQUIRED'))
-
-    // 验证用户名是否存在
-    const user = await userService.getUserByName(username, { password: true });
-    if (!user) return next(new Error('USER_DOES_NOT_EXISTS'))
-
-    // 验证用户密码
-    const matched = await bcrypt.compare(password, user.password);
-    if (!matched) return next(new Error('PASSWORD_DOES_NOT_MATCH'))
-
-    // 在请求主体里添加用户
-    req.body.username = user;
-
-    // 下一步
-    next();
-}
 
 /**
  * 验证用户身份
@@ -48,16 +20,18 @@ export const authGuard = async (req, res, next) => {
 
         // 验证令牌
         jwt.verify(token, PUBLIC_KEY, { algorithms: ['RS256'] }, (err, decoded) => {
+            
             if (err) {
                 return next(new Error('UNAUTHORIZED'))
             }
 
             // 验证通过
             // 在请求主体里添加用户
-            req.username = decoded
+            req.user = decoded
 
             // 下一步
             next();
+            
         });
 
 
@@ -110,3 +84,63 @@ export const validateUserIdMiddleware = (req, res, next) => {
 
     next();
 };
+
+/**
+ * 对需要管理员发布信息，但是不建议超级管理员发布信息的接口进行提示
+ */
+export const needAdminAuthNotNeedSuper = (req, res, next) => {
+    const authorization = req.header('Authorization');
+    const token = authorization.replace('Bearer ', '');
+    const { role, username  } = jwt.decode(token, PUBLIC_KEY, { algorithms: ['RS256'] });
+    if (Number(role) !== 1){
+        return res.status(403).send({
+            status: 1,
+            message: '普通用户仅限查看',
+            data: null
+        })
+    }
+
+    if (username == 'admin'){
+        return res.status(403).send({
+            status: 1,
+            message: 'admin是配置的用户，没有用户信息',
+            data: null
+        })
+    }
+    next();
+}
+
+/**
+ * 对需要管理员权限的进行操作进行提示源
+ */
+export const needAdminAuth = (req, res, next) => {
+    const authorization = req.header('Authorization');
+    const token = authorization.replace('Bearer ', '');
+    const { role } = jwt.decode(token, PUBLIC_KEY, { algorithms: ['RS256'] });
+    
+    if (Number(role) !== 1) {
+        return res.status(403).send({
+            status: 1,
+            message: '普通用户仅限查看',
+            data: null
+        });
+    }
+    next();
+}
+
+/**
+ * 
+ */
+export const isSuperAdmin = (req, res, next) => {
+    const authorization = req.header('Authorization');
+    const token = authorization.replace('Bearer ', '');
+    const { username  } = jwt.decode(token, PUBLIC_KEY, { algorithms: ['RS256'] });
+    if (username == 'admin'){
+        return res.status(403).send({
+            status: 1,
+            message: '管理员信息只可通过配置信息修改',
+            data: null
+        })
+    }
+    next();
+}

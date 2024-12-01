@@ -4,12 +4,13 @@ import { useRoute } from "vue-router";
 import { staticData } from "@/store/index.js";
 import { storeToRefs } from "pinia";
 
-import { convertDateIfNecessary } from '@/utils/tool'
 import { numberFormate } from "@/utils/tool";
 import { gsapTransFont } from "@/utils/transform";
 
 import Tooltip from "../ToolTip/tooltip.vue";
 import GsapCount from "@/components/GsapCount/index";
+import HomeHeader from "./home-header.vue";
+import Waves from "@/components/WelcomeComps/waves.vue";
 
 const staticStore = staticData();
 const { codeTheme, previewTheme, getPageHeaderList } = storeToRefs(staticStore);
@@ -64,9 +65,9 @@ const addZero = (time) => {
 
 const getBgCover = computed(() => {
   const bgList = getPageHeaderList.value;
-  // 做一个根据路由来判断判断页面背景图片
   let url;
-  let myUrl = "https://bpic.588ku.com/back_our/20211004/bg/7a104e9fc5c33e0080044d526eb7e029_110891.png";
+  let myUrl = "http://127.0.0.1:8888/images/3d8JpQ5-92jld-twthx4cA.jpg";
+
   if (route.path == "/article") {
     url = props.article.article_cover || myUrl;
   } else if (props.bgUrl) {
@@ -75,10 +76,11 @@ const getBgCover = computed(() => {
     let index = bgList.findIndex((bg) => bg.route_name == route.name);
     url = index == -1 ? myUrl : bgList[index].bg_url;
   }
-  // eslint-disable-next-line
+
   finalUrl.value = url;
-  return `background-image: url(${url});}`;
+  return `background-image: url(${url});`;
 });
+
 const getTitle = computed(() => {
   return route.query.pageTitle ? route.meta.name + " - " + route.query.pageTitle : route.meta.name;
 });
@@ -97,14 +99,10 @@ watch(
 </script>
 
 <template>
-  <div class="page-header fadeIn" :style="getBgCover">
-    <div class="loading !pt-[80px]" v-image="finalUrl"></div>
-    <div v-if="route.path != '/article'" class="route-font animate__animated animate__fadeIn">
-      <span style="display: inline-block" class="char" v-for="i in getTitle.length" :key="i">
-        {{ getTitle.charAt(i - 1) }}
-      </span>
-    </div>
-    <div v-else class="article main-article">
+  <!-- 其实不同的路由通过插槽来做会好一些 之前没考虑到这么多复杂的情况 -->
+  <HomeHeader class="!w-[100%] !h-[100vh]" v-if="route.path == '/home'" />
+  <div v-else class="page-header" :style="getBgCover">
+    <div v-if="route.path == '/article'" class="article main-article">
       <div class="loading" v-image="props.article.article_cover"></div>
       <Tooltip
         width="80%"
@@ -114,16 +112,16 @@ watch(
         align="center"
         :name="article.article_title"
       />
-      <div class="animate__animated animate__fadeIn !mt-[20px]">
+      <div class="!mt-[20px]">
         <span class="to_pointer">
           <i class="iconfont icon-calendar2"></i>
           <span class="meta-label">发表于</span>
-          <span class="meta-value">{{ convertDateIfNecessary(article.createdAt) }}</span>
+          <span class="meta-value">{{ article.createdAt }}</span>
         </span>
         <span class="to_pointer">
           <i class="iconfont icon-schedule"></i>
           <span class="meta-label">更新于</span>
-          <span class="meta-value">{{ convertDateIfNecessary(article.updatedAt) }}</span>
+          <span class="meta-value">{{ article.updatedAt }}</span>
         </span>
         <span class="meta-separator"></span>
         <span class="to_pointer">
@@ -168,7 +166,7 @@ watch(
           <span class="meta-value">{{ readingDuration(article.reading_duration) }}</span>
         </span>
       </div>
-      <div class="toggle-theme animate__animated animate__fadeIn">
+      <div class="toggle-theme">
         <el-dropdown class="theme-card-dropdown">
           <div class="flex_c_center">
             <span>预览主题</span>
@@ -203,6 +201,17 @@ watch(
         </el-dropdown>
       </div>
     </div>
+    <div v-else class="route-font">
+      <div class="loading !pt-[80px]" v-image="finalUrl"></div>
+      <!-- 想修改路由 就修改插槽即可 -->
+      <slot name="route">
+        <span style="display: inline-block" class="char" v-for="i in getTitle.length" :key="i">
+          {{ getTitle.charAt(i - 1) }}
+        </span>
+      </slot>
+      <slot />
+    </div>
+    <Waves height="4rem" />
   </div>
 </template>
 
@@ -212,11 +221,12 @@ watch(
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: var(--header-bg-color);
+  background-color: var(--header-bg);
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
-  height: 26rem;
+  width: 100%;
+  height: 22rem;
 
   .loading {
     position: absolute;
@@ -237,22 +247,22 @@ watch(
     display: block;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.6);
   }
 
   .route-font {
-    font-size: 3.2rem;
+    font-size: 2.4rem;
     font-weight: 500;
     line-height: 2.4;
     text-align: center;
     color: var(--router-color);
-    z-index: 999;
+    z-index: 1000;
     cursor: pointer;
     transition: all 0.3s;
   }
 
   .article {
-    z-index: 999;
+    z-index: 2000;
     background: transparent;
     font-size: 1.1rem;
     line-height: 1.4;
@@ -317,6 +327,7 @@ watch(
   }
 
   .toggle-theme {
+    position: relative;
     display: flex;
     justify-content: center;
     margin-top: 1rem;
@@ -348,21 +359,6 @@ watch(
         transform: translateY(-3px);
       }
     }
-  }
-}
-
-.fadeIn {
-  animation: fadeIn 0.6s ease-in-out forwards;
-}
-
-@keyframes fadeIn {
-  0% {
-    transform: translateY(-30px);
-    opacity: 0.9;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
   }
 }
 

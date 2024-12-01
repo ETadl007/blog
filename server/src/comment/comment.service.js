@@ -1,6 +1,8 @@
 import { connecttion } from "../app/database/mysql.js";
 import { getIsLikeByIdAndType } from "../like/like.service.js"
 
+import moment from "moment";
+
 /**
  * 获取父/字级评论总数
  */
@@ -168,10 +170,79 @@ export const blogCommentChildrenListService = async ({ parent_id, limit, offset,
 }
 
 /**
+ * 后台分页获取所有评论列表
+ */
+export const blogCommentAllListService = async ({ limit, offset, type, comment }) => {
+    const where = [];
+    const params = [];
+
+    // 添加评论对象的过滤条件
+    if (type) {
+        where.push('comment.type = ?');
+        params.push(type);
+    }
+
+    // 添加评论内容的搜索条件
+    if (comment) {
+        where.push('comment.content LIKE ?');
+        params.push(`%${comment}%`);
+    }
+    // 动态拼接 WHERE 子句
+    const whereClause = where.length > 0 ? `WHERE ${where.join(' AND ')}` : '';
+
+    try {
+        const commentListSql = `
+        SELECT
+            comment.id,
+            comment.parent_id,
+            comment.for_id,
+            comment.type,
+            comment.from_id,
+            comment.from_name,
+            user.avatar AS from_avatar,
+            comment.to_id,
+            comment.to_name,
+            comment.to_avatar,
+            comment.content,
+            comment.thumbs_up,
+            comment.createdAt,
+            comment.updatedAt,
+            comment.ip
+        FROM
+            blog_comment AS comment
+        INNER JOIN
+            blog_user AS user ON comment.from_id = user.id
+        ${whereClause}
+        ORDER BY
+            comment.createdAt DESC
+        LIMIT ?
+        OFFSET ?
+        `;
+
+        // 添加 limit 和 offset 到参数数组
+        params.push(limit, offset);
+
+        // 执行查询
+        const [data] = await connecttion.promise().query(commentListSql, params);
+
+        return data;
+    } catch (error) {
+        console.error('Error fetching comments:', error);
+        throw error;
+    }
+};
+
+
+/**
  * 添加评论
  */
 
-export const blogCommentAddService = async (params) => {
+export const blogCommentAddService = async ({ type, for_id, from_id, from_name, from_avatar, content }) => {
+
+    // 手动设置时间
+    const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
+    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
+
     const commentAddSql = `
     INSERT INTO
         blog_comment
@@ -183,10 +254,11 @@ export const blogCommentAddService = async (params) => {
         from_name = ?,
         from_avatar = ?,
         content = ?,
-        createdAt = ?
+        createdAt = ?,
+        updatedAt = ?
     `;
 
-    const [data] = await connecttion.promise().query(commentAddSql, params);
+    const [data] = await connecttion.promise().query(commentAddSql, [type, for_id, from_id, from_name, from_avatar, content, createdAt, updatedAt]);
     return data;
 }
 
@@ -198,7 +270,9 @@ export const applyComment = async (comment) => {
 
     const { parent_id, type, for_id, from_id, from_avatar, from_name, to_id, to_name, to_avatar, content, ip } = comment;
 
-    const createdAt = new Date()
+    // 手动设置时间
+    const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
+    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
 
     const commentAddSql = `
     INSERT INTO
@@ -216,7 +290,8 @@ export const applyComment = async (comment) => {
         to_avatar = ?,
         content = ?,
         ip = ?,
-        createdAt = ?
+        createdAt = ?,
+        updatedAt = ?
     `;
 
 
@@ -252,7 +327,7 @@ export const applyComment = async (comment) => {
     `;
 
     try {
-        const [data] = await connecttion.promise().query(commentAddSql, [parent_id, type, for_id, from_id, from_avatar, from_name, to_id, to_name, to_avatar, content, ip, createdAt]);
+        const [data] = await connecttion.promise().query(commentAddSql, [parent_id, type, for_id, from_id, from_avatar, from_name, to_id, to_name, to_avatar, content, ip, createdAt, updatedAt]);
         const [userInfo] = await connecttion.promise().query(userInfoSql, [comment.from_id]);
 
         return userInfo[0];
@@ -287,6 +362,20 @@ export const deleteComment = async (id, parent_id) => {
         return res ? res.affectedRows : null;
     } catch (error) {
         console.error('Error deleting comment:', error);
+        throw error;
+    }
+}
+
+/**
+ * 后台批量删除评论
+ */
+export const backDeleteComment = async (ids) => {
+    try {
+        const sql = `DELETE FROM blog_comment WHERE id IN (?)`
+        const [data] = await connecttion.promise().query(sql, [ids]);
+        return data.affectedRows > 0 ? true : false;
+    } catch (error) {
+        console.error('Error deleting comments:', error);
         throw error;
     }
 }

@@ -1,4 +1,5 @@
 import express from 'express';
+import welcome from './welcome.js';
 import articleRouter from '../article/article.router.js';
 import configRouter from '../config/config.router.js';
 import tagRouter from '../tag/tag.router.js';
@@ -16,6 +17,7 @@ import notifyRouter from '../notify/notify.router.js';
 import likeRouter from '../like/like.router.js';
 import uploadRouter from '../utils/uploads/uploads.router.js';
 import { TimesLimiter } from '../app/app.middleware.js';
+import header from '../header/header.router.js'
 
 /**
  *  创建应用
@@ -41,6 +43,7 @@ app.use(express.json());
 /**
  *  处理路由
  */
+app.use(welcome)
 app.use(articleRouter);
 app.use(configRouter);
 app.use(tagRouter);
@@ -56,6 +59,7 @@ app.use(authRouter);
 app.use(notifyRouter);
 app.use(likeRouter);
 app.use(uploadRouter);
+app.use(header)
 
 /**
  *  默认异常处理

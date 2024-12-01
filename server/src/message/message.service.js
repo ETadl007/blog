@@ -1,6 +1,7 @@
 import { connecttion } from "../app/database/mysql.js";
 import { getIsLikeByIdAndType } from "../like/like.service.js"
 
+import moment from "moment";
 
 /**
  * 获取留言列表
@@ -135,14 +136,18 @@ export const getMessageTotal = async ({ tag = '', message = '' }) => {
  * 发布留言
  */
 
-export const addMessage = async ({ message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt }) => {
+export const addMessage = async ({ message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag }) => {
+
+    // 手动设置时间
+    const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
+    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
 
     const createMessageSql = `
     INSERT INTO 
-        blog_message (message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt)
+        blog_message (message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt, updatedAt)
     VALUES 
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
-    const [data] = await connecttion.promise().query(createMessageSql, [message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt]);
+    const [data] = await connecttion.promise().query(createMessageSql, [message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt, updatedAt]);
     return data.affectedRows > 0 ? true : false;
 }
 
@@ -155,7 +160,7 @@ export const deleteMessage = async (id) => {
     DELETE FROM 
         blog_message
     WHERE 
-        id = ?;`;
+        id IN (?)`;
     const [data] = await connecttion.promise().query(deleteMessageSql, [id]);
     return data.affectedRows > 0 ? true : false;
 }
@@ -164,6 +169,9 @@ export const deleteMessage = async (id) => {
  * 编辑留言
  */
 export const updateMessage = async ({ message, color, font_size, font_weight, bg_color, bg_url, tag, id }) => {
+
+    // 手动设置时间
+    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
 
     const updateMessageSql = `
     UPDATE 
@@ -175,10 +183,11 @@ export const updateMessage = async ({ message, color, font_size, font_weight, bg
         font_weight = ?,
         bg_color = ?,
         bg_url = ?,
-        tag = ?
+        tag = ?,
+        updatedAt = ?
     WHERE 
         id = ?;`;
-    const [data] = await connecttion.promise().query(updateMessageSql, [message, color, font_size, font_weight, bg_color, bg_url, tag, id]);
+    const [data] = await connecttion.promise().query(updateMessageSql, [message, color, font_size, font_weight, bg_color, bg_url, tag, updatedAt, id]);
     return data.affectedRows > 0 ? true : false;
 }
 

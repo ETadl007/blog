@@ -4,19 +4,21 @@ import { MYSQL_HOST, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASE } fr
 /**
  * 创建数据库连接
  */
-const connecttion = mysql.createConnection({
+const connecttion = mysql.createPool({
     host: MYSQL_HOST,
     port: parseInt(MYSQL_PORT),
     user: MYSQL_USER,
     password: MYSQL_PASSWORD,
     database: MYSQL_DATABASE,
-    charset: 'utf8mb4'
+    charset: 'utf8mb4',
+    timezone: '+08:00',
+    dateStrings: ['DATETIME']
 });
 
 /**
  * 测试连接数据库
  */
-connecttion.connect((err) => {
+connecttion.getConnection((err, connection) => {
     if (err) {
         console.log("数据库连接失败", err.message);
         return;

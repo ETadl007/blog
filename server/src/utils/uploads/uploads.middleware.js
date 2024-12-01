@@ -26,8 +26,9 @@ const fileFilter = (req, file, cb) => {
     // 允许的文件类型
     const allowedMimeTypes = /jpeg|jpg|png|gif/;
     const mimetype = allowedMimeTypes.test(file.mimetype);
+    
     const extname = allowedMimeTypes.test(path.extname(file.originalname).toLowerCase());
-
+    
     if (mimetype && extname) {
         cb(null, true);
     } else {
@@ -36,7 +37,27 @@ const fileFilter = (req, file, cb) => {
 };
 
 
-const uploadConfig = multer({ storage, fileFilter, limits: { fileSize: 1024 * 1024 * 5 } }).single('file');
+const uploadConfig = (req, res, next) => {
+    multer({ 
+      storage, 
+      fileFilter, 
+      limits: { fileSize: 1024 * 1024 * 5 } 
+    }).single('file')(req, res, (err) => {
+      if (err) {
+        // 处理 multer 错误
+        if (err instanceof multer.MulterError) {
+          // 处理 multer 特有错误（例如文件太大）
+          return next(new Error(`MULTER_ERROR: ${err.message}`));
+        } else {
+          // 处理其他错误（例如文件上传时的通用错误）
+          return next(err);
+        }
+      }
+      // 如果没有错误，继续执行下一个中间件
+      next();
+    });
+  };
+  
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

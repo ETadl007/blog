@@ -16,10 +16,8 @@ export const getTalkList = async (req, res, next) => {
     // 偏移量
     const offset = (current - 1) * limit;
 
-    const params = [status, limit, offset]
-
     try {
-        const talk = await linksService.getLinksList(params);
+        const result = await linksService.getLinksList({status, limit, offset});
         const total = await linksService.getLinksCount();
         res.send({
             status: 0,
@@ -27,7 +25,7 @@ export const getTalkList = async (req, res, next) => {
             data: {
                 current,
                 size,
-                list: talk,
+                list: result,
                 total
             }
         });
@@ -77,4 +75,23 @@ export const addOrUpdateLinks = async (req, res, next) => {
         
     }
 
+}
+
+/**
+ * 修改友链状态
+ */
+export const updateLinksStatus = async (req, res, next) => {
+    try {
+        const { idList } = req.body;
+        
+        const result = await linksService.updateLinksStatus(idList);
+        res.send({
+            status: 0,
+            message: '修改友链状态成功',
+            data: result
+        });
+    } catch (err) {
+        console.log(err);
+        next(new Error('UPDATELINKSERROR'))
+    }
 }

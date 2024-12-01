@@ -79,8 +79,8 @@ export const getChildCommentList = async (req, res, next) => {
 
         // 偏移量
         const offset = (current - 1) * limit;
-        
-        const list = await commentService.blogCommentChildrenListService({parent_id, limit, offset, user_id});
+
+        const list = await commentService.blogCommentChildrenListService({ parent_id, limit, offset, user_id });
         const total = await commentService.blogCommentService(for_id, type, parent_id);
         res.send({
             status: 0,
@@ -99,16 +99,45 @@ export const getChildCommentList = async (req, res, next) => {
 }
 
 /**
+ * 分页获取所有评论
+ */
+export const getAllCommentList = async (req, res, next) => {
+    try {
+        const { current, size, type, comment } = req.body;
+
+        // 每页内容数量
+        const limit = parseInt(size, 10) || parseInt(PARENT_COMMENT_PAGE_SIZE, 10) || 3;
+
+        // 偏移量
+        const offset = (current - 1) * limit;
+
+        const list = await commentService.blogCommentAllListService({ type, limit, offset, comment });
+        res.send({
+            status: 0,
+            msg: '分页查找所有评论成功',
+            data: {
+                current,
+                size,
+                total: list.length,
+                list
+            }
+        });
+
+    } catch (err) {
+        console.log(err);
+        next(new Error('GETALLCOMMENTLISTERROR'));
+    }
+}
+
+/**
  * 添加评论
  */
 
 export const addComment = async (req, res, next) => {
     const { type, for_id, from_id, from_name, from_avatar, content } = req.body;
 
-    const createdAt = new Date()
-    const params = [type, for_id, from_id, from_name, from_avatar, content, createdAt]
     try {
-        const result = await commentService.blogCommentAddService(params);
+        const result = await commentService.blogCommentAddService({type, for_id, from_id, from_name, from_avatar, content});
         const userinfo = await commentService.getUserInfoByUserId(from_id);
         res.send({
             status: 0,
@@ -183,4 +212,24 @@ export const deleteComment = async (req, res, next) => {
         next(new Error('DELETECOMMENTERROR'));
     }
 
+}
+
+/**
+ * 后台批量删除评论
+ */
+export const backDeleteComment = async (req, res, next) => {
+    try {
+
+        const { idList } = req.body;
+        const result = await commentService.backDeleteComment(idList);
+
+        res.send({
+            status: 0,
+            message: "删除评论成功",
+            data: result
+        });
+    } catch (err) {
+        console.log(err);
+        next(new Error('BACKDELETECOMMENTERROR'));
+    }
 }

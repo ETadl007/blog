@@ -44,8 +44,8 @@ const resize = () => {
 // 获取所有的网站页面背景图
 const getAllPageHeaderBg = async () => {
   const res = await getAllPageHeader();
-  if (res.code == 0) {
-    staticData().setPageHeaderLIst(res.result);
+  if (res.status == 0) {
+    staticData().setPageHeaderLIst(res.data);
   } else {
     ElNotification({
       offset: 60,
@@ -71,9 +71,10 @@ const welcome = () => {
 onMounted(async () => {
   // 上传访问量
   await addView();
+
   if (window.name == "") {
     // 获取背景图片
-    // getAllPageHeaderBg();
+    getAllPageHeaderBg();
     welcome();
   }
 

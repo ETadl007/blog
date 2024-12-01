@@ -20,10 +20,16 @@
   --music-main-active: #62c28a;
   --music-main-bg: #101827;
   --shadow-mask-bg: rgba(0, 0, 0, 0.5);
-  --shadow-button-bg: rgba(255, 255, 255, 0.5);
+  --shadow-button-bg: #fff;
   --global-font-size: 14px;
   --card-box-shadow: 0 3px 6px 3px rgba(7, 17, 27, 0.06);
   --card-hover-box-shadow: 0 3px 6px 3px rgba(7, 17, 27, 0.15);
+
+  --wave-one-color: rgba(255, 255, 255, 0.7);
+  --wave-two-color: rgba(255, 255, 255, 0.5);
+  --wave-three-color: rgba(255, 255, 255, 0.3);
+  --wave-four-color: rgba(255, 255, 255, 1);
+
   --global-gradient: linear-gradient(
     90deg,
     #f0f0f0 1%,
@@ -48,4 +54,23 @@
   --button-linear-gradient-h: linear-gradient(300deg, #9face6 0%, #74ebd5 100%);
   --dark-button-linear-gradient: linear-gradient(300deg, #a286a2 0%, #648faf 100%);
   --dark-button-linear-gradient-h: linear-gradient(300deg, #648faf 0%, #a286a2 100%);
+}
+
+html.dark {
+  --font-color: #b8b8b8;
+  --global-gradient: #282828;
+  --card-bg: #303030;
+  --home-bg: #282828;
+  --home-mask-color: rgba(0, 0, 0, 0.4);
+  --music-main-bg: #303030;
+
+  --menu-color: var(--font-color);
+
+  --button-linear-gradient: linear-gradient(300deg, #a286a2 0%, #648faf 100%);
+  --button-linear-gradient-h: linear-gradient(300deg, #648faf 0%, #a286a2 100%);
+
+  --wave-one-color: rgba(40, 40, 40, 0.7);
+  --wave-two-color: rgba(40, 40, 40, 0.5);
+  --wave-three-color: rgba(40, 40, 40, 0.3);
+  --wave-four-color: rgba(40, 40, 40, 1);
 }

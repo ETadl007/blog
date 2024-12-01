@@ -18,8 +18,9 @@ router.post('/like/getIsLikeByIdAndType', likeController.getLikeStatus);
 router.post('/like/addLike',
     TimesLimiter({
         prefixKey: "like/addLike",
-        message: "小伙子你在刷赞，被我发现了！",
+        message: "小黑子你在刷赞，被我发现了！",
         limit: 10,
+        windowMs: 60 * 1000,
     }),
     (req, res, next) => {
         // 文章点赞可游客点赞
@@ -37,8 +38,9 @@ router.post('/like/addLike',
  */
 router.post('/like/cancelLike', TimesLimiter({
     prefixKey: "like/cancelLike",
-    message: "小伙子你在刷取消赞，被我发现了！",
+    message: "小黑子你在刷取消赞，被我发现了！",
     limit: 10,
+    windowMs: 60 * 1000,
 }), likeController.cancelLike);
 
 /**

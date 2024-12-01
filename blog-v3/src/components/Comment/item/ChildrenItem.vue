@@ -7,8 +7,6 @@ import {
 } from "@/api/comment";
 import { ElNotification, ElMessageBox } from "element-plus";
 
-import { convertDateIfNecessary } from '@/utils/tool'
-
 import Pagination from "@/components/Pagination/pagination.vue";
 import CommentInput from "./CommentInput.vue";
 import { user } from "@/store/index";
@@ -319,7 +317,7 @@ defineExpose({
               >删除</span
             >
           </div>
-          <div class="!mt-[0.5rem]">{{ convertDateIfNecessary(comment.createdAt) }}</div>
+          <div class="!mt-[0.5rem]">{{ comment.createdAt }}</div>
         </div>
       </div>
     </div>

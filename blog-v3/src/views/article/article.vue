@@ -4,7 +4,6 @@ import { useRoute, useRouter } from "vue-router";
 import { ElNotification } from "element-plus";
 import { staticData, user } from "@/store/index.js";
 import { storeToRefs } from "pinia";
-import { convertDateIfNecessary } from '@/utils/tool'
 
 import MdEditor from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
@@ -360,7 +359,7 @@ watch(
                 </template>
               </el-image>
               <Tooltip width="35%" weight="600" size="1rem" :name="item.article_title" />
-              <Tooltip width="35%" size="0.8rem" :name="convertDateIfNecessary(item.createdAt)" />
+              <Tooltip width="35%" size="0.8rem" :name="item.createdAt" />
             </div>
           </div>
         </el-card>

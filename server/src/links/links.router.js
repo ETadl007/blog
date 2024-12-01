@@ -1,6 +1,6 @@
 import express from 'express';
 import * as linksController from './links.controller.js';
-import { authGuard } from '../auth/auth.middleware.js'
+import { authGuard, needAdminAuthNotNeedSuper } from '../auth/auth.middleware.js'
 
 const router = express.Router({
     prefixKey: '/links'
@@ -11,17 +11,25 @@ const router = express.Router({
  */
 router.post('/links/getLinksList', linksController.getTalkList);
 
-
 /**
  * 新增友链
  */
 router.post('/links/add', authGuard, linksController.addOrUpdateLinks);
 
 /**
- * 修改友链
+ * 前台修改友链
  */
 router.post('/links/frontUpdate', authGuard, linksController.addOrUpdateLinks);
 
+/**
+ * 批量审核友链
+ */
+router.put('/links/approve', authGuard, needAdminAuthNotNeedSuper, linksController.updateLinksStatus);
+
+/**
+ * 后台修改友链
+ */
+router.put('/links/backUpdate', authGuard, needAdminAuthNotNeedSuper, linksController.addOrUpdateLinks);
 
 /**
  * 导出路由

@@ -9,7 +9,6 @@ import { ElMessageBox, ElNotification } from "element-plus";
 import { getCurrentType } from "../tool";
 import { addLike, cancelLike } from "@/api/like";
 import { containHTML } from "@/utils/tool";
-import { convertDateIfNecessary } from "@/utils/tool"
 
 const userStore = user();
 
@@ -317,7 +316,7 @@ defineExpose({
                 >删除</span
               >
             </div>
-            <div class="!mt-[0.5rem]">{{ convertDateIfNecessary(comment.createdAt) }}</div>
+            <div class="!mt-[0.5rem]">{{ comment.createdAt }}</div>
             <ChildrenItem
               class="!mt-[1.5rem]"
               ref="childrenRef"

@@ -1,6 +1,8 @@
 import { connecttion } from "../../app/database/mysql.js";
 import fs from 'fs'
 
+import moment from "moment";
+
 /**
  * 检查用户是否已经上传了图片
  */
@@ -38,21 +40,34 @@ export const checkAndDeleteExistingFile = async (userId) => {
 /**
  * 用户更新头像上传
  */
-export const userUpoadFile = async (file, user_id, nick_name) => {
+export const userUploadFile = async (file, id, nick_name) => {
+    // 手动设置时间
+    const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
 
     try {
         // 只有在更新头像时才删除旧头像
-        await checkAndDeleteExistingFile(user_id);
+        await checkAndDeleteExistingFile(id);
 
         const { fieldname, filename, originalname, size, mimetype, path } = file;
 
         const sql = `
             INSERT INTO 
-                blog_files (user_id, fieldname, filename, originalname, mimetype, size, path, nick_name) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                blog_files (user_id, fieldname, filename, originalname, mimetype, size, path, nick_name, createdAt, updatedAt) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        const [result] = await connecttion.promise().query(sql, [user_id, fieldname, filename, originalname, mimetype, size, path, nick_name]);
+        const [result] = await connecttion.promise().query(sql, [
+            id,
+            fieldname,
+            filename,
+            originalname,
+            mimetype,
+            size,
+            path,
+            nick_name,
+            currentTime,
+            currentTime
+        ]);
 
         return result;
     } catch (error) {
@@ -65,18 +80,21 @@ export const userUpoadFile = async (file, user_id, nick_name) => {
  * 图片上传
  */
 
-export const upoadFile = async (file, user_id, nick_name) => {
+export const upoadFile = async (file, id, nick_name) => {
+
+    // 手动设置时间
+    const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
 
     try {
         const { fieldname, filename, originalname, size, mimetype, path } = file;
 
         const sql = `
             INSERT INTO 
-                blog_files (user_id, fieldname, filename, originalname, mimetype, size, path, nick_name) 
+                blog_files (user_id, fieldname, filename, originalname, mimetype, size, path, nick_name ) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        const [result] = await connecttion.promise().query(sql, [user_id, fieldname, filename, originalname, mimetype, size, path, nick_name]);
+        const [result] = await connecttion.promise().query(sql, [id, fieldname, filename, originalname, mimetype, size, path, nick_name]);
 
         return result;
     } catch (error) {

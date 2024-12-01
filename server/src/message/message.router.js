@@ -1,7 +1,7 @@
 import express from 'express';
 import * as messageController from './message.controller.js';
 import * as likeController from '../like/like.controller.js';
-import { authGuard } from '../auth/auth.middleware.js'
+import { authGuard, needAdminAuthNotNeedSuper } from '../auth/auth.middleware.js'
 
 const router = express.Router({
     prefixKey: '/message'
@@ -33,9 +33,14 @@ router.post('/message/like', likeController.addLike);
 router.put('/message/delete', authGuard, messageController.deleteMessage);
 
 /**
+ * 后台批量删除留言
+ */
+router.put('/message/backDelete', authGuard, needAdminAuthNotNeedSuper, messageController.deleteMessage);
+
+/**
  * 修改留言
  */
-router.post('/message/update', messageController.updateMessage);
+router.post('/message/update', authGuard, messageController.updateMessage);
 
 /**
  * 导出路由

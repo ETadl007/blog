@@ -77,34 +77,11 @@ const operate = (op, val) => {
   <div class="git-ee flex_r_around">
     <span
       class="git-ee__item button-animated"
-      @click="operate('openLink', configDetail.git_ee_link)"
+      @click="operate('openLink', configDetail.github_link)"
     >
       <i class="iconfont icon-github"> </i>
       <span class="git-ee__item-text"> My Gtihub</span>
     </span>
-  </div>
-  <div class="personal-link flex_r_around">
-    <i
-      class="iconfont icon-bilibili-line to_pointer"
-      @click="operate('openLink', configDetail.bilibili_link)"
-    ></i>
-    <i
-      class="iconfont icon-github-fill to_pointer"
-      @click="operate('openLink', configDetail.github_link)"
-    ></i>
-
-    <el-popover placement="top" trigger="hover">
-      <el-image style="width: 100%; height: 100%" :src="configDetail.we_chat_link"></el-image>
-      <template #reference>
-        <i class="iconfont icon-weixin1 to_pointer"></i>
-      </template>
-    </el-popover>
-    <el-popover placement="top" trigger="hover">
-      <el-image style="width: 100%; height: 100%" :src="configDetail.qq_link"></el-image>
-      <template #reference>
-        <i class="iconfont icon-QQ1 to_pointer"></i>
-      </template>
-    </el-popover>
   </div>
 </template>
 

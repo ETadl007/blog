@@ -31,8 +31,5 @@ test.js
 # APP 
 /server/config/*.key
 
-# 后台
-/admin
-
 # 静态资源
 /server/uploads
