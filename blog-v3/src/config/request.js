@@ -75,7 +75,7 @@ http.interceptors.response.use(
         // eslint-disable-next-line no-case-declarations
         const userStore = user();
         userStore.clearUserInfo();
-        router.push("/login");
+        userStore.setShowLogin(true);
         break;
       case "403":
         // 403 表示权限不足
@@ -108,27 +108,26 @@ http.interceptors.response.use(
           ),
         });
         break;
-        case "429":
-          ElNotification({
-            offset: 60,
-            title: "错误提示",
-            message: h(
-              "div",
-              { style: "color: #f56c6c; font-weight: 600;" },
-              data.message || "请求超时"
-            ),
-          });
-          break;
-      default:
+      case "429":
+        // 429 表示给用户一些提示
+        ElNotification({
+          offset: 60,
+          title: "温馨提示",
+          message: h("div", { style: "color: #e6c081; font-weight: 600;" }, data.message),
+        });
+        break;
+      case "500":
         ElNotification({
           offset: 60,
           title: "错误提示",
           message: h(
             "div",
             { style: "color: #f56c6c; font-weight: 600;" },
-             "服务端错误"
+            data.message || "服务端错误"
           ),
         });
+        break;
+      default:
         return;
     }
     return Promise.reject(error);

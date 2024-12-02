@@ -56,15 +56,10 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, "")
         },
-        "/blog-images": {
-          target: "http://mrzym.top:9000/blog-images",
+        "/images": {
+          target: "http://127.0.0.1:8888/images",
           changeOrigin: true,
-          rewrite: path => path.replace(/^\/blog-images/, "")
-        },
-        "/gitee": {
-          target: "https://gitee.com/mrzym",
-          changeOrigin: true,
-          rewrite: path => path.replace(/^\/gitee/, "")
+          rewrite: path => path.replace(/^\/images/, "")
         }
       }
     },

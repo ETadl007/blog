@@ -25,7 +25,7 @@ router.post('/talk/publishTalk', authGuard, needAdminAuthNotNeedSuper, talkContr
 /**
  * 修改说说
  */
-router.put("/updateTalk", authGuard, needAdminAuthNotNeedSuper, talkController.updateTalk);
+router.put("/talk/updateTalk", authGuard, needAdminAuthNotNeedSuper, talkController.updateTalk);
 
 /**
  * 根据id 获取说说详情

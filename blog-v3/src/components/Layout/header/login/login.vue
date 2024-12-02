@@ -12,17 +12,10 @@ import blogAvatar from "@/assets/img/blogAvatar.png";
 import { _encrypt, _decrypt } from "@/utils/encipher";
 
 import { ElNotification } from "element-plus";
-
-const props = defineProps({
-  show: {
-    type: Boolean,
-    default: false,
-  },
-});
-
-const emit = defineEmits(["update:show"]);
+import { storeToRefs } from "pinia";
 
 const userStore = user();
+const { getShowLogin } = storeToRefs(userStore);
 
 const usernameV = (rule, value, cb) => {
   if (!value) {
@@ -38,7 +31,7 @@ const password1V = (rule, value, cb) => {
   if (!value) {
     return cb(new Error("请输入密码"));
   } else if (!REGEXP_PWD.test(value)) {
-    return cb(new Error("密码格式应为8-18位数字、字母、符号的任意两种组合"));
+    return cb(new Error("密码格式应为6-18位数字、字母、符号的任意两种组合"));
   }
   cb();
 };
@@ -68,7 +61,7 @@ const registerForm = reactive({
 });
 const primaryRegisterForm = reactive({ ...registerForm });
 const isLogin = ref(true);
-const dialogVisible = ref(false);
+const showDialog = ref(false);
 
 const loginRules = {
   username: [{ required: true, message: "请输入用户账号", trigger: "blur" }],
@@ -84,7 +77,7 @@ const welcome = (id, nick_name) => {
   // 欢迎
   let msg = getWelcomeSay(nick_name);
   if (id == 3) {
-    msg = "欢迎来到007的博客～";
+    msg = "小婷光临，真是三生有幸";
   }
   ElNotification({
     offset: 60,
@@ -103,7 +96,7 @@ const userRegister = async () => {
         nick_name: registerForm.nick_name,
       };
       const res = await reqRegister(register);
-      if (res && res.status == 0) {
+      if (res && res.code == 0) {
         // 自动登录
         await userLogin("register");
       } else {
@@ -140,7 +133,7 @@ const onLogin = async (form, type = "login") => {
   const res = await reqLogin(form);
   if (res && res.status == 0) {
     // 保存 token
-    await userStore.setToken(res.data.token);
+    userStore.setToken(res.data.token);
     if (type === "register") {
       // 记住密码
       _setLocalItem("loginForm", _encrypt(form));
@@ -165,12 +158,12 @@ const onLogin = async (form, type = "login") => {
     // 获取并保存当前用户信息
     const userRes = await getUserInfoById(res.data.id);
     if (userRes.status == 0) {
-      await userStore.setUserInfo(userRes.data);
+      userStore.setUserInfo(userRes.data);
       Object.assign(loginForm, primaryLoginForm);
       Object.assign(registerForm, primaryRegisterForm);
       handleClose();
       const { id, nick_name } = userRes.data;
-      await welcome(id, nick_name);
+      welcome(id, nick_name);
     } else {
       ElNotification({
         offset: 60,
@@ -204,29 +197,8 @@ const submit = async () => {
 };
 
 const handleClose = () => {
-  emit("update:show", false);
+  userStore.setShowLogin(false);
 };
-
-watch(
-  () => props.show,
-  (newV) => {
-    dialogVisible.value = newV;
-    if (newV) {
-      isLogin.value = true;
-      nextTick(() => {
-        loginFormRef.value && loginFormRef.value.resetFields();
-        registerForm.value && registerFormRef.value.resetFields();
-
-        // 判断用户是否被记住了
-        let form = _decrypt(_getLocalItem("loginForm"));
-        if (form) {
-          isRemember.value = true;
-          Object.assign(loginForm, JSON.parse(form));
-        }
-      });
-    }
-  }
-);
 
 watch(
   () => isLogin.value,
@@ -241,10 +213,33 @@ watch(
     immediate: true,
   }
 );
+watch(
+  () => getShowLogin.value,
+  (newV) => {
+    showDialog.value = newV;
+    if (newV) {
+      isLogin.value = true;
+      nextTick(() => {
+        loginFormRef.value && loginFormRef.value.resetFields();
+        registerForm.value && registerFormRef.value.resetFields();
+
+        // 判断用户是否被记住了
+        let form = _decrypt(_getLocalItem("loginForm"));
+        if (form) {
+          isRemember.value = true;
+          Object.assign(loginForm, JSON.parse(form));
+        }
+      });
+    }
+  },
+  {
+    immediate: true,
+  }
+);
 </script>
 
 <template>
-  <el-dialog v-model="dialogVisible" width="120" :before-close="handleClose">
+  <el-dialog v-model="showDialog" width="120" :before-close="handleClose">
     <template #header>
       <h1>{{ isLogin ? "登录" : "注册" }}</h1>
     </template>
@@ -336,7 +331,7 @@ watch(
         </el-form-item>
       </el-form>
       <div v-if="isLogin" class="flex justify-between items-center w-[100%] mb-3">
-        <span class="apply-button" type="danger" @click="submit">登录</span>
+        <span class="apply-button" @click="submit">登录</span>
       </div>
       <div v-else class="flex justify-between items-center w-[100%] mb-3">
         <span class="apply-button" @click="submit">注册</span>

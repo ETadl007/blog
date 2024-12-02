@@ -14,16 +14,6 @@ export const checkAndDeleteExistingFile = async (userId) => {
         );
 
         if (rows.length > 0) {
-            const oldFilePath = rows[0].path;
-
-            // 检查文件是否存在
-            if (fs.existsSync(oldFilePath)) {
-                // 删除旧文件
-                fs.unlinkSync(oldFilePath);
-            } else {
-                console.warn(`文件 ${oldFilePath} 不存在，无需删除`);
-            }
-
             // 删除数据库记录
             await connecttion.promise().query(
                 'DELETE FROM blog_files WHERE user_id = ?',

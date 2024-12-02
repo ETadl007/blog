@@ -1,4 +1,12 @@
 {
+  "name": "blog-server",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "node app.js",
+    "prd": "pm2 start app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.6",

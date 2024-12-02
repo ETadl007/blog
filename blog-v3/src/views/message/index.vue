@@ -458,6 +458,7 @@ onBeforeUnmount(() => {
         text-align: center;
         padding: 0 0.6rem;
         border-radius: 8px;
+        color: var(--font-color);
       }
       .message-active-tab {
         color: var(--global-white);

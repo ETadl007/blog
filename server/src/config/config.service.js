@@ -8,7 +8,7 @@ import moment from "moment";
 export const updateConfig = async (config) => {
 
     const { blog_name, blog_avatar, avatar_bg, personal_say, blog_notice, github_link } = config;
-
+    
     // 手动设置时间
     const updatedAt = moment().format("YYYY-MM-DD HH:mm:ss");
 
@@ -60,7 +60,7 @@ export const getWebConfig = async () => {
     SELECT 
         id,
         blog_name,
-        (SELECT avatar FROM blog_user WHERE id = 1) AS blog_avatar,
+        blog_avatar,
         avatar_bg,
         personal_say,
         blog_notice,

@@ -6,6 +6,7 @@ import * as configService from './config.service.js';
 export const updateConfig = async (req, res, next) => {
   try {
     const { id } = req.body;
+    console.log(req.body);
     
     const one = await configService.getConfigById(id);
     let result;

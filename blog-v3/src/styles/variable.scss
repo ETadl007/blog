@@ -1,22 +1,24 @@
 // 整体主题色变量
 :root {
-  --primary: #5cbfef;
+  --global-font-size: 14px;
+  --primary: #49b1f5;
   --router-color: #dddddd;
-  --font-color: #676767;
-  --dark-font-color: #a7a7a7;
+  --font-color: #4b4948;
   --second-font-color: #b3b7ff;
   --hot-color: #f00;
-  --md-active: #409eff;
+  --md-active: #49b1f5;
   --global-white: #fff;
   --global-black: #000;
-  --global-shadow-white: #fafafa;
-  --header-bg-color: #8a7e90;
+  --global-shadow-white: rgba(255, 255, 255, 0.5);
   --meta-color: #858585;
   --comment-grey: #a4a4a4;
   --border-color: #7ec4f2;
   --hr-border: #a9d5f4;
   --top: #f26c60;
   --error: #f56c6c;
+
+  --menu-color: #fff;
+
   --music-main-active: #62c28a;
   --music-main-bg: #101827;
   --shadow-mask-bg: rgba(0, 0, 0, 0.5);
@@ -50,8 +52,10 @@
     #3b4146 88.9%,
     #4a4242 99%
   );
+
   --button-linear-gradient: linear-gradient(300deg, #74ebd5 0%, #9face6 100%);
   --button-linear-gradient-h: linear-gradient(300deg, #9face6 0%, #74ebd5 100%);
+
   --dark-button-linear-gradient: linear-gradient(300deg, #a286a2 0%, #648faf 100%);
   --dark-button-linear-gradient-h: linear-gradient(300deg, #648faf 0%, #a286a2 100%);
 }
@@ -62,6 +66,10 @@ html.dark {
   --card-bg: #303030;
   --home-bg: #282828;
   --home-mask-color: rgba(0, 0, 0, 0.4);
+
+  --global-black: var(--font-color);
+  --global-white: var(--font-color);
+
   --music-main-bg: #303030;
 
   --menu-color: var(--font-color);
