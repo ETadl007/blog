@@ -18,7 +18,7 @@ const { setOptions, resize } = useECharts(wordCloudRef as Ref<HTMLDivElement>, {
 const data = ref([]);
 const getTagList = async () => {
   const res = await getTagDictionary();
-  if (res.status == 0) {
+  if (res.code == 0) {
     data.value = res.data.map(v => {
       return {
         value: Math.random() * 4 + 8,

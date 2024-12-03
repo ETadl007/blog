@@ -66,7 +66,7 @@ export const useUserStore = defineStore({
       return new Promise<UserResult>((resolve, reject) => {
         getLogin(data)
           .then(async res => {
-            if (res.status == 0) {
+            if (res.code == 0) {
               setToken(res.data);
               this.SET_ID(Number(res.data.id));
               await this.saveUserInfo(res.data.id);
@@ -82,7 +82,7 @@ export const useUserStore = defineStore({
     // 保存当前登录人信息
     async saveUserInfo() {
       const res = await getUserInfoById(this.getUserId);
-      if (res.status == 0) {
+      if (res.code == 0) {
         this.SET_AVATAR(res.data.avatar);
         this.SET_NICKNAME(res.data.nick_name);
         this.SET_ID(Number(res.data.id));

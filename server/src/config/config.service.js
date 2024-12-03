@@ -8,7 +8,7 @@ import moment from "moment";
 export const updateConfig = async (config) => {
 
     const { blog_name, blog_avatar, avatar_bg, personal_say, blog_notice, github_link } = config;
-    
+
     // 手动设置时间
     const updatedAt = moment().format("YYYY-MM-DD HH:mm:ss");
 
@@ -27,7 +27,7 @@ export const updateConfig = async (config) => {
         id = 1
     `;
     const [data] = await connecttion.promise().query(updateSql, [blog_name, blog_avatar, avatar_bg, personal_say, blog_notice, github_link, updatedAt]);
-    return data.affectedRows > 0 ? true : false ;
+    return data.affectedRows > 0 ? true : false;
 }
 
 /**
@@ -72,7 +72,7 @@ export const getWebConfig = async () => {
         blog_config
     `;
     const [data] = await connecttion.promise().query(configSql);
-    return data[0];
+    return data.length ? data[0] : false;
 }
 
 /**
@@ -100,7 +100,10 @@ export const getConfigById = async (id) => {
     return data[0];
 }
 
-export const addView = async (configId) => {
+export const addView = async () => {
+
+    let flag = false;
+
     const addViewSql = `
     UPDATE
         blog_config
@@ -109,7 +112,16 @@ export const addView = async (configId) => {
     WHERE
         id = ?
     `
-    const [data] = await connecttion.promise().query(addViewSql, [configId]);
+    const [res] = await connecttion.promise().query("SELECT * FROM blog_config");
+    
+    if (res.length) {
+        const firstConfigId = res[0].id;
 
-    return data
+        await connecttion.promise().query(addViewSql, [firstConfigId]);
+
+        flag = "添加成功"
+    } else {
+        flag = "需要初始化"
+    }
+    return flag
 }

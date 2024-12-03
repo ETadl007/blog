@@ -5,7 +5,7 @@ import { ElMessage } from "element-plus";
 import { imageConversion } from "@/utils/utils";
 
 export type SiteResult = {
-  status: number;
+  code: number;
   message: string;
   data: any;
 };

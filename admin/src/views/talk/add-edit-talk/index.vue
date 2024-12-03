@@ -67,7 +67,7 @@ const save = async () => {
     });
     await Promise.all(promiseList).then(res => {
       res.map(img => {
-        if (img.status == 0) {
+        if (img.code == 0) {
           const { url } = img.data;
           const obj = route.query.id
             ? { id: route.query.id, url: url }
@@ -86,7 +86,7 @@ const save = async () => {
       Object.assign(form, { user_id: userId });
     }
     const res = route.query.id ? await editTalk(form) : await addTalk(form);
-    if (res.status == 0) {
+    if (res.code == 0) {
       message(route.query.id ? "修改成功" : "发布成功", { type: "success" });
       router.go(-1);
     }
@@ -101,7 +101,7 @@ const cancel = () => {
 
 const getTalkDetailById = async id => {
   const res = await getTalkById(id);
-  if (res.status == 0) {
+  if (res.code == 0) {
     res.data.talkImgList = res.data.talkImgList.map(img => {
       return {
         id: id,

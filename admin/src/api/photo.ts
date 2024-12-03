@@ -1,7 +1,7 @@
 import { http } from "@/utils/http";
 
 export type photoResult = {
-  status: number;
+  code: number;
   message: string;
   data: any;
 };

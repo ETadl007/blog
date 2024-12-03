@@ -1,6 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { PUBLIC_KEY } from '../app/app.config.js';
 
+import { result, ERRORCODE, errorResult } from '../result/index.js'
+const errorCode = ERRORCODE.AUTH; // 用户权限不足
+const tokenErrorCode = ERRORCODE.AUTHTOKEN; // 用户登录过期
 
 /**
  * 验证用户身份
@@ -11,24 +14,24 @@ export const authGuard = async (req, res, next) => {
         const authorization = req.header('Authorization');
 
         // 验证token
-        if (!authorization) throw new Error();
+        if (!authorization) return next(errorResult(errorCode, '您没有权限访问，请先登录', 403));
 
         // 提取 JWT 令牌
         const token = authorization.replace('Bearer ', '');
 
-        if (!token) throw new Error();
+        if (!token) return next(errorResult(errorCode, '您没有权限访问，请先登录', 403));
 
         // 验证令牌
         jwt.verify(token, PUBLIC_KEY, { algorithms: ['RS256'] }, (err, decoded) => {
             
             if (err) {
-                return next(new Error('UNAUTHORIZED'))
+                return next(errorResult(tokenErrorCode, 'Token无效', 401))
             }
 
             // 验证通过
             // 在请求主体里添加用户
             req.user = decoded
-
+            
             // 下一步
             next();
             
@@ -38,12 +41,12 @@ export const authGuard = async (req, res, next) => {
     } catch (error) {
         console.error("未授权，请先登录:", error);
         if (error.name === "TokenExpiredError") {
-            return next(new Error('TokenExpiredError'));
+            return next(errorResult(tokenErrorCode, '登录已过期，请重新登录', 401));
         }
         if (error.name === "JsonWebTokenError") {
-            return next(new Error('JsonWebTokenError'));
+            return next(errorResult(tokenErrorCode, 'Token无效', 401));
         }
-        return next(new Error('UNAUTHORIZED'));
+        return next(errorResult(tokenErrorCode, '错误的请求', 500));
     }
 }
 
@@ -54,32 +57,20 @@ export const validateUserIdMiddleware = (req, res, next) => {
 
     // 检查请求体中是否有 user_id
     if (!user_id) {
-        return res.status(400).send({
-            status: 1,
-            message: '错误的请求',
-            data: null
-        });
+        return next(errorResult(tokenErrorCode, '错误的请求', 500));
     }
 
     // 确保 req.username 已经被正确设置
-    if (!req.username || !req.body.user_id) {
-        return res.status(401).send({
-            status: 1,
-            message: '未授权，请先登录',
-            data: null
-        });
+    if (!req.user || !req.body.user_id) {
+        return next(errorResult(errorCode, '您没有权限访问，请先登录', 403));
     }
 
     // 验证JWT令牌
-    const { id } = req.username;
+    const { id } = req.user;
     
     // 验证 user_id 是否与 JWT 中的 id 匹配
     if (id !== user_id) {
-        return res.status(403).send({
-            status: 1,
-            message: '不允许的操作',
-            data: null
-        });
+        return next(errorResult(errorCode, '您没有权限访问，请先登录', 403));
     }
 
     next();
@@ -93,19 +84,11 @@ export const needAdminAuthNotNeedSuper = (req, res, next) => {
     const token = authorization.replace('Bearer ', '');
     const { role, username  } = jwt.decode(token, PUBLIC_KEY, { algorithms: ['RS256'] });
     if (Number(role) !== 1){
-        return res.status(403).send({
-            status: 1,
-            message: '普通用户仅限查看',
-            data: null
-        })
+        return next(errorResult(errorCode, '普通用户仅限查看', 403));
     }
 
     if (username == 'admin'){
-        return res.status(403).send({
-            status: 1,
-            message: 'admin是配置的用户，没有用户信息',
-            data: null
-        })
+        return next(errorResult(errorCode, 'admin是配置的用户，没有用户信息', 403));
     }
     next();
 }
@@ -119,11 +102,7 @@ export const needAdminAuth = (req, res, next) => {
     const { role } = jwt.decode(token, PUBLIC_KEY, { algorithms: ['RS256'] });
     
     if (Number(role) !== 1) {
-        return res.status(403).send({
-            status: 1,
-            message: '普通用户仅限查看',
-            data: null
-        });
+        return next(errorResult(errorCode, '普通用户仅限查看', 403));
     }
     next();
 }
@@ -136,11 +115,7 @@ export const isSuperAdmin = (req, res, next) => {
     const token = authorization.replace('Bearer ', '');
     const { username  } = jwt.decode(token, PUBLIC_KEY, { algorithms: ['RS256'] });
     if (username == 'admin'){
-        return res.status(403).send({
-            status: 1,
-            message: '管理员信息只可通过配置信息修改',
-            data: null
-        })
+        return next(errorResult(errorCode, '管理员信息只可通过配置信息修改', 403));
     }
     next();
 }

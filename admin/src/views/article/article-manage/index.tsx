@@ -162,7 +162,7 @@ export function useColumns() {
     if (val) {
       const { id, is_top } = val;
       const res = await updateArticleTop(id, is_top);
-      if (res.status == 0) {
+      if (res.code == 0) {
         message(`${is_top == 1 ? "置顶" : "取消置顶"} 成功`, {
           type: "success"
         });
@@ -177,7 +177,7 @@ export function useColumns() {
   async function revertArticleById(id, article_title) {
     if (id) {
       const res = await revertArticle(id);
-      if (res.status == 0) {
+      if (res.code == 0) {
         message(`恢复文章 ${article_title}成功`, { type: "success" });
       }
       pageGetArticleList();
@@ -186,7 +186,7 @@ export function useColumns() {
   // 公开隐藏文章
   async function changeArticlePublic(id, status) {
     const res = await isArticlePublic(id, status);
-    if (res.status == 0) {
+    if (res.code == 0) {
       message(`${status == 1 ? "隐藏" : "公开"} 文章成功`, { type: "success" });
     }
     pageGetArticleList();
@@ -214,7 +214,7 @@ export function useColumns() {
   // 通过id删除文章
   async function deleteArticleById(id: any, status: number, article_title: any) {
     const res = await deleteArticle(id, status);
-    if (res.status == 0) {
+    if (res.code == 0) {
       if (status == 3) {
         message(`删除文章 ${article_title}成功`, { type: "success" });
       } else {
@@ -229,7 +229,7 @@ export function useColumns() {
     loading.value = true;
     const res = await getArticleList(param);
 
-    if (res.status == 0) {
+    if (res.code == 0) {
       tableData.value = res.data.list;
       pagination.total = res.data.total;
       tableImageList.value = [];
@@ -242,13 +242,13 @@ export function useColumns() {
 
   async function getTagD() {
     const res = await getTagDictionary();
-    if (res.status == 0) {
+    if (res.code == 0) {
       tagOptionList.value = res.data;
     }
   }
   async function getCategoryD() {
     const res = await getCategoryDictionary();
-    if (res.status == 0) {
+    if (res.code == 0) {
       categoryOptionList.value = res.data;
     }
   }

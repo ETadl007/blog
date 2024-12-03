@@ -89,7 +89,7 @@ const pageGetMessageList = async () => {
   }
   try {
     let res = await getMessageList(param);
-    if (res.status == 0) {
+    if (res.code == 0) {
       const { list } = res.data;
 
       messageList.value =
@@ -119,7 +119,7 @@ const like = async (item, index) => {
       type: 3,
       user_id: getUserInfo.value.id,
     });
-    if (res.status == 0) {
+    if (res.code == 0) {
       messageList.value[index].like_times--;
       messageList.value[index].is_like = false;
       ElNotification({
@@ -132,7 +132,7 @@ const like = async (item, index) => {
   // 点赞
   else {
     let res = await addLike({ for_id: item.id, type: 3, user_id: getUserInfo.value.id })
-    if (res.status == 0) {
+    if (res.code == 0) {
       messageList.value[index].like_times++;
       messageList.value[index].is_like = true;
       ElNotification({
@@ -168,7 +168,7 @@ const handleDeleteMessage = (item) => {
     cancelButtonText: "取消",
   }).then(async () => {
     const res = await deleteMessage(item.id);
-    if (res && res.status == 0) {
+    if (res && res.code == 0) {
       ElNotification({
         offset: 60,
         title: "提示",
@@ -191,7 +191,7 @@ const handleDeleteMessage = (item) => {
 const getHotMessageTag = async () => {
   tabList.value = [];
   const res = await getMessageTag();
-  if (res.status == 0) {
+  if (res.code == 0) {
     tabList.value = Array.isArray(res.data)
       ? res.data.map((v, i) => {
           return {

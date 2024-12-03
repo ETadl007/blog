@@ -35,7 +35,7 @@ export const addLike = async ({ for_id, type, user_id }) => {
             id = ?
         `;
         const [data] = await connecttion.promise().query(talkSql, [for_id]);
-        return data.affectedRows > 0;
+        return data.affectedRows > 0 ? true : false;
         
     } else if (type == 3) {
         // 留言
@@ -48,7 +48,7 @@ export const addLike = async ({ for_id, type, user_id }) => {
             id = ?
         `;
         const [data] = await connecttion.promise().query(addMessageLikeSql, [for_id]);
-        return data.affectedRows > 0;
+        return data.affectedRows > 0 ? true : false;
         
     }else if (type == 4){
         // 评论
@@ -61,18 +61,15 @@ export const addLike = async ({ for_id, type, user_id }) => {
             id = ?
         `;
         const [data] = await connecttion.promise().query(addMessageLikeSql, [for_id]);
-        return data.affectedRows > 0;
+        return data.affectedRows > 0 ? true : false;
     }
-    return data.affectedRows === 1;
+    return data.affectedRows > 0 ? true : false;
 }
 
 /**
  * 取消点赞
  */
 export const cancelLike = async ({ for_id, type, user_id }) => {
-    console.log();
-    
-    
     const statement = `
     DELETE FROM blog_like
     WHERE type = ? AND for_id = ? AND user_id = ?
@@ -103,7 +100,7 @@ export const cancelLike = async ({ for_id, type, user_id }) => {
             id = ?
         `;
         const [data] = await connecttion.promise().query(talkSql, [for_id]);
-        return data.affectedRows > 0;
+        return data.affectedRows > 0 ? true : false;
         
     } else if (type == 3) {
         // 留言
@@ -116,10 +113,10 @@ export const cancelLike = async ({ for_id, type, user_id }) => {
             id = ?
         `;
         const [data] = await connecttion.promise().query(addMessageCancelLikeSql, [for_id]);
-        return data.affectedRows > 0;
+        return data.affectedRows > 0 ? true : false;
         
     }
-    return data.affectedRows === 1;
+    return data.affectedRows > 0 ? true : false;
 }
 
 
@@ -150,13 +147,38 @@ export const getIsLikeByIdAndType = async ({ for_id, type, user_id }) => {
 }
 
 /**
+ * 获取当前ip对当前文章/说说/留言 是否点赞
+ */
+export const getIsLikeByIpAndType = async ({ for_id, type, ip }) => {
+
+    try {
+
+        const getIsLikeByIpAndTypeSql = `
+        SELECT
+            *
+        FROM
+            blog_like
+        WHERE
+            for_id = ? AND type = ? AND ip = ?
+        `;
+
+        const [rows] = await connecttion.promise().query(getIsLikeByIpAndTypeSql, [for_id, type, ip]);
+    
+        return rows.length ? false : true;
+      } catch (err) {
+        console.error('获取点赞状态时发生错误:', err);
+        throw err;
+      }
+}
+
+/**
  * 判断文章/说说/留言 是否存在
  */
 
-export const blogLikeExists = async ({ for_id, type }) => {
+export const blogLikeExists = async ({ type, likeType }) => {
 
     let table;
-    switch (type) {
+    switch (likeType) {
         case 'article':
             table = 'blog_article';
             break;
@@ -179,10 +201,10 @@ export const blogLikeExists = async ({ for_id, type }) => {
     FROM
         ${table}
     WHERE
-        id = ?
+        type = ?
     `
     // 执行查询
-    const [articleExistResult] = await connecttion.promise().query(sql, [for_id]);
+    const [articleExistResult] = await connecttion.promise().query(sql, [type]);
 
     // 返回结果
     return articleExistResult.length > 0;

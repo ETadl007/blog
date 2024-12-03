@@ -44,7 +44,7 @@ const resize = () => {
 // 获取所有的网站页面背景图
 const getAllPageHeaderBg = async () => {
   const res = await getAllPageHeader();
-  if (res.status == 0) {
+  if (res.code == 0) {
     staticData().setPageHeaderLIst(res.data);
   } else {
     ElNotification({

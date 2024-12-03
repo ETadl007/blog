@@ -39,7 +39,7 @@ const getArticleListById = async () => {
   } else {
     res = await getArticleListByCategoryId(param);
   }
-  if (res.status == 0) {
+  if (res.code == 0) {
     articleList.value = res.data.list;
     total.value = res.data.total;
     loading.value = false;

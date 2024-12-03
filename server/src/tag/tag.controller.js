@@ -1,6 +1,9 @@
 import * as tagService from './tag.service.js';
 import { PAGE_SIZE } from '../app/app.config.js';
 
+import { result, ERRORCODE, errorResult } from "../result/index.js"
+const errorCode = ERRORCODE.TAG;
+
 /**
  * 获取所有标签
  */
@@ -8,13 +11,10 @@ import { PAGE_SIZE } from '../app/app.config.js';
 export const getTagDictionary = async (req, res, next) => {
     try {
         const tag = await tagService.getAllTag();
-        res.send({
-            status: 0,
-            message: '获取标签成功',
-            data: tag
-        });
+
+        res.send(result("获取标签成功", tag))
     } catch (err) {
-        next(new Error('GETTAGLISTERROR'))
+        return next(errorResult(errorCode, "获取标签失败", 500))
     }
 }
 
@@ -32,18 +32,10 @@ export const getTagList = async (req, res, next) => {
         const offset = (current - 1) * limit;
 
         const tag = await tagService.getTagList({ tag_name, limit, offset });
-        res.send({
-            status: 0,
-            message: '获取标签成功',
-            data: {
-                current,
-                size,
-                list: tag,
-                total: tag.length
-            }
-        });
+
+        res.send(result("获取标签成功", { current, size, list: tag, total: tag.length }))
     } catch (err) {
-        next(new Error('GETTAGLISTERROR'))
+        return next(errorResult(errorCode, "获取标签失败", 500))
     }
 }
 
@@ -53,23 +45,12 @@ export const getTagList = async (req, res, next) => {
 export const deleteTag = async (req, res, next) => {
     try {
         const { tagIdList } = req.body;
-        const tag = await tagService.deleteTag(tagIdList);
-        if (tag) {
-            res.send({
-                status: 0,
-                message: '删除标签成功',
-                data: tag
-            });
-        } else {
-            res.send({
-                status: 1,
-                message: '删除标签失败',
-                data: null
-            });
-        }
+        const tag = await tagService.deleteTag({ tagIdList });
+        
+        res.send(result("删除标签成功", { updateNum: tag }))
 
     } catch (err) {
-        next(new Error('DELETETAGERROR'))
+        return next(errorResult(errorCode, "删除标签失败", 500))
     }
 }
 
@@ -80,17 +61,11 @@ export const addTag = async (req, res, next) => {
     try {
         const { tag_name } = req.body;
         const tag = await tagService.addTag(tag_name);
-        res.send({
-            status: 0,
-            message: '添加标签成功',
-            data: {
-                tag: tag.id,
-                tag_name: tag.tag_name
-            }
-        });
+
+        res.send(result("添加标签成功", { tag: tag.id, tag_name: tag.tag_name }))
 
     } catch (err) {
-        next(new Error('ADDTAGERROR'))
+        return next(errorResult(errorCode, "添加标签失败", 500))
     }
 }
 
@@ -101,13 +76,10 @@ export const updateTag = async (req, res, next) => {
     try {
         const { id, tag_name } = req.body;
         const tag = await tagService.updateTag(id, tag_name);
-        res.send({
-            status: 0,
-            message: '修改标签成功',
-            data: tag
-        });
+
+        res.send(result("修改标签成功", tag))
 
     } catch (err) {
-        next(new Error('UPDATETAGERROR'))
+        return next(errorResult(errorCode, "修改标签失败", 500))
     }
 }

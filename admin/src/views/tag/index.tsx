@@ -124,7 +124,7 @@ export function useColumns() {
   }
   async function deleteTag(row) {
     const res = await deleteTagList({ tagIdList: [row.id] });
-    if (res.status == 0) {
+    if (res.code == 0) {
       message(`删除标签${row.tag_name}成功`, { type: "success" });
       getPageTagList();
     }
@@ -133,7 +133,7 @@ export function useColumns() {
     if (selectList.value.length) {
       const list = selectList.value.map(se => se.id);
       const res = await deleteTagList({ tagIdList: list });
-      if (res.status == 0) {
+      if (res.code == 0) {
         message(`批量删除标签成功`, { type: "success" });
         getPageTagList();
       }
@@ -155,7 +155,7 @@ export function useColumns() {
         } else {
           res = await addTag(form);
         }
-        if (res.status == 0) {
+        if (res.code == 0) {
           message(`${form.id ? "修改" : "新增"}成功`, { type: "success" });
           dialogVisible.value = false;
           resetForm(formEl);
@@ -168,7 +168,7 @@ export function useColumns() {
 
   async function getPageTagList() {
     const res = await getTagList(param);
-    if (res.status == 0) {
+    if (res.code == 0) {
       dataList.value = res.data.list;
       pagination.total = res.data.total;
       loading.value = false;

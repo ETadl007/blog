@@ -85,7 +85,7 @@ const pageGetLinksList = async () => {
       scrollLoading.value = true;
     }
     const res = await getFriendLinks(params);
-    if (res && res.status == 0) {
+    if (res && res.code == 0) {
       linksList.value =
         params.current == 1 ? res.data.list : linksList.value.concat(res.data.list);
       total.value = res.data.total - 0;
@@ -112,7 +112,7 @@ const applyLinks = () => {
 // 获取网站详细信息
 const getConfigDetail = async () => {
   let res = await homeGetConfig();
-  if (res.status == 0 && typeof res.data != "string") {
+  if (res.code == 0 && typeof res.data != "string") {
     blogName.value = res.data.blog_name;
   }
 };
@@ -141,7 +141,7 @@ onBeforeUnmount(() => {
           <div class="desc-title">{{ "欢迎来到" + blogName }}</div>
         </template>
         <el-descriptions-item label="博客链接"
-          ><span v-copy="'https://www.xinux.icu'" class="!cursor-pointer">https://www.xinux.icu</span>
+          ><span v-copy="'http://47.122.25.63/'" class="!cursor-pointer">http://47.122.25.63/</span>
         </el-descriptions-item>
         <el-descriptions-item label="QQ">
           <span v-copy="'2715158815'" class="!cursor-pointer">2814753920</span>

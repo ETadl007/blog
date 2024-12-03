@@ -57,7 +57,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
       useUserStoreHook()
         .loginByUsername(ruleForm)
         .then(res => {
-          if (res.status == 0) {
+          if (res.code == 0) {
             initRouter().then(() => {
               router.push("/");
               message("登录成功", { type: "success" });

@@ -23,7 +23,7 @@ const clickSearchIcon = async () => {
   historySearchList.value = _getLocalItem("blogSearchHistory") || [];
   // 获取热门文章
   let res = await getHotArticle();
-  if (res.status == 0) {
+  if (res.code == 0) {
     hotSearchList.value = res.data.map((r, index) => {
       return {
         id: r.id,
@@ -60,7 +60,7 @@ const clickHistoryTag = (val) => {
 // 根据文章内容来搜索文章
 const getArticleList = async () => {
   let res = await getArticleByContent(input.value);
-  if (res.status == 0) {
+  if (res.code == 0) {
     searchResult.value =
       res.data.length &&
       res.data.map((r) => {

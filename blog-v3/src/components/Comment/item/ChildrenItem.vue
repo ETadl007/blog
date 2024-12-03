@@ -86,7 +86,7 @@ const getComment = async (type) => {
   }
   params.type = getCurrentType(props.type);
   const res = await frontGetChildrenComment(params);
-  if (res && res.status == 0) {
+  if (res && res.code == 0) {
     const { list, total } = res.data;
     commentList.value = list;
     commentTotal.value = total - 0;
@@ -109,7 +109,7 @@ const like = async (item, index) => {
   // 查看点赞了没有，点赞了就进行取消点赞
   if (item.is_like) {
     res = await cancelLike({ for_id: item.id, type: 4, user_id: userStore.getUserInfo.id });
-    if (res && res.status == 0) {
+    if (res && res.code == 0) {
       commentList.value[index].is_like = false;
       commentList.value[index].thumbs_up--;
       likePending.value = false;
@@ -122,7 +122,7 @@ const like = async (item, index) => {
     }
   } else {
     res = await addLike({ for_id: item.id, type: 4, user_id: userStore.getUserInfo.id });
-    if (res && res.status == 0) {
+    if (res && res.code == 0) {
       commentList.value[index].is_like = true;
       commentList.value[index].thumbs_up++;
       likePending.value = false;
@@ -165,7 +165,7 @@ const deleteOwnComment = (id) => {
     cancelButtonText: "取消",
   }).then(async () => {
     const res = await deleteComment(id, props.parent_id);
-    if (res && res.status == 0) {
+    if (res && res.code == 0) {
       ElNotification({
         offset: 60,
         title: "提示",
@@ -219,7 +219,7 @@ const publish = async () => {
   data.type = getCurrentType(props.type);
 
   const res = await applyComment(data);
-  if (res.status == 0) {
+  if (res.code == 0) {
     commentText.value = "";
     ElNotification({
       offset: 60,

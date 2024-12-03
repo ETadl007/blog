@@ -42,7 +42,7 @@ export const getNotifyTotal = async (userId) => {
  * 阅读消息列表
  */
 
-export const readNotifyList = async (id) => {
+export const readNotifyList = async ({id}) => {
     const statement = `
         UPDATE 
             blog_notify
@@ -52,7 +52,7 @@ export const readNotifyList = async (id) => {
             id = ?
     `;
         
-    const [data] = await connecttion.promise().query(statement, id);
+    const [data] = await connecttion.promise().query(statement, [id]);
     return data;
 }
 
@@ -60,7 +60,7 @@ export const readNotifyList = async (id) => {
  * 删除通知
  */
 
-export const deleteNotify = async (params) => {
+export const deleteNotify = async ({id}) => {
     const statement = `
         DELETE FROM 
             blog_notify
@@ -68,7 +68,7 @@ export const deleteNotify = async (params) => {
             id = ?
     `;
         
-    const [data] = await connecttion.promise().query(statement, params);
+    const [data] = await connecttion.promise().query(statement, [id]);
     return data;
 }
 

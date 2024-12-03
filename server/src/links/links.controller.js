@@ -2,6 +2,9 @@ import * as linksService from './links.service.js';
 import { PAGE_SIZE } from '../app/app.config.js';
 import { addNotify } from '../notify/notify.controller.js';
 
+import { result, ERRORCODE, errorResult } from "../result/index.js"
+const errorCode = ERRORCODE.LINKS;
+
 /**
  * 获取友链列表
  */
@@ -17,21 +20,13 @@ export const getTalkList = async (req, res, next) => {
     const offset = (current - 1) * limit;
 
     try {
-        const result = await linksService.getLinksList({status, limit, offset});
+        const data = await linksService.getLinksList({status, limit, offset});
         const total = await linksService.getLinksCount();
-        res.send({
-            status: 0,
-            message: '获取友链列表成功',
-            data: {
-                current,
-                size,
-                list: result,
-                total
-            }
-        });
+
+        res.send(result("获取友链列表成功", {current, size, list: data, total}))
     } catch (err) {
         console.log(err);
-        next(new Error('GETLINKSERROR'))
+        return next(errorResult(errorCode, "获取友链列表失败", 500))
     }
 }
 
@@ -45,9 +40,9 @@ export const addOrUpdateLinks = async (req, res, next) => {
 
         const { id, site_name, site_desc, site_avatar, url, status, user_id } = req.body;
 
-        const data = { id, site_name, site_desc, site_avatar, url, status, user_id };
+        const info = { id, site_name, site_desc, site_avatar, url, status, user_id };
 
-        const result = await linksService.addOrUpdateLinks(data);
+        const data = await linksService.addOrUpdateLinks(info);
 
         if (!id) {
             await addNotify({
@@ -59,20 +54,11 @@ export const addOrUpdateLinks = async (req, res, next) => {
 
         const msg = id ? "修改" : "发布";
 
-        res.send({
-            status: 0,
-            message: `${msg}友链成功`,
-            data: result
-        });
+        res.send(result(msg + "友链成功", data))
         
     } catch (err) {
         console.log(err);
-        const msg = req.body.id ? "修改" : "发布";
-        res.status(400).send({
-            error: `${msg}友链失败`, 
-            details: err.message
-        });
-        
+        return next(errorResult(errorCode, msg + "友链失败", 500))
     }
 
 }
@@ -84,14 +70,11 @@ export const updateLinksStatus = async (req, res, next) => {
     try {
         const { idList } = req.body;
         
-        const result = await linksService.updateLinksStatus(idList);
-        res.send({
-            status: 0,
-            message: '修改友链状态成功',
-            data: result
-        });
+        const data = await linksService.updateLinksStatus(idList);
+
+        res.send(result("修改友链状态成功", data))
     } catch (err) {
         console.log(err);
-        next(new Error('UPDATELINKSERROR'))
+        return next(errorResult(errorCode, "修改友链状态失败", 500))
     }
 }

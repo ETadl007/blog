@@ -1,25 +1,39 @@
 import * as likeService from './like.service.js';
 
+import { result, ERRORCODE, errorResult } from "../result/index.js"
+const errorCode = ERRORCODE.LIKE;
+
 /**
  * 获取当前用户对当前文章/说说/留言 是否点赞
  */
 
-export const getLikeStatus = async (req, res, next) => {
+export const getIsLikeByIdOrIpAndType = async (req, res, next) => {
 
-    const { user_id, type, for_id } = req.body;
 
     try {
+        const { user_id, type, for_id } = req.body;
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
+        if (!for_id) {
+            return res.send(errorResult(errorCode, "取消点赞对象不能为空"))
+        }
 
-        const likeStatus = await likeService.getIsLikeByIdAndType({ user_id, type, for_id });
+        if (!type) {
+            return res.send(errorResult(errorCode, "取消点赞类型不能为空"))
+        }
 
-        res.send({
-            status: 0,
-            data: likeStatus
-        })
+        let data;
+        if (!user_id) {
+            data = await likeService.getIsLikeByIpAndType({ for_id, type, ip });
+        } else {
+            data = await likeService.getIsLikeByIdAndType({ for_id, type, user_id });
+        }
+
+        res.send(result("获取用户是否点赞成功", data))
 
     } catch (err) {
         console.log(err);
-        next(new Error('GETLIKESTATUSERROR'));
+        return next(errorResult(errorCode, "获取用户是否点赞失败", 500))
     }
 }
 
@@ -35,55 +49,57 @@ const typeMap = {
 }
 
 export const addLike = async (req, res, next) => {
-
-    const { for_id, type, user_id } = req.body;
-
     try {
+        const { for_id, type, user_id } = req.body;
 
-        // 检查 type 是否有效并进行映射
-        if (!typeMap[type]) {
-            return res.status(400).send({
-                status: 1,
-                message: '无效的 type',
-                data: null
-            });
-        }
-
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
+        
         const mappedType = typeMap[type];
 
         // 判断文章/说说/留言是否存在
-        const exists = await likeService.blogLikeExists({ for_id, type: mappedType });
-
-        // 判断文章/说说/留言是否存在
-        if (!exists) {
-            return res.status(400).send({
-                status: 1,
-                message: '文章/说说/留言不存在',
-                data: null
-            });
+        const exists = await likeService.blogLikeExists({ type, likeType: mappedType });
+        
+        if (exists) {
+            return next(errorResult(errorCode, "文章/说说/留言不存在", 500))
         }
 
-        // 判断用户是否已经点赞过
-        const isLiked = await likeService.getIsLikeByIdAndType({ user_id, type, for_id });
-
-        if (isLiked) {
-            return res.status(400).send({
-                status: 1,
-                message: '小黑子，你已经点过赞了，不要贪心哦！',
-                data: null
-            });
+        if (!for_id) {
+            return next(errorResult(errorCode, "点赞对象不能为空", 500))
         }
 
-        const result = await likeService.addLike({ for_id, type, user_id });
+        if (!type) {
+            return next(errorResult(errorCode, "点赞类型不能为空", 500))
+        }
 
-        res.send({
-            status: 0,
-            message: '点赞成功',
-            data: result
-        })
+        let data;
+        if (!user_id) {
+            let isLike = await likeService.getIsLikeByIpAndType({ for_id, type, ip });
+            if (isLike) {
+                return next(errorResult(errorCode, "小黑子，你已经点过赞了，不要贪心哦！", 500))
+            }
+            data = await likeService.addLike({ for_id, type, ip });
+        } else {
+            let isLike = await likeService.getIsLikeByIdAndType({ for_id, type, user_id });
+            if (isLike) {
+                return next(errorResult(errorCode, "小黑子，你已经点过赞了，不要贪心哦！", 500))
+            }
+            data = await likeService.addLike({ for_id, type, user_id });
+        }
+
+        if (!data) {
+            return next(errorResult(errorCode, "点赞失败", 500))
+        }
+
+        // 检查 type 是否有效并进行映射
+        if (!typeMap[type]) {
+            return next(errorResult(errorCode, "无效参数", 500))
+        }
+
+        res.send(result("点赞成功", data))
     } catch (error) {
         console.log(error);
-        next(new Error('LIKEERROR'));
+        return next(errorResult(errorCode, "点赞失败", 500))
     }
 }
 
@@ -93,52 +109,53 @@ export const addLike = async (req, res, next) => {
 
 export const cancelLike = async (req, res, next) => {
 
-    const { for_id, type, user_id } = req.body;
-
     try {
+        const { for_id, type, user_id } = req.body;
+
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
 
         // 检查 type 是否有效并进行映射
-        if (!typeMap[type]) {
-            return res.status(400).send({
-                status: 1,
-                message: '无效的 type',
-                data: null
-            });
-        }
-
         const mappedType = typeMap[type];
-
+        
         // 判断文章/说说/留言是否存在
-        const exists = await likeService.blogLikeExists({ for_id, type: mappedType });
+        const exists = await likeService.blogLikeExists({ type, likeType: mappedType });
 
-        // 判断文章/说说/留言是否存在
-        if (!exists) {
-            return res.status(400).send({
-                status: 1,
-                message: '文章/说说/留言不存在',
-                data: null
-            });
+        if (exists) {
+            return next(errorResult(errorCode, "文章/说说/留言不存在", 500))
         }
 
-        // 判断用户是否已经取消点赞
-        const isLiked = await likeService.getIsLikeByIdAndType({ user_id, type, for_id });
-        // 用户没有点赞过
-        if (!isLiked) {
-            return res.status(400).send({
-                status: 1,
-                message: '哎呀，小黑子，你还没有点赞哦！是不是手滑了？',
-                data: null
-            });
+        if (!for_id) {
+            return next(errorResult(errorCode, "取消点赞对象不能为空", 500))
         }
-        const result = await likeService.cancelLike({ for_id, type, user_id });
 
-        res.send({
-            status: 0,
-            message: '取消点赞成功',
-            data: result
-        })
+        if (!type) {
+            return next(errorResult(errorCode, "取消点赞类型不能为空", 500))
+        }
+
+        let data;
+        if (!user_id) {
+            let isLike = await likeService.getIsLikeByIpAndType({ for_id, type, ip });
+            if (!isLike) {
+                return next(errorResult(errorCode, "您没有点过赞，留个赞再走呗！", 500))
+            }
+            data = await likeService.cancelLike({ for_id, type, ip });
+        } else {
+            let isLike = await likeService.getIsLikeByIdAndType({ for_id, type, user_id });
+            if (!isLike) {
+                return next(errorResult(errorCode, "您没有点过赞，留个赞再走呗！", 500))
+            }
+            data = await likeService.cancelLike({ for_id, type, user_id });
+        }
+
+        if (!data){
+            return next(errorResult(errorCode, "取消点赞失败", 500))
+        }
+
+        res.send(result("取消点赞成功", data))
+
     } catch (error) {
         console.log(error);
-        next(new Error('CANCELLIKEERROR'));
+        return next(errorResult(errorCode, "取消点赞失败", 500))
     }
 }

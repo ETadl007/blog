@@ -82,7 +82,7 @@ const jump = async (item) => {
 
 const deleteMessage = async (confirm) => {
   const res = await deleteNotify(confirm.id);
-  if (res && res.status == 0) {
+  if (res && res.code == 0) {
     ElNotification({
       offset: 60,
       title: "提示",
@@ -112,7 +112,7 @@ const getMessageList = async () => {
       loadMore.value = true;
     }
     const res = await getNotifylist(params);
-    if (res.status == 0) {
+    if (res.code == 0) {
       const { list, total } = res.data;
       messageList.value = params.current == 1 ? list : messageList.value.concat(list);
       messageTotal.value = total;

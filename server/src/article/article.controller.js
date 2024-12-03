@@ -3,6 +3,10 @@ import { PAGE_SIZE } from '../app/app.config.js'
 import { connecttion } from "../app/database/mysql.js"
 import { createCategoryOrReturn, createArticleTagByArticleId, deleteArticleTag } from './article.common.js'
 
+import { result, ERRORCODE, errorResult } from '../result/index.js'
+const errorCode = ERRORCODE.ARTICLE;
+
+
 /**
  *  分页获取文章 按照置顶和发布时间倒序排序
  */
@@ -22,20 +26,12 @@ export const blogHomeGetArticleList = async (req, res, next) => {
         const articleList = await articleService.blogArticleListService({ limit, offset });
         // 获取文章数量
         const articleCount = await articleService.blogArticleTotalService();
-        res.status(200).send({
-            status: 0,
-            message: "获取文章列表成功",
-            data: {
-                current,
-                size,
-                list: articleList,
-                total: articleCount
-            }
-        });
+
+        res.send(result("获取文章列表成功", { current, size, list: articleList, total: articleCount }))
 
     } catch (err) {
         console.log(err);
-        next(new Error('GETARTICLELISTERROR'));
+        return next(errorResult(errorCode, "获取文章列表失败", 500))
     }
 
 }
@@ -58,20 +54,16 @@ export const getArticleTimeLineList = async (req, res, next) => {
         const articleTimeLineList = await articleService.blogTimelineGetArticleList({ limit, offset });
         // 获取文章数量
         const articleCount = await articleService.blogArticleTotalService();
-        res.status(200).send({
-            status: 0,
-            message: "获取文章时间轴列表成功",
-            data: {
-                current,
-                size,
-                list: articleTimeLineList,
-                total: articleCount
-            }
-        });
+        res.send(result("获取文章时间轴列表成功", {
+            current,
+            size,
+            list: articleTimeLineList,
+            total: articleCount
+        }))
     }
     catch (err) {
         console.log(err);
-        next(new Error('GETARTICLETIMELINELISTERROR'));
+        return next(errorResult(errorCode, "获取文章时间轴列表失败", 500));
     }
 }
 
@@ -80,27 +72,19 @@ export const getArticleTimeLineList = async (req, res, next) => {
  */
 
 export const getArticleDetail = async (req, res, next) => {
-    const { id } = req.params;
-
+    
     try {
+        const { id } = req.params;
         const articleDetail = await articleService.blogArticleByIdService(id);
         // 如果文章不存在，直接返回失败响应
         if (!articleDetail) {
-            return res.status(400).send({
-                status: 1,
-                message: "获取文章详情失败"
-            });
+            return next(errorResult(errorCode, "获取文章详情失败", 500))
         }
-        res.status(200).send({
-            status: 0,
-            message: "获取文章详情成功",
-            data: articleDetail
-
-        });
+        res.send(result("获取文章详情成功", articleDetail));
 
     } catch (err) {
         console.log(err);
-        next(new Error('GETARTICLEDETAILERROR'));
+        return next(errorResult(errorCode, "获取文章详情失败", 500))
     }
 }
 
@@ -114,21 +98,13 @@ export const getArticleRecommend = async (req, res, next) => {
     try {
         // 如果文章推荐不存在，直接返回失败响应
         if (!articleRecommend) {
-            return res.status(500).send({
-                status: 1,
-                message: "获取文章推荐失败"
-            });
+            return next(errorResult(errorCode, "获取文章推荐失败", 500))
         }
-        res.status(200).send({
-            status: 0,
-            message: "获取文章推荐成功",
-            data: articleRecommend
-
-        });
+        res.send(result("获取文章推荐成功", articleRecommend));
 
     } catch (err) {
         console.log(err);
-        next(new Error('GETARTICLERECOMMENDERROR'));
+        return next(errorResult(errorCode, "获取文章推荐失败", 500))
     }
 }
 
@@ -146,33 +122,19 @@ export const getArticleByTagId = async (req, res, next) => {
     // 偏移量
     const offset = (current - 1) * limit;
 
-    const params = [id, limit, offset]
-
     try {
-        const articleByTagId = await articleService.blogArticleByTagIdService(params);
+        const articleByTagId = await articleService.blogArticleByTagIdService({ id, limit, offset });
         const total = await articleService.blogArticleByTagIdTotalService(id);
         // 如果文章不存在，直接返回失败响应
         if (!articleByTagId.length) {
-            return res.status(400).send({
-                status: 1,
-                message: "标签获取文章列表失败"
-            });
+            return next(errorResult(errorCode, "标签获取文章列表失败", 500))
         }
 
-        res.status(200).send({
-            status: 0,
-            message: "标签获取文章列表成功",
-            data: {
-                current,
-                size,
-                list: articleByTagId,
-                total
-            }
-        })
+        res.send(result("标签获取文章列表成功", { current, size, list: articleByTagId, total }));
 
     } catch (err) {
         console.log(err);
-        next(new Error('GETARTICLEBYTAGIDERROR'));
+        return next(errorResult(errorCode, "标签获取文章列表失败", 500));
     }
 }
 
@@ -198,25 +160,13 @@ export const getArticleByCategoryId = async (req, res, next) => {
 
         // 如果文章不存在，直接返回失败响应
         if (!articleByCategoryId.length) {
-            return res.status(400).send({
-                status: 1,
-                message: "分类获取文章列表失败"
-            });
+            return next(errorResult(errorCode, "分类获取文章列表失败", 500))
         }
-        res.status(200).send({
-            status: 0,
-            message: "分类获取文章列表成功",
-            data: {
-                current,
-                size,
-                list: articleByCategoryId,
-                total
-            }
-        })
+        res.send(result("分类获取文章列表成功", { current, size, list: articleByCategoryId, total }))
     }
     catch (err) {
         console.log(err);
-        next(new Error('GETARTICLEBYCATEGORYIDERROR'));
+        return next(errorResult(errorCode, "分类获取文章列表失败", 500))
     }
 }
 
@@ -229,15 +179,11 @@ export const getArticleHot = async (req, res, next) => {
 
         const articleHot = await articleService.blogArticleHotService();
 
-        res.send({
-            status: 0,
-            message: "获取热门文章成功",
-            data: articleHot
-        })
+        res.send(result("获取热门文章成功", articleHot))
 
     } catch (err) {
         console.log(err);
-        next(new Error('GETARTICLEHOTERROR'));
+        return next(errorResult(errorCode, "获取热门文章失败", 500));
     }
 }
 
@@ -250,14 +196,12 @@ export const getArticleBySearch = async (req, res, next) => {
 
     try {
         const articleBySearch = await articleService.blogArticleSearchService(content);
-        res.send({
-            status: 0,
-            message: "按照内容搜索文章成功",
-            data: articleBySearch
-        })
+
+        res.send(result("按照内容搜索文章成功", articleBySearch))
+
     } catch (err) {
-        console.log(err);
-        next(new Error('GETARTICLEBYSEARCHERROR'));
+        console.log(err);;
+        return next(errorResult(errorCode, "按照内容搜索文章失败", 500))
     }
 }
 
@@ -275,15 +219,11 @@ export const addReadingDuration = async (req, res, next) => {
 
         const result = await articleService.addReadingDuration(id, duration);
 
-        res.send({
-            status: 0,
-            msg: '增加阅读时长成功',
-            data: result
-        })
+        res.send(result("增加阅读时长成功", articleRecommend));
 
     } catch (err) {
         console.log(err);
-        next(new Error('ADDREADINGDURATIONERROR'))
+        return next(errorResult(errorCode, "增加阅读时长失败", 500))
     }
 }
 
@@ -295,16 +235,14 @@ export const getArticleInfoByTitle = async (req, res, next) => {
 
     try {
         const { id, article_title } = req.body
-        const result = await articleService.getArticleInfoByTitle({ id, article_title })
-        res.send({
-            status: 0,
-            msg: '文章查询结果',
-            data: result
-        })
+
+        const data = await articleService.getArticleInfoByTitle({ id, article_title })
+
+        res.send(result("获取文章详情成功", data));
 
     } catch (err) {
         console.log(err);
-        next(new Error('GETARTICLEDETAILERROR'));
+        return next(errorResult(errorCode, "获取文章详情失败", 500))
     }
 }
 
@@ -314,22 +252,14 @@ export const getArticleInfoByTitle = async (req, res, next) => {
 export const getArticleList = async (req, res, next) => {
     try {
         const { current, size } = req.body;
-        
-        const result = await articleService.getArticleList(req.body);
-        res.send({
-            status: 0,
-            message: '查询文章成功',
-            data: {
-                current,
-                size,
-                list: result,
-                total: result.length
-            }
-        })
+
+        const data = await articleService.getArticleList(req.body);
+
+        res.send(result("查询文章成功", { current, size, list: data, total: result.length }))
 
     } catch (err) {
         console.log(err);
-        next(new Error('GETARTICLELISTERROR'));
+        return next(errorResult(errorCode, "查询文章失败", 500))
     }
 }
 
@@ -350,7 +280,7 @@ export const createArticle = async (req, res, next) => {
 
         // 若分类不存在先创建分类
         const { id, category_name } = category;
-        
+
         articleRest.category_id = await createCategoryOrReturn(id, category_name);
 
         // 先创建文章，拿到文章的ID
@@ -359,21 +289,14 @@ export const createArticle = async (req, res, next) => {
         // tag和标签进行关联
         const newArticleTagList = await createArticleTagByArticleId(newArticle.id, tagList);
 
-        res.send({
-            status: 0,
-            message: '新增文章成功',
-            data: {
-                article: newArticle,
-                articleTagList: newArticleTagList,
-            }
-        })
+        res.send(result("新增文章成功", { article: newArticle, articleTagList: newArticleTagList }))
 
         // 提交事务
         await connection.commit();
     } catch (err) {
         if (connection) await connection.rollback();
         console.log(err);
-        next(new Error('CREATEARTICLEERROR'));
+        return next(errorResult(errorCode, "新增文章失败", 500));
         // 回滚事务
     } finally {
         if (connection) connection.release();
@@ -403,20 +326,16 @@ export const updateArticle = async (req, res, next) => {
 
         let newArticleTagList = await createArticleTagByArticleId(articleRest.id, tagList);
 
-        let result = await articleService.updateArticle(articleRest);
+        let data = await articleService.updateArticle(articleRest);
 
-        res.send({
-            status: 0,
-            message: '修改文章成功',
-            data: result
-        })
+        res.send(result("修改文章成功", { data, articleTagList: newArticleTagList }))
 
         // 提交事务
         await connection.commit();
     } catch (err) {
         if (connection) await connection.rollback();
         console.log(err);
-        next(new Error('UPDATEARTICLEERROR'));
+        return next(errorResult(errorCode, "修改文章失败", 500));
         // 回滚事务
     } finally {
         if (connection) connection.release();
@@ -431,15 +350,12 @@ export const deleteArticle = async (req, res, next) => {
     try {
         const { id, status } = req.params;
 
-        const result = await articleService.deleteArticle(id, status);
-        res.send({
-            status: 0,
-            message: '删除文章成功',
-            data: result
-        })
+        const data = await articleService.deleteArticle(id, status);
+
+        res.send(result("删除文章成功", data))
     } catch (err) {
         console.log(err);
-        next(new Error('DELETEARTICLEERROR'));
+        return next(errorResult(errorCode, "删除文章失败", 500))
     }
 }
 
@@ -450,15 +366,12 @@ export const updateTop = async (req, res, next) => {
     try {
         const { id, is_top } = req.params;
 
-        const result = await articleService.updateTop(id, is_top);
-        res.send({
-            status: 0,
-            message: '修改文章置顶信息成功',
-            data: result
-        })
+        const data = await articleService.updateTop(id, is_top);
+
+        res.send(result("修改文章置顶信息成功", data))
     } catch (err) {
         console.log(err);
-        next(new Error('UPDATEARTICLETOPERROR'));
+        return next(errorResult(errorCode, "修改文章置顶信息失败", 500))
     }
 }
 
@@ -469,15 +382,14 @@ export const toggleArticlePublic = async (req, res, next) => {
     try {
         const { id, status } = req.params;
 
-        const result = await articleService.toggleArticlePublic(id, status);
-        res.send({
-            status: 0,
-            message: '公开或隐藏文章成功',
-            data: result
-        })
+        const data = await articleService.toggleArticlePublic(id, status);
+
+        let message = Number(status) === 1 ? "隐藏文章" : "公开文章";
+        res.send(result(message + "成功", data))
+
     } catch (err) {
         console.log(err);
-        next(new Error('TOGGLEARTICLEPUBLICERROR'));
+        return next(errorResult(errorCode, message + "失败", 500))
     }
 }
 
@@ -488,14 +400,11 @@ export const toggleArticlePublic = async (req, res, next) => {
 export const revertArticle = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const result = await articleService.revertArticle(id);
-        res.send({
-            status: 0,
-            message: '恢复文章成功',
-            data: result
-        })
+        const data = await articleService.revertArticle(id);
+
+        res.send(result("恢复文章成功", data))
     } catch (err) {
         console.log(err);
-        next(new Error('RECOVERARTICLEERROR'));
+        return next(errorResult(errorCode, "恢复文章失败", 500))
     }
 }

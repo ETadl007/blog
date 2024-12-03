@@ -137,7 +137,7 @@ export function useArticle() {
         text: "图片上传中"
       });
       const res = await imgUpload(articleForm.coverList[0]);
-      if (res.status == 0) {
+      if (res.code == 0) {
         const { url } = res.data;
         console.log(url);
         
@@ -164,7 +164,7 @@ export function useArticle() {
       files.map(file => {
         return new Promise((resolve, reject) => {
           mdImgUpload(file).then(imgData => {
-            if (imgData.status == 0) {
+            if (imgData.code == 0) {
               const { url } = imgData.data;
               resolve(url);
             } else {
@@ -244,7 +244,7 @@ export function useArticle() {
           // 编辑
           res = await editArticle(finalArticle);
         }
-        if (res.status == 0) {
+        if (res.code == 0) {
           message(res.message, { type: "success" });
           resetForm(formEl.value);
           resetForm(articleFormRef.value);
@@ -262,21 +262,21 @@ export function useArticle() {
   // 获取标签列表
   async function getTagD() {
     const res = await getTagDictionary();
-    if (res.status == 0) {
+    if (res.code == 0) {
       tagOptionList.value = res.data;
     }
   }
   // 获取分类列表
   async function getCategoryD() {
     const res = await getCategoryDictionary();
-    if (res.status == 0) {
+    if (res.code == 0) {
       categoryOptionList.value = res.data;
     }
   }
   // 根据id获取文章详情
   async function getArticleDetailsById(article_id) {
     const res = await getArticleById(article_id);
-    if (res.status == 0) {
+    if (res.code == 0) {
       const { article_cover } = res.data;
       Object.assign(articleForm, res.data);
 

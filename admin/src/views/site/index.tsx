@@ -77,7 +77,7 @@ export function useSite() {
   // 初始化网站设置
   async function initConfig() {
     const res = await getConfigDetail();
-    if (res.status == 0) {
+    if (res.code == 0) {
       if (res.data) {
         const {
           blog_avatar,
@@ -116,21 +116,21 @@ export function useSite() {
     // 先上传图片
     if (siteInfoForm.bgList.length && !siteInfoForm.bgList[0].id) {
       const imgRes = await imgUpload(siteInfoForm.bgList[0]);
-      if (imgRes.status == 0) {
+      if (imgRes.code == 0) {
         const { url } = imgRes.data;
         siteInfoForm.avatar_bg = url;
       }
     }
     if (siteInfoForm.avatarList.length && !siteInfoForm.avatarList[0].id) {
       const imgRes = await imgUpload(siteInfoForm.avatarList[0]);
-      if (imgRes.status == 0) {
+      if (imgRes.code == 0) {
         const { url } = imgRes.data;
         siteInfoForm.blog_avatar = url;
       }
     }
     imgUploading.close();
     const res = await updateConfigDetail(siteInfoForm);
-    if (res.status == 0) {
+    if (res.code == 0) {
       message("网站设置修改成功", { type: "success" });
       initConfig();
     }

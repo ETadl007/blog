@@ -17,7 +17,7 @@ const drawerShow = ref(false);
 const pageGetPhotos = async (id) => {
   loading.value = true;
   let res = await getAllPhotosByAlbumId(id);
-  if (res.status == 0) {
+  if (res.code == 0) {
     photoList.value = res.data;
     loading.value = false;
   }
@@ -36,7 +36,7 @@ const toggleAlbum = (item) => {
 
 const getAll = async (id) => {
   let res = await getAllAlbum();
-  if (res.status == 0) {
+  if (res.code == 0) {
     photoAlbumList.value = res.data;
     pageGetPhotos(Number(id));
   }

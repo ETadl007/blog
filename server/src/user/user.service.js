@@ -26,7 +26,16 @@ export const createUser = async ({ username, password, role, nick_name }) => {
         (?, ?, ?, ?, ?, ?)
     `
     const [data] = await connecttion.promise().query(statment, [username, password, role, nick_name, currentTime, currentTime]);
-    return data;
+
+    // 获取插入的 ID
+    const userId = data.insertId;
+
+    // 查询刚插入的用户信息
+    const [user] = await connecttion.promise().query(
+        'SELECT id, username FROM blog_user WHERE id = ?',
+        [userId]
+    );
+    return user[0];
 }
 
 /**
@@ -142,7 +151,7 @@ export const updateOwnUserInfo = async ({ nick_name, avatar, id }) => {
  * 修改密码
  */
 
-export const updatePassword = async (id, password) => {
+export const updatePassword = async (id, password1) => {
 
     // 手动设置时间
     const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss')
@@ -157,7 +166,7 @@ export const updatePassword = async (id, password) => {
             id = ?
     `;
     try {
-        const [data] = await connecttion.promise().query(statment, [password, updatedAt, id]);
+        const [data] = await connecttion.promise().query(statment, [password1, updatedAt, id]);
         return data.affectedRows === 1 ? true : false;
     } catch (error) {
         console.error(error);
@@ -277,6 +286,31 @@ export const adminUpdateUserInfo = async ({ id, nick_name, avatar }) => {
     `;
     try {
         const [data] = await connecttion.promise().query(statment, [nick_name, avatar, updatedAt, id]);
+        return data.affectedRows === 1 ? true : false;
+    } catch (error) {
+        console.error(error);
+        throw error
+    }
+}
+
+/**
+ * 修改用户ip地址
+ */
+export const updateIp = async (id, ip) => {
+    // 手动设置时间
+    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss')
+
+    const statment = `
+        UPDATE 
+            blog_user 
+        SET 
+            ip = ?,
+            updatedAt = ?
+        WHERE 
+            id = ?
+    `;
+    try {
+        const [data] = await connecttion.promise().query(statment, [ip, updatedAt, id]);
         return data.affectedRows === 1 ? true : false;
     } catch (error) {
         console.error(error);

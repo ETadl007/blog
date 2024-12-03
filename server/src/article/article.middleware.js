@@ -1,5 +1,8 @@
 import { getArticleInfoByTitle } from './article.service.js';
 
+import { result, ERRORCODE, errorResult } from "../result/index.js"
+const errorCode = ERRORCODE.ARTICLE;
+
 /**
  * 新增/编辑文章校验参数
  */
@@ -8,28 +11,18 @@ export const verifyArticleParam = async (req, res, next) => {
 
     if (!category) {
         console.log("文章分类必传");
-        return res.status(400).json({
-            status: 1,
-            message: '文章分类必传'
-        });
+        return next(errorResult(errorCode, "文章分类必传", 500))
     }
     const { category_name } = category;
 
     if (!article_title || !author_id || !category_name || !article_content) {
         console.log("文章参数校验错误");
-
-        return res.status(400).json({
-            status: 1,
-            message: '文章参数校验错误'
-        });
+        return next(errorResult(errorCode, "文章参数校验错误", 500))
     }
 
     if (!tagList.length) {
         console.log("文章标签不能为空");
-        return res.status(400).json({
-            status: 1,
-            message: '文章标签不能为空'
-        });
+        return next(errorResult(errorCode, "文章标签不能为空", 500))
     }
     next();
 
@@ -43,10 +36,7 @@ export const createJudgeTitleExist = async (req, res, next) => {
     const result = await getArticleInfoByTitle({ article_title });
     if (result) {
         console.log("文章标题已存在");
-        return res.status(400).json({
-            status: 1,
-            message: '文章标题已存在'
-        });
+        return next(errorResult(errorCode, "文章标题已存在", 500))
     }
     next();
 }
@@ -59,10 +49,7 @@ export const updateJudgeTitleExist = async (req, res, next) => {
     const result = await getArticleInfoByTitle({ id, article_title });
     if (result) {
         console.log("文章标题已存在");
-        return res.status(400).json({
-            status: 1,
-            message: '文章标题已存在'
-        });
+        return next(errorResult(errorCode, "文章标题已存在", 500))
     }
     next();
 }
@@ -74,10 +61,7 @@ export const verifyTopParam = async (req, res, next) => {
     const { id, is_top } = req.params
     if (!/^[0-9]+$/.test(id) || !/^[0-9]+$/.test(is_top)) {
         console.log("参数只能为数字");
-        return res.status(400).json({
-            status: 1,
-            message: '参数只能为数字'
-        });
+        return next(errorResult(errorCode, "参数只能为数字", 500))
     }
     next();
 }

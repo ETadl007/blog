@@ -117,7 +117,7 @@ export function useSite() {
   // 初始化我的信息
   async function initMyInfo() {
     const res = await getUserInfoById(useUserStoreHook().getUserId);
-    if (res.status == 0) {
+    if (res.code == 0) {
       const { avatar, nick_name } = res.data;
       if (useUserStoreHook()?.getNickName != nick_name) {
         useUserStoreHook()?.SET_NICKNAME(nick_name);
@@ -156,7 +156,7 @@ export function useSite() {
         text: "图片上传中"
       });
       const imgRes = await imgUpload(myInfoForm.avatarList[0]);
-      if (imgRes.status == 0) {
+      if (imgRes.code == 0) {
         const { url } = imgRes.data;
         myInfoForm.avatar = url;
       }
@@ -167,7 +167,7 @@ export function useSite() {
     }
 
     const res = await updateUserInfo(myInfoForm);
-    if (res.status == 0) {
+    if (res.code == 0) {
       message("用户修改成功", { type: "success" });
       initMyInfo();
     }
@@ -176,7 +176,7 @@ export function useSite() {
   // 修改密码
   async function updatePassword() {
     const res = await updateUserPassword(passwordForm);
-    if (res.status == 0) {
+    if (res.code == 0) {
       message("密码修改成功，请重新登录", { type: "success" });
       useUserStoreHook()?.logOut();
     }

@@ -61,7 +61,7 @@ const previewList = ref([]);
 
 const pageGetPhoto = async () => {
   const res = await getPhotoListByAlbumId(param);
-  if (res.status == 0) {
+  if (res.code == 0) {
     const { list, total } = res.data;
     photoList.value = list.map(l => {
       return {
@@ -94,7 +94,7 @@ const deleteBatch = async () => {
       return { id: l.id, url: l.url };
     })
   });
-  if (res.status == 0) {
+  if (res.code == 0) {
     message("删除成功", { type: "success" });
     isEdit.value = false;
     pageGetPhoto();
@@ -111,7 +111,7 @@ const revertBatch = async () => {
   const res = await revertPhotos({
     idList: list.map(l => l.id)
   });
-  if (res.status == 0) {
+  if (res.code == 0) {
     message("恢复成功", { type: "success" });
     pageGetPhoto();
   }
@@ -128,7 +128,7 @@ const clear = async () => {
       };
     })
   });
-  if (res.status == 0) {
+  if (res.code == 0) {
     message("清空回收站成功", { type: "success" });
     pageGetPhoto();
   }

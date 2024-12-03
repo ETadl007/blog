@@ -26,7 +26,7 @@ router.delete('/article/delete/:id/:status', authGuard, needAdminAuthNotNeedSupe
 /**
  * 修改文章置顶信息
  */
-router.put('/article/updateTop/:id/:status', authGuard, needAdminAuthNotNeedSuper, verifyTopParam, articleController.updateTop)
+router.put('/article/updateTop/:id/:is_top', authGuard, needAdminAuthNotNeedSuper, verifyTopParam, articleController.updateTop)
 
 /**
  * 切换文章私密性

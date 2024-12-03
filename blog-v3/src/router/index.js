@@ -117,7 +117,7 @@ const routes = [
             path: "/resources/front",
             name: "Front",
             meta: {
-              name: "前端",
+              name: "网络安全",
             },
             component: () => import("@/views/resources/category-list.vue"),
           },
@@ -125,7 +125,7 @@ const routes = [
             path: "/resources/back",
             name: "Back",
             meta: {
-              name: "后端",
+              name: "加解密",
             },
             component: () => import("@/views/resources/category-list.vue"),
           },

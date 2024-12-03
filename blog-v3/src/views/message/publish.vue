@@ -103,7 +103,7 @@ const leaveMessage = async () => {
   loading.value = true;
   if (form.bgList.length && !form.bgList[0].id) {
     const img = await imgUpload(form.bgList[0]);
-    if (img.status == 0) {
+    if (img.code == 0) {
       const { url } = img.data;
       form.bg_url = url;
     }
@@ -114,7 +114,7 @@ const leaveMessage = async () => {
   } else {
     res = await addMessage(form);
   }
-  if (res && res.status == 0) {
+  if (res && res.code == 0) {
     ElNotification({
       offset: 60,
       title: "提示",
@@ -141,7 +141,7 @@ const leaveMessage = async () => {
 
 const getHotMessageTag = async () => {
   const res = await getMessageTag();
-  if (res.status == 0) {
+  if (res.code == 0) {
     tabList.value = Array.isArray(res.data)
       ? res.data.map((v, i) => {
           return {

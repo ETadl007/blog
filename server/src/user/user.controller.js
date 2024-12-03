@@ -7,6 +7,9 @@ import jwt from 'jsonwebtoken';
 
 import { connecttion } from '../app/database/mysql.js';
 
+import { result, ERRORCODE, errorResult } from "../result/index.js"
+const errorCode = ERRORCODE.USER;
+
 /**
  * 用户登录
  */
@@ -17,46 +20,37 @@ export const login = async (req, res, next) => {
 
         if (username == "admin") {
             if (password == ADMIN_PASSWORD) {
-                res.send({
-                    status: 0,
-                    message: "超级管理员登录成功",
-                    data: {
-                        id: 1314520,
-                        username: "超级管理员",
-                        role: 1,
-                        avatar: "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif",
-                        nick_name: "超级管理员",
-                        token: jwt.sign({ id: 1314520, nick_name: "超级管理员", role: 1, username: "admin" }, PRIVATE_KEY, { algorithm: "RS256", expiresIn: '1h' })
-                    }
-                })
+                res.send(result("超级管理员", {
+                    id: 1314520,
+                    username: "超级管理员",
+                    role: 1,
+                    avatar: "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif",
+                    nick_name: "超级管理员",
+                    token: signToken({ payload: { id: 1314520, nick_name: "超级管理员", role: 1, username: "admin" } })
+                }))
             } else {
-                return res.status(500).send({
-                    status: 1,
-                    message: "密码错误"
-                })
+                return next(errorResult(errorCode, "密码错误", 500))
             }
         } else {
             const user = await userService.getUserByName(username);
 
             const payload = { id: user.id, username: user.username, role: user.role, nick_name: user.nick_name, avatar: user.avatar };
 
-            res.send({
-                status: 0,
-                message: "用户登录成功",
-                data: {
-                    id: user.id,
-                    username: user.username,
-                    role: user.role,
-                    avatar: user.avatar,
-                    nick_name: user.nick_name,
-                    token: signToken({ payload })
-                }
-            })
+            const token = signToken({ payload });
+
+            res.send(result("用户登录成功", {
+                id: user.id,
+                username: user.username,
+                role: user.role,
+                avatar: user.avatar,
+                nick_name: user.nick_name,
+                token: token
+            }))
         }
 
     } catch (err) {
         console.log(err);
-        next(new Error("LOGIN_FAILED"))
+        return next(errorResult(errorCode, "用户登录失败", 500))
     }
 
 }
@@ -67,24 +61,29 @@ export const login = async (req, res, next) => {
 
 export const store = async (req, res, next) => {
 
-    let { username, password, role = 2, nick_name } = req.body;
-
-    // 过滤敏感词
-    nick_name = await filterSensitive(nick_name);
-
-    // 随机生成昵称
-    nick_name = nick_name ? nick_name : randomNickname("007的小迷弟");
-
     try {
-        const user = await userService.createUser({ username, password, role, nick_name });
-        res.send({
-            status: 0,
-            message: '注册成功',
-            data: user
-        });
+        let { username, password, role = 2, nick_name } = req.body;
+
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop()
+
+        // 过滤敏感词
+        nick_name = await filterSensitive(nick_name);
+
+        // 随机生成昵称
+        nick_name = nick_name ? nick_name : randomNickname("007的小迷弟");
+
+        const avatar = "http://mrzym.top/online/9bb507f4bd065759a3d093d04.webp";
+
+        const user = await userService.createUser({ username, password, role, nick_name, avatar });
+
+        // 修改用户ip地址
+        await userService.updateIp(user.id, ip);
+
+        res.send(result("用户注册成功", {id: user.id, username: user,username}))
     } catch (err) {
         console.log(err);
-        next(new Error('ILLEGAL_USER_NAME'))
+        return next(errorResult(errorCode, "用户注册成功", 500))
     }
 }
 
@@ -93,37 +92,30 @@ export const store = async (req, res, next) => {
  */
 
 export const getUserInfoById = async (req, res, next) => {
-    const { id } = req.params;
     try {
+        const { id } = req.params;
+        
         if (id === 'undefined') {
-            return next(new Error('GET_USER_INFO_FAILED'))
+            return next(errorResult(errorCode, "参数错误", 500))
         }
 
         if (id == 1314520) {
-            return res.send({
-                status: 0,
-                message: '获取用户信息成功',
-                data: {
-                    id: 1314520,
-                    username: "超级管理员",
-                    role: 1,
-                    avatar: "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif",
-                    nick_name: "超级管理员",
-                    qq: "123456",
-                    ipAddress: "火星"
-                }
-            })
+            res.send(result("超级管理员", {
+                id: 1314520,
+                username: "超级管理员",
+                role: 1,
+                avatar: "https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif",
+                nick_name: "超级管理员",
+                qq: "123456",
+                ipAddress: "火星"
+            }))
         } else {
             const user = await userService.getUserinfo(id);
-            res.send({
-                status: 0,
-                message: '获取用户信息成功',
-                data: user
-            });
+            res.send(result("获取用户信息成功", user))
         }
     } catch (err) {
         console.log(err);
-        next(new Error('GET_USER_INFO_FAILED'))
+        return next(errorResult(errorCode, "获取用户信息失败", 500))
     }
 }
 
@@ -133,22 +125,17 @@ export const getUserInfoById = async (req, res, next) => {
 
 export const updateOwnUserInfo = async (req, res, next) => {
 
-    let { id, nick_name, avatar } = req.body
-
-    // 过滤敏感词
-    nick_name = await filterSensitive(nick_name);
-
     try {
+        let { id, nick_name, avatar } = req.body
+
+        // 过滤敏感词
+        nick_name = await filterSensitive(nick_name);
         const user = await userService.updateOwnUserInfo({ nick_name, avatar, id });
 
-        res.send({
-            status: 0,
-            message: '修改用户成功',
-            data: user
-        });
+        res.send(result("修改用户成功", user))
     } catch (err) {
         console.log(err);
-        next(new Error('UPDATE_USER_INFO_FAILED'))
+        return next(errorResult(errorCode, "修改用户失败", 500))
     }
 
 }
@@ -160,16 +147,15 @@ export const updateOwnUserInfo = async (req, res, next) => {
 export const updatePassword = async (req, res, next) => {
 
     try {
-        const { id, password } = req.username
-        const user = await userService.updatePassword(id, password);
-        res.send({
-            status: 0,
-            message: '修改密码成功',
-            data: user
-        });
+        const { password1 } = req.body;
+        const { id } = req.user
+        
+        const user = await userService.updatePassword(id, password1);
+
+        res.send(result("修改密码成功", user))
     } catch (err) {
         console.log(err);
-        next(new Error('UPDATE_PASSWORD_FAILED'))
+        return next(errorResult(errorCode, "修改密码失败", 500))
     }
 }
 
@@ -188,21 +174,12 @@ export const getUserList = async (req, res, next) => {
         // 偏移量
         const offset = (current - 1) * limit;
 
-        const result = await userService.getUserList({ nick_name, role, limit, offset });
+        const data = await userService.getUserList({ nick_name, role, limit, offset });
 
-        res.send({
-            status: 0,
-            message: '获取用户列表成功',
-            data: {
-                current,
-                size,
-                list: result,
-                total: result.length
-            }
-        });
+        res.send(result("获取用户列表成功", { current, size, list: data, total: data.length }))
     } catch (err) {
         console.log(err);
-        next(new Error('GET_USER_LIST_FAILED'))
+        return next(errorResult(errorCode, "获取用户列表失败", 500))
     }
 }
 
@@ -215,14 +192,11 @@ export const updateRole = async (req, res, next) => {
     try {
         const { id, role } = req.params;
         const user = await userService.updateRole(id, role);
-        res.send({
-            status: 0,
-            message: '修改角色成功',
-            data: user
-        });
+
+        res.send(result("修改角色成功", user))
     } catch (err) {
         console.log(err);
-        next(new Error('UPDATE_ROLE_FAILED'))
+        return next(errorResult(errorCode, "修改角色失败", 500))
     }
 }
 
@@ -248,12 +222,9 @@ export const adminUpdateUserInfo = async (req, res, next) => {
             await userService.deleteOnlineImgs([one.avatar])
         }
 
-        const result = await userService.adminUpdateUserInfo(req.body);
-        res.send({
-            status: 0,
-            message: '管理员修改用户信息成功',
-            data: result
-        });
+        const data = await userService.adminUpdateUserInfo(req.body);
+
+        res.send(result("管理员修改用户信息成功", data))
 
         // 提交事务
         await connection.commit();
@@ -261,6 +232,6 @@ export const adminUpdateUserInfo = async (req, res, next) => {
         // 回滚事务
         await connection.rollback();
         console.log(err);
-        next(new Error('ADMIN_UPDATE_USER_INFO_FAILED'))
+        return next(errorResult(errorCode, "管理员修改用户信息失败", 500))
     }
 }

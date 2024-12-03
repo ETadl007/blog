@@ -59,7 +59,7 @@ const tabChange = async (val: any) => {
 
 const pageGetTalkList = async (e?) => {
   const res = await getTalkList(param);
-  if (res.status == 0) {
+  if (res.code == 0) {
     talkList.value =
       param.current == 1
         ? res.data.list
@@ -73,7 +73,7 @@ const pageGetTalkList = async (e?) => {
 
 const toggleP = async (id, status) => {
   const res = await togglePublic(id, status == 1 ? 2 : 1);
-  if (res.status == 0) {
+  if (res.code == 0) {
     message(`${status == 1 ? "隐藏" : "公开"}说说成功`, { type: "success" });
     pageGetTalkList();
   }
@@ -81,7 +81,7 @@ const toggleP = async (id, status) => {
 
 const toggleT = async (id, is_top) => {
   const res = await toggleTop(id, is_top == 1 ? 2 : 1);
-  if (res.status == 0) {
+  if (res.code == 0) {
     message(`${is_top == 1 ? "取消置顶" : "置顶"}成功`, { type: "success" });
     pageGetTalkList();
   }
@@ -89,7 +89,7 @@ const toggleT = async (id, is_top) => {
 
 const revertT = async id => {
   const res = await revertTalk(id);
-  if (res.status == 0) {
+  if (res.code == 0) {
     message("恢复成功", { type: "success" });
     pageGetTalkList();
   }
@@ -97,7 +97,7 @@ const revertT = async id => {
 
 const deleteT = async (id, status) => {
   const res = await deleteTalkById(id, status);
-  if (res.status == 0) {
+  if (res.code == 0) {
     message(`${status == 3 ? "彻底删除成功" : "说说已进入回收站"}`, {
       type: "success"
     });

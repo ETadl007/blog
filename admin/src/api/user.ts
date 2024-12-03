@@ -1,7 +1,6 @@
 import { http } from "@/utils/http";
 
 export type UserResult = {
-  status: number;
   code: number;
   message: String;
   data: {
@@ -13,7 +12,7 @@ export type UserResult = {
 };
 
 export type Result = {
-  status: number;
+  code: number;
   message: string;
   data: any;
 };

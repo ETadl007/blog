@@ -4,6 +4,8 @@ import { createArticleTags } from '../tag/tag.service.js'
 
 import { connecttion } from '../app/database/mysql.js'
 
+import { result, ERRORCODE, errorResult } from '../result/index.js'
+
 /**
  * 新增和编辑文章关于分类的公共方法
  */

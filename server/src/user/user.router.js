@@ -16,7 +16,7 @@ router.post("/user/login", userValidate, verifyLogin, userController.login);
 /**
  * 用户注册
  */
-router.post('/user/register', verifyUser, hashPassword,  userController.store);
+router.post('/user/register', userValidate, verifyUser, hashPassword,  userController.store);
 
 /**
  * 获取当前登录用户信息

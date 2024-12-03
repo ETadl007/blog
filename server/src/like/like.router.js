@@ -10,7 +10,7 @@ const router = express.Router({
 /**
  * 获取当前用户对当前文章/说说/留言 是否点赞
  */
-router.post('/like/getIsLikeByIdAndType', likeController.getLikeStatus);
+router.post('/like/getIsLikeByIdOrIpAndType', likeController.getIsLikeByIdOrIpAndType);
 
 /**
  * 点赞

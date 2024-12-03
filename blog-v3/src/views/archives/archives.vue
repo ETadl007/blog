@@ -25,7 +25,7 @@ const getArchives = async () => {
   try {
     let res = await blogTimelineGetArticleList(param.current, param.size);
     
-    if (res.status == 0) {
+    if (res.code == 0) {
       const { total, list } = res.data;
       archives.value = list;
       archivesTotal.value = total - 0;

@@ -1,6 +1,8 @@
 import { connecttion } from "../app/database/mysql.js";
 import { getIsLikeByIdAndType } from "../like/like.service.js"
 
+import { getIpAddress } from "../utils/tool.js";
+
 import moment from "moment";
 
 /**
@@ -65,7 +67,7 @@ export const blogCommentTotalService = async (for_id, type) => {
 
 
 /**
- * 分页获取父级评论列表
+ * 前台分页获取父级评论列表
  */
 
 export const blogCommentParentListService = async ({ for_id, type, limit, offset, orderArr, user_id }) => {
@@ -103,13 +105,17 @@ export const blogCommentParentListService = async ({ for_id, type, limit, offset
 
         // 判断当前登录的用户是否以点赞
         const isLikePromises = data.map(async (item) => {
-            return getIsLikeByIdAndType({ for_id: item.id, type: 4, user_id: user_id || item.ip });
+            return getIsLikeByIdAndType({ for_id: item.id, type: 4, user_id: user_id });
         });
 
         const likeResults = await Promise.all(isLikePromises);
         data.forEach((item, index) => {
             item.is_like = likeResults[index];
         });
+
+        data.forEach((item) => {
+            item.ipAddress = getIpAddress(item.ip);
+        })
 
         return data;
     } catch (error) {
@@ -121,7 +127,7 @@ export const blogCommentParentListService = async ({ for_id, type, limit, offset
 }
 
 /**
- * 分页获取子级评论列表
+ * 前台分页获取子级评论列表
  */
 
 export const blogCommentChildrenListService = async ({ parent_id, limit, offset, user_id }) => {
@@ -165,6 +171,10 @@ export const blogCommentChildrenListService = async ({ parent_id, limit, offset,
     data.forEach((item, index) => {
         item.is_like = likeResults[index];
     });
+
+    data.forEach((item) => {
+        item.ipAddress = getIpAddress(item.ip);
+    })
 
     return data;
 }
@@ -237,7 +247,9 @@ export const blogCommentAllListService = async ({ limit, offset, type, comment }
  * 添加评论
  */
 
-export const blogCommentAddService = async ({ type, for_id, from_id, from_name, from_avatar, content }) => {
+export const blogCommentAddService = async (comment) => {
+
+    const { type, for_id, from_id, from_name, from_avatar, content, ip } = comment
 
     // 手动设置时间
     const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -254,11 +266,12 @@ export const blogCommentAddService = async ({ type, for_id, from_id, from_name, 
         from_name = ?,
         from_avatar = ?,
         content = ?,
+        ip = ?,
         createdAt = ?,
         updatedAt = ?
     `;
 
-    const [data] = await connecttion.promise().query(commentAddSql, [type, for_id, from_id, from_name, from_avatar, content, createdAt, updatedAt]);
+    const [data] = await connecttion.promise().query(commentAddSql, [type, for_id, from_id, from_name, from_avatar, content, ip, createdAt, updatedAt]);
     return data;
 }
 
@@ -270,6 +283,8 @@ export const applyComment = async (comment) => {
 
     const { parent_id, type, for_id, from_id, from_avatar, from_name, to_id, to_name, to_avatar, content, ip } = comment;
 
+    console.log(ip);
+    
     // 手动设置时间
     const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
     const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');

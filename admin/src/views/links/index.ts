@@ -172,7 +172,7 @@ export function useColumns() {
         }).then(async () => {
           const list = [row.id];
           const res = await approveLinks({ idList: list });
-          if (res.status == 0) {
+          if (res.code == 0) {
             message(`审核友链成功`, { type: "success" });
             getPageLinksList();
           }
@@ -186,7 +186,7 @@ export function useColumns() {
         }).then(async () => {
           const list = selectList.value.map(se => se.id);
           const res = await approveLinks({ idList: list });
-          if (res.status == 0) {
+          if (res.code == 0) {
             message(`批量审核友链成功`, { type: "success" });
             getPageLinksList();
           }
@@ -206,7 +206,7 @@ export function useColumns() {
       }).then(async () => {
         const list = selectList.value.map(se => se.id);
         const res = await deleteLinks({ idList: list });
-        if (res.status == 0) {
+        if (res.code == 0) {
           message(`批量删除友链成功`, { type: "success" });
           getPageLinksList();
         }
@@ -245,7 +245,7 @@ export function useColumns() {
               text: "图片上传中"
             });
             const res = await imgUpload(form.avatarList[0]);
-            if (res.status == 0) {
+            if (res.code == 0) {
               const { url } = res.data;
               form.site_avatar = url;
             }
@@ -257,7 +257,7 @@ export function useColumns() {
           form.site_avatar = "";
         }
         const res = await updateLinks(form);
-        if (res.status == 0) {
+        if (res.code == 0) {
           message("修改成功", { type: "success" });
           dialogVisible.value = false;
           resetForm(formEl);
@@ -270,7 +270,7 @@ export function useColumns() {
 
   async function getPageLinksList() {
     const res = await getLinksList(param);
-    if (res.status == 0) {
+    if (res.code == 0) {
       dataList.value = res.data.list;
       pagination.total = res.data.total;
       loading.value = false;

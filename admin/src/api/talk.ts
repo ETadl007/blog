@@ -1,7 +1,7 @@
 import { http } from "@/utils/http";
 
 export type TalkResult = {
-  status: number;
+  code: number;
   message: string;
   data: any;
 };

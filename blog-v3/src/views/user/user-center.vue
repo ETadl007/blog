@@ -79,7 +79,7 @@ const pwdRules = reactive({
 // 获取登录用户信息
 const getCurrentUserInfo = async () => {
   const res = await getUserInfoById(userStore.getUserInfo.id);
-  if (res && res.status == 0) {
+  if (res && res.code == 0) {
     userStore.setUserInfo(res.data);
     const { avatar } = res.data;
     if (avatar) {
@@ -108,13 +108,13 @@ const updateInfo = async () => {
         
         if (!infoForm.avatarList[0].id) {
           const img = await imgUpload(infoForm.avatarList[0]);
-          if (img.status == 0) {
+          if (img.code == 0) {
             const { url } = img.data;
             infoForm.avatar = url;
           }
         }
         const res = await updateUserInfo(infoForm);
-        if (res && res.status == 0) {
+        if (res && res.code == 0) {
           ElNotification({
             offset: 60,
             title: "提示",
@@ -146,7 +146,7 @@ const updatePassword = async () => {
         cancelButtonText: "取消",
       }).then(async () => {
         const res = await updateUserPassword(pwdForm);
-        if (res && res.status == 0) {
+        if (res && res.code == 0) {
           ElNotification({
             offset: 60,
             title: "提示",

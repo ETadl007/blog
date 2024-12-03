@@ -49,7 +49,7 @@ const save = async () => {
   });
   await Promise.all(promiseList).then(res => {
     res.map(img => {
-      if (img.status == 0) {
+      if (img.code == 0) {
         const { url } = img.data;
         finalList.push({
           album_id: currentAlbumId.value,
@@ -66,7 +66,7 @@ const save = async () => {
     text: "图片保存中......"
   });
   const addPhotosRes = await addPhotos({ photoList: finalList });
-  if (addPhotosRes.status == 0) {
+  if (addPhotosRes.code == 0) {
     message("保存成功", { type: "success" });
   } else {
     imgSaveLoading.close();

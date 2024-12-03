@@ -13,7 +13,7 @@ import {
   getRecommendArticleById,
   readingDuration,
 } from "@/api/article";
-import { addLike, cancelLike, getIsLikeByIdAndType } from "@/api/like";
+import { addLike, cancelLike, getIsLikeByIdOrIpAndType } from "@/api/like";
 
 import Comment from "@/components/Comment/Comment.vue";
 import Tooltip from "@/components/ToolTip/tooltip.vue";
@@ -74,7 +74,7 @@ const like = async () => {
       type: 1,
       user_id: getUserInfo.value.id,
     });
-    if (res.status == 0) {
+    if (res.code == 0) {
       articleInfo.value.thumbs_up_times--;
       isLike.value = false;
       likePending.value = false;
@@ -97,7 +97,7 @@ const like = async () => {
       type: 1,
       user_id: getUserInfo.value.id,
     });
-    if (res.status == 0) {
+    if (res.code == 0) {
       articleInfo.value.thumbs_up_times++;
       isLike.value = true;
       likePending.value = false;
@@ -112,16 +112,16 @@ const like = async () => {
 // 文章详情
 const getArticleDetails = async (id) => {
   let res = await getArticleById(id);
-  if (res.status == 0) {
+  if (res.code == 0) {
     mdState.text = res.data.article_content;
     articleInfo.value = res.data;
     if (getUserInfo.value.id) {
-      const res = await getIsLikeByIdAndType({
+      const res = await getIsLikeByIdOrIpAndType({
         for_id: articleInfo.value.id,
         type: 1,
         user_id: getUserInfo.value.id,
       });
-      if (res.status == 0) {
+      if (res.code == 0) {
         isLike.value = res.data;
       }
     }
@@ -138,7 +138,7 @@ const addReadingDuration = async (id) => {
 // 推荐文章
 const getRecommendArticle = async (id) => {
   let res = await getRecommendArticleById(id);
-  if (res.status == 0) {
+  if (res.code == 0) {
     const { previous, next, recommend } = res.data;
     recommendList.value = recommend;
     previousArticle.value = previous;

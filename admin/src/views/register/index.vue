@@ -97,7 +97,7 @@ const register = async (formEl: FormInstance | undefined) => {
         nick_name: ruleForm.nick_name
       };
       const res = await registerUser(registerObj);
-      if (res.status == 0) {
+      if (res.code == 0) {
         const { username } = res.data;
         message("注册成功,请牢记账号密码", { type: "success" });
         router.push({ path: "/login", query: { username } });

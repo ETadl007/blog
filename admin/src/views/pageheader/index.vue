@@ -67,7 +67,7 @@ const submitForm = async formEl => {
           text: "图片上传中"
         });
         const imgRes = await imgUpload(pageHeaderForm.coverList[0]);
-        if (imgRes.status == 0) {
+        if (imgRes.code == 0) {
           const { url } = imgRes.data;
           pageHeaderForm.bg_url = url;
         }
@@ -77,7 +77,7 @@ const submitForm = async formEl => {
       }
 
       const res = await addOrUpdatePageHeader(pageHeaderForm);
-      if (res.status == 0) {
+      if (res.code == 0) {
         await pageGetPageHeader();
         message(`${pageHeaderForm.id ? "修改" : "新增"}成功`, {
           type: "success"
@@ -109,7 +109,7 @@ const operate = (type, val?) => {
 
 const deletePageHeaderById = async (id, url) => {
   const res = await deletePageHeader({ id, url });
-  if (res.status == 0) {
+  if (res.code == 0) {
     pageGetPageHeader();
     message("删除成功", { type: "success" });
   }
@@ -145,7 +145,7 @@ const changePageName = val => {
 
 const pageGetPageHeader = async () => {
   const res = await getPageHeaderList();
-  if (res.status == 0) {
+  if (res.code == 0) {
     pageHeaderList.value = res.data.map(l => {
       return {
         id: l.id,

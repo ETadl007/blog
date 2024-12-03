@@ -7,8 +7,8 @@ import { frontCategory, backCategory } from "./data";
 const router = useRouter();
 const route = useRoute();
 const active = ref(0);
-const activeType = ref(""); // 当前是哪个分类 前端、后端等
-const routeType = ref(""); // 通过路由判断显示后端还是前端
+const activeType = ref(""); // 当前是哪个分类
+const routeType = ref(""); // 通过路由判断显示
 const currenCategory = ref({});
 const title = ref("");
 
@@ -32,11 +32,11 @@ watch(
     routeType.value = newV.split("/").pop();
     switch (routeType.value) {
       case "front":
-        title.value = "前端";
+        title.value = "网络安全分类";
         currenCategory.value = frontCategory;
         break;
       case "back":
-        title.value = "后端";
+        title.value = "加解密分类";
         currenCategory.value = backCategory;
         break;
       default:

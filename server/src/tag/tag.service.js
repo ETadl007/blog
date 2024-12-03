@@ -22,17 +22,18 @@ export const getAllTag = async () => {
  */
 export const getTagList = async ({ tag_name, limit, offset }) => {
 
-    const where = []
-    const params = []
+    try {
+        const where = []
+        const params = []
 
-    if (tag_name) {
-        where.push("WHERE tag_name LIKE ?")
-        params.push(`%${tag_name}%`)
-    }
+        if (tag_name) {
+            where.push("tag_name LIKE ?")
+            params.push(`%${tag_name}%`)
+        }
 
-    const whereSql = where.length > 0 ? `WHERE ${where.join(' AND ')}` : '';
+        const whereSql = where.length > 0 ? `WHERE ${where.join(' AND ')}` : '';
 
-    const tagListSql = `
+        const tagListSql = `
     SELECT 
         id,
         tag_name,
@@ -44,22 +45,31 @@ export const getTagList = async ({ tag_name, limit, offset }) => {
     LIMIT ?
     OFFSET ?`;
 
-    params.push(limit, offset)
+        params.push(limit, offset)
 
-    const [data] = await connecttion.promise().query(tagListSql, params);
-    return data;
+        const [data] = await connecttion.promise().query(tagListSql, params);
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+
 }
 
 /**
  * 创建标签
  */
 export const createTag = async (tag_name) => {
+
+    // 手动设置时间
+    const currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
+
     const createTagSql = `
     INSERT INTO 
-        blog_tag (tag_name) 
+        blog_tag (tag_name, createdAt, updatedAt) 
     VALUES 
-        (?)`;
-    const [data] = await connecttion.promise().query(createTagSql, [tag_name.tag_name]);
+        (?,?,?)`;
+    const [data] = await connecttion.promise().query(createTagSql, [tag_name.tag_name, currentTime, currentTime]);
     return { id: data.insertId, tag_name: tag_name.tag_name };
 }
 
@@ -95,8 +105,8 @@ export const createArticleTags = async (articleTagList) => {
     const values = articleTagList.map(({ article_id, tag_id }) => [
         article_id,
         tag_id,
-        currentTime, 
-        currentTime, 
+        currentTime,
+        currentTime,
     ]);
 
     // 构造占位符
@@ -122,50 +132,56 @@ export const createArticleTags = async (articleTagList) => {
 
     };
 }
-    /**
-     * 标签删除
-     */
-    export const deleteTag = async (idList) => {
+/**
+ * 标签删除
+ */
+export const deleteTag = async ({ tagIdList }) => {
+    try {
         const deleteTagSql = `
-    DELETE FROM
-        blog_tag
-    WHERE
-        id 
-    IN 
-        (?)`;
-        const [data] = await connecttion.promise().query(deleteTagSql, [idList]);
-        return data.affectedRows;
+        DELETE FROM
+            blog_tag
+        WHERE
+            id 
+        IN 
+            (?)`;
+        const [data] = await connecttion.promise().query(deleteTagSql, [tagIdList]);
+        return data.affectedRows > 0 ? true : false;
+    } catch (error) {
+        console.log(error);
+        throw error;
     }
 
-    /**
-     * 添加标签
-     */
-    export const addTag = async (tag_name) => {
+}
 
-        // 手动设置时间
-        const currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
+/**
+ * 添加标签
+ */
+export const addTag = async (tag_name) => {
 
-        const addTagSql = `
+    // 手动设置时间
+    const currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
+
+    const addTagSql = `
     INSERT INTO
         blog_tag (tag_name, createdAt, updatedAt)
     VALUES
         (?,?,?)`;
-        const [data] = await connecttion.promise().query(addTagSql, [tag_name, currentTime, currentTime]);
+    const [data] = await connecttion.promise().query(addTagSql, [tag_name, currentTime, currentTime]);
 
-        // 返回插入的标签
-        const [NewTag] = await connecttion.promise().query(`SELECT id, tag_name FROM blog_tag WHERE id = ?`, [data.insertId]);
-        return NewTag[0];
-    }
+    // 返回插入的标签
+    const [NewTag] = await connecttion.promise().query(`SELECT id, tag_name FROM blog_tag WHERE id = ?`, [data.insertId]);
+    return NewTag[0];
+}
 
-    /**
-     * 修改标签
-     */
-    export const updateTag = async (id, tag_name) => {
+/**
+ * 修改标签
+ */
+export const updateTag = async (id, tag_name) => {
 
-        // 手动设置时间
-        const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss')
+    // 手动设置时间
+    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss')
 
-        const updateTagSql = `
+    const updateTagSql = `
     UPDATE
         blog_tag
     SET
@@ -173,6 +189,6 @@ export const createArticleTags = async (articleTagList) => {
         updatedAt = ?
     WHERE
         id = ?`;
-        const [data] = await connecttion.promise().query(updateTagSql, [tag_name, updatedAt, id]);
-        return data.affectedRows > 0 ? true : false;
-    }
+    const [data] = await connecttion.promise().query(updateTagSql, [tag_name, updatedAt, id]);
+    return data.affectedRows > 0 ? true : false;
+}

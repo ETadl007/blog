@@ -54,7 +54,7 @@ const pageGetTalkList = async () => {
       scrollLoading.value = true;
     }
     let res = await getTalkList(param);
-    if (res.status == 0) {
+    if (res.code == 0) {
       talkList.value = param.current == 1 ? res.data.list : talkList.value.concat(res.data.list);
       total.value = res.data.total;
     }
@@ -70,7 +70,7 @@ const like = async (item, index) => {
   // 取消点赞
   if (item.is_like) {
     const res = await cancelLike({ for_id: item.id, type: 2, user_id: userStore.getUserInfo.id });
-    if (res.status == 0) {
+    if (res.code == 0) {
       talkList.value[index].is_like = false;
       talkList.value[index].like_times--;
       likePending.value = false;
@@ -85,7 +85,7 @@ const like = async (item, index) => {
   // 点赞
   else {
     const res = await addLike({ for_id: item.id, type: 2, user_id: userStore.getUserInfo.id });
-    if (res.status == 0) {
+    if (res.code == 0) {
       talkList.value[index].is_like = true;
       talkList.value[index].like_times++;
       likePending.value = false;

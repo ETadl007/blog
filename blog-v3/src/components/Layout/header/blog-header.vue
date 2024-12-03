@@ -130,10 +130,10 @@ onBeforeUnmount(() => {
               ><i class="iconfont icon-speechbubble"></i> 聊天室</el-menu-item
             > -->
             <el-menu-item index="/resources/front"
-              ><i class="iconfont icon-folder"></i> 前端推荐</el-menu-item
+              ><i class="iconfont icon-folder"></i> 网络安全</el-menu-item
             >
             <el-menu-item index="/resources/back"
-              ><i class="iconfont icon-houduankaifa"></i> 后端推荐</el-menu-item
+              ><i class="iconfont icon-houduankaifa"></i> 加解密</el-menu-item
             >
             <!-- <el-menu-item index="/music"><i class="iconfont icon-bofangduilie"></i> 音乐</el-menu-item> -->
           </el-sub-menu>

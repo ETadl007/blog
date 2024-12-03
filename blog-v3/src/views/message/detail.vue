@@ -36,7 +36,7 @@ const like = async (item) => {
   // 取消点赞
   if (item.is_like) {
     const res = await cancelLike({ for_id: item.id, type: 3, user_id: getUserInfo.value.id });
-    if (res.status == 0) {
+    if (res.code == 0) {
       item.like_times--;
       item.is_like = false;
       ElNotification({
@@ -49,7 +49,7 @@ const like = async (item) => {
   // 点赞
   else {
     const res = await addLike(item.id);
-    if (res.status == 0) {
+    if (res.code == 0) {
       item.like_times++;
       item.is_like = true;
       ElNotification({

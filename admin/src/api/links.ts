@@ -1,7 +1,7 @@
 import { http } from "@/utils/http";
 
 export type LinksResult = {
-  status: number;
+  code: number;
   message: string;
   data: any;
 };

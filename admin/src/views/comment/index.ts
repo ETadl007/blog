@@ -127,7 +127,7 @@ export function useColumns() {
         const res = await deleteComment({ idList: list });
         console.log(res);
 
-        if (res.status == 0) {
+        if (res.code == 0) {
           message(`批量删除评论成功`, { type: "success" });
           getPageMessageList();
         }
@@ -140,7 +140,7 @@ export function useColumns() {
   async function getPageMessageList() {
     
     const res = await getCommentList(param);
-    if (res.status == 0) {
+    if (res.code == 0) {
       dataList.value = res.data.list;
       pagination.total = res.data.total;
       loading.value = false;

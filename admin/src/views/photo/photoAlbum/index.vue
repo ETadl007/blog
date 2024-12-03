@@ -71,7 +71,7 @@ const submitForm = async formEl => {
           text: "图片上传中"
         });
         const imgRes = await imgUpload(albumForm.coverList[0]);
-        if (imgRes.status == 0) {
+        if (imgRes.code == 0) {
           const { url } = imgRes.data;
           albumForm.album_cover = url;
         }
@@ -86,7 +86,7 @@ const submitForm = async formEl => {
       } else {
         res = await addAlbum(albumForm);
       }
-      if (res.status == 0) {
+      if (res.code == 0) {
         await pageGetAlbum();
         message(`${albumForm.id ? "修改" : "新增"}成功`, { type: "success" });
         formEl.resetFields();
@@ -134,7 +134,7 @@ const operate = (type, val?) => {
 
 const deleteAlbumById = async id => {
   const res = await deleteAlbum(id);
-  if (res.status == 0) {
+  if (res.code == 0) {
     pageGetAlbum();
     message("删除成功", { type: "success" });
   }
@@ -142,7 +142,7 @@ const deleteAlbumById = async id => {
 
 const pageGetAlbum = async () => {
   const res = await getAlbumList(param);
-  if (res.status == 0) {
+  if (res.code == 0) {
     const { list, total } = res.data;
     albumList.value = list.map(l => {
       return {

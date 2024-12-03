@@ -1,5 +1,9 @@
 import * as configService from './config.service.js';
 
+import { result, ERRORCODE, errorResult, tipsResult } from '../result/index.js'
+const errorCodeUpload = ERRORCODE.UPLOAD;
+const errorCodeConfig = ERRORCODE.CONFIG;
+
 /**
  * 修改网站配置
  */
@@ -9,23 +13,19 @@ export const updateConfig = async (req, res, next) => {
     console.log(req.body);
     
     const one = await configService.getConfigById(id);
-    let result;
+    let data;
 
     if (one) {
-      result = await configService.updateConfig(req.body);
+      data = await configService.updateConfig(req.body);
     } else {
-      result = await configService.createConfig(req.body);
+      data = await configService.createConfig(req.body);
     }
 
-    res.send({
-      status: 0,
-      message: '修改网站配置成功',
-      data: result
-    });
+    res.send(result("修改网站配置成功", data))
 
   } catch (err) {
     console.error(err);
-    next(new Error('UPDATEWEBCONFIGERROR'));
+    return next(errorResult(errorCodeConfig, "修改网站配置失败", 500));
   }
 }
 
@@ -35,14 +35,14 @@ export const updateConfig = async (req, res, next) => {
 export const storeWebConfig = async (req, res, next) => {
   try {
     const config = await configService.getWebConfig();
-    res.send({
-      status: 0,
-      message: '获取网站配置成功',
-      data: config
-    });
+    if (config){
+      res.send(result("获取网站配置成功", config))
+    }else {
+      res.send(tipsResult("请去博客后台完善博客信息"))
+    }
   } catch (err) {
     console.log(err);
-    next(new Error('GETWEBCONFIGERROR'));
+    return next(errorResult(errorCodeConfig, "获取网站配置失败", 500));
   }
 }
 
@@ -52,33 +52,17 @@ export const storeWebConfig = async (req, res, next) => {
 
 export const addView = async (req, res, next) => {
   try {
-    const rows = await configService.getWebConfig();
-
-    let flag = '';
-    let message = '增加访问量失败'; // 默认返回失败消息
-
-    if (rows && rows.id) {
-      const configId = rows.id;
-
       // 更新 view_time
-      const result = await configService.addView(configId);
-
-      if (result.affectedRows > 0) {
-        flag = '添加成功';
-        message = '增加访问量成功';
+      const data = await configService.addView();
+      if (data == "添加成功"){
+        res.send(result("增加访问量成功", data))
+      }else if (data == "需要初始化"){
+        res.send(tipsResult("请去博客后台完善博客信息"))
+      }else {
+        res.send(errorResult(errorCodeConfig, "增加访问量失败", 500))
       }
-    } else {
-      flag = '需要初始化';
-      message = '增加访问量失败';
-    }
-
-    res.send({
-      status: flag === '添加成功' ? 0 : 1,
-      message,
-      result: flag,
-    });
   } catch (err) {
     console.error(err);
-    next(new Error('ADDVIEWERROR'));
+    return next(errorResult(errorCodeConfig, "增加访问量失败", 500));
   }
 };

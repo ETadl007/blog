@@ -231,7 +231,7 @@ const increaseViewTimes = async (id) => {
  * 根据文章id获取文章详情
  */
 
-export const blogArticleByIdService = async (params) => {
+export const blogArticleByIdService = async (id) => {
     let articleByIdSql = `
         SELECT
             a.id, a.category_id, 
@@ -251,22 +251,24 @@ export const blogArticleByIdService = async (params) => {
             a.order, 
             JSON_ARRAYAGG(IFNULL(t.id, '')) AS tagIdList,
             JSON_ARRAYAGG(IFNULL(t.tag_name, '')) AS tagNameList,
-            u.username AS authorName,
+            u.nick_name AS authorName,
             c.category_name AS categoryName
         fROM
             blog_article a
         LEFT JOIN
-            blog_tag t ON a.id = t.id
+            blog_article_tag at ON a.id = at.article_id
         LEFT JOIN
-            blog_category c ON a.id = c.id
+            blog_tag t ON at.tag_id = t.id
         LEFT JOIN
-            blog_user u ON a.id = u.id
+            blog_category c ON a.category_id = c.id
+        LEFT JOIN
+            blog_user u ON a.author_id = u.id
         WHERE
             a.id = ?
         GROUP BY
             a.id
         `
-    const [articleByIdResult] = await connecttion.promise().query(articleByIdSql, params);
+    const [articleByIdResult] = await connecttion.promise().query(articleByIdSql, [id]);
 
     const article = articleByIdResult[0];
 
@@ -275,7 +277,7 @@ export const blogArticleByIdService = async (params) => {
     }
 
     // 增加文章的浏览次数
-    await increaseViewTimes(params[0]);
+    await increaseViewTimes(id);
 
     return article;
 }
@@ -342,7 +344,7 @@ export const blogArticleRecommendService = async (id) => {
  * 通过标签id 获取到文章列表
  */
 
-export const blogArticleByTagIdService = async (params) => {
+export const blogArticleByTagIdService = async ({id, limit, offset}) => {
     const ArticleByTagIdSql = `
     SELECT 
         ba.createdAt,
@@ -362,7 +364,7 @@ export const blogArticleByTagIdService = async (params) => {
     OFFSET ?
     `;
 
-    const [ArticleByTagIdResult] = await connecttion.promise().query(ArticleByTagIdSql, params);
+    const [ArticleByTagIdResult] = await connecttion.promise().query(ArticleByTagIdSql, [id, limit, offset]);
     return ArticleByTagIdResult
 }
 
@@ -372,14 +374,14 @@ export const blogArticleByTagIdService = async (params) => {
 
 export const blogArticleByTagIdTotalService = async (id) => {
     const ArticleByTagIdTotalSql = `
-        SELECT 
-            COUNT(*) AS total_count
-        FROM
-            blog_article a
-        JOIN 
-            blog_tag t ON t.id = a.id
-        WHERE
-            t.id = ?
+    SELECT 
+        COUNT(*) AS total_count
+    FROM
+        blog_article_tag AS at
+    JOIN 
+        blog_tag AS t ON t.id = at.tag_id
+    WHERE
+        t.id = ?
     `;
     const [ArticleByTagIdTotalResult] = await connecttion.promise().query(ArticleByTagIdTotalSql, id);
     return ArticleByTagIdTotalResult[0].total_count

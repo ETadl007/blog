@@ -34,10 +34,10 @@ const currentTitle = computed(() => {
   let res = "";
   switch (currenType.value) {
     case "front":
-      res = "前端";
+      res = "网络安全";
       break;
     case "back":
-      res = "后端";
+      res = "加解密";
       break;
   }
   return res;

@@ -102,7 +102,7 @@ const publish = async () => {
   }
 
   const res = await addComment(data);
-  if (res.status == 0) {
+  if (res.code == 0) {
     commentText.value = "";
     ElNotification({
       offset: 60,
@@ -136,7 +136,7 @@ const getCommentTotal = async () => {
     type: getCurrentType(props.type),
     for_id: props.id,
   });
-  if (res && res.status == 0) {
+  if (res && res.code == 0) {
     const total = res.data;
     getTotal(total - 0);
   } else {

@@ -5,6 +5,9 @@ import fs from 'fs';
 import sharp from'sharp';
 import { fileURLToPath } from 'url';
 
+import { result, ERRORCODE, errorResult } from "../../result/index.js"
+const errorCode = ERRORCODE.UPLOAD_FILE;
+
 const RandomFilename = (originalname) => {
     const randomBytes = crypto.randomBytes(16).toString('base64url');
     const extension = path.extname(originalname);
@@ -32,7 +35,7 @@ const fileFilter = (req, file, cb) => {
     if (mimetype && extname) {
         cb(null, true);
     } else {
-        cb(new Error('FILE_TYPE_NOT_SUPPORTED'));
+        cb(errorResult(errorCode, '文件类型或大小不符合要求'));
     }
 };
 
@@ -47,7 +50,7 @@ const uploadConfig = (req, res, next) => {
         // 处理 multer 错误
         if (err instanceof multer.MulterError) {
           // 处理 multer 特有错误（例如文件太大）
-          return next(new Error(`MULTER_ERROR: ${err.message}`));
+          return next(errorResult(errorCode, '文件类型或大小不符合要求'));
         } else {
           // 处理其他错误（例如文件上传时的通用错误）
           return next(err);
@@ -76,7 +79,7 @@ const validateImage = (req, res, next) => {
                 // 如果图片格式无效，删除文件并返回错误
                 fs.unlink(filePath, (err) => {
                     if (err) console.error(err);
-                    next(new Error('INVALID_PICTURE_DELETE'))
+                    next(errorResult(errorCode, "小黑子，你上传的不是图片！"))
                 });
             }
         })
@@ -84,7 +87,7 @@ const validateImage = (req, res, next) => {
             // 如果出现错误，删除文件并返回错误
             fs.unlink(filePath, (err) => {
                 if (err) console.error(err);
-                next(new Error('INVALID_PICTURE_DELETE'))
+                next(errorResult(errorCode, "小黑子，你想搞事情？"))
             });
         });
 };

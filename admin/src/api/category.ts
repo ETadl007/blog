@@ -1,7 +1,7 @@
 import { http } from "@/utils/http";
 
 export type CategoryResult = {
-  status: number;
+  code: number;
   message: string;
   data: any;
 };

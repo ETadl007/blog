@@ -1,7 +1,7 @@
 import { http } from "@/utils/http";
 
 export type CommentResult = {
-  status: number;
+  code: number;
   message: string;
   data: any;
 };

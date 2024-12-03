@@ -31,7 +31,7 @@ const articleTotal = ref();
 const getHomeArticleList = async () => {
   try {
     let res = await homeGetArticleList(param.current, param.size);
-    if (res.status == 0) {
+    if (res.code == 0) {
       const { list, total } = res.data;
       articleList.value = list;
       articleTotal.value = total;
@@ -56,7 +56,7 @@ let tags = ref([]);
 const getConfigDetail = async () => {
   try {
     let res = await homeGetConfig();
-    if (res.status == 0 && typeof res.data != "string") {
+    if (res.code == 0 && typeof res.data != "string") {
       configDetail.value = res.data;
       userStore.setBlogAvatar(res.data.blog_avatar);
       calcRuntimeDays(configDetail.value.createdAt);
@@ -68,7 +68,7 @@ const getConfigDetail = async () => {
 // 获取文章数、分类数、标签数
 const getStatistic = async () => {
   let res = await homeGetStatistic();;
-  if (res.status == 0) {
+  if (res.code == 0) {
     Object.assign(configDetail.value, res.data);
   }
 };
@@ -76,7 +76,7 @@ const getStatistic = async () => {
 // 获取所有的标签
 const getAllTags = async () => {
   let res = await getAllTag();
-  if (res.status == 0) {
+  if (res.code == 0) {
     tags.value = res.data.map((r) => {
       r.color = randomFontColor();
       return r;
