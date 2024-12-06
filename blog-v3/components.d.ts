@@ -60,6 +60,7 @@ declare module '@vue/runtime-core' {
     GsapCount: typeof import('./src/components/GsapCount/index.vue')['default']
     HomeArticleList: typeof import('./src/components/HomeArticle/home-article-list.vue')['default']
     HomeHeader: typeof import('./src/components/PageHeader/home-header.vue')['default']
+    HomeLatestNotice: typeof import('./src/components/HomeLatestNotice/index.vue')['default']
     IconList: typeof import('./src/components/Comment/item/IconList.vue')['default']
     Layout: typeof import('./src/components/Layout/index.vue')['default']
     Loading: typeof import('./src/components/Loading/Loading.vue')['default']

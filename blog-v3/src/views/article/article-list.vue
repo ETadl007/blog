@@ -81,7 +81,7 @@ onMounted(() => {
           </div>
           <div class="article-list__head-total">文章总数：{{ total }}</div>
         </div>
-        <el-row>
+        <el-row v-if="total > 0">
           <el-col :xs="12" :sm="8" :md="6" v-for="(item, index) in articleList" :key="index">
             <el-card class="gradient card-hover" @click="gotoDetail(item.id)">
               <div v-image="item.article_cover" class="article-img scale">
@@ -102,6 +102,9 @@ onMounted(() => {
             </el-card>
           </el-col>
         </el-row>
+        <template v-else>
+          <div class="article-list__empty">暂无文章</div>
+        </template>
       </template>
     </el-card>
     <Pagination
@@ -157,6 +160,14 @@ onMounted(() => {
 .skeleton-item {
   margin-top: 1rem;
 }
+
+.article-list__empty{
+  text-align: center;
+  font-size: 1.4rem;
+  color: var(--font-color);
+  margin-top: 5rem;
+}
+
 @media screen and (min-width: 768px) {
   .article-img {
     height: 8rem;

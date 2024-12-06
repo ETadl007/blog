@@ -9,15 +9,15 @@ const tokenErrorCode = ERRORCODE.AUTHTOKEN; // 用户登录过期
  * 验证用户身份
  */
 export const authGuard = async (req, res, next) => {
-
     try {
+        
         const authorization = req.header('Authorization');
-
+        
         // 验证token
         if (!authorization) return next(errorResult(errorCode, '您没有权限访问，请先登录', 403));
 
         // 提取 JWT 令牌
-        const token = authorization.replace('Bearer ', '');
+        const token = authorization ? authorization.replace("Bearer ", "") : undefined;
 
         if (!token) return next(errorResult(errorCode, '您没有权限访问，请先登录', 403));
 
@@ -37,7 +37,6 @@ export const authGuard = async (req, res, next) => {
             
         });
 
-
     } catch (error) {
         console.error("未授权，请先登录:", error);
         if (error.name === "TokenExpiredError") {
@@ -49,32 +48,6 @@ export const authGuard = async (req, res, next) => {
         return next(errorResult(tokenErrorCode, '错误的请求', 500));
     }
 }
-
-export const validateUserIdMiddleware = (req, res, next) => {
-
-    // 获取请求体中的 user_id
-    const { user_id } = req.body;
-
-    // 检查请求体中是否有 user_id
-    if (!user_id) {
-        return next(errorResult(tokenErrorCode, '错误的请求', 500));
-    }
-
-    // 确保 req.username 已经被正确设置
-    if (!req.user || !req.body.user_id) {
-        return next(errorResult(errorCode, '您没有权限访问，请先登录', 403));
-    }
-
-    // 验证JWT令牌
-    const { id } = req.user;
-    
-    // 验证 user_id 是否与 JWT 中的 id 匹配
-    if (id !== user_id) {
-        return next(errorResult(errorCode, '您没有权限访问，请先登录', 403));
-    }
-
-    next();
-};
 
 /**
  * 对需要管理员发布信息，但是不建议超级管理员发布信息的接口进行提示

@@ -1,10 +1,12 @@
 import { connecttion } from "../app/database/mysql.js";
 
+import moment from "moment";
+
 /**
  * 获取通知列表
  */
 
-export const getNotifyList = async ({userId, size, offset}) => {
+export const getNotifyList = async ({userId, limit, offset}) => {
     const statement = `
         SELECT 
             *
@@ -17,7 +19,7 @@ export const getNotifyList = async ({userId, size, offset}) => {
         LIMIT ?
         OFFSET ?
     `;
-    const [data] = await connecttion.promise().query(statement, [userId, size, offset]);
+    const [data] = await connecttion.promise().query(statement, [userId, limit, offset]);
     return data;
 }
 
@@ -77,14 +79,16 @@ export const deleteNotify = async ({id}) => {
  */
 export const createNotify = async (notify) => {
     const { user_id, type, to_id, message } = notify;
+
+    const currentTime = moment().format('YYYY-MM-DD HH:mm:ss');
     
     const statement = `
         INSERT INTO 
-            blog_notify (user_id, type, to_id, message)
+            blog_notify (user_id, type, to_id, message, createdAt, updatedAt)
         VALUES
-            (?,?,?,?)
+            (?,?,?,?,?,?)
     `;
     
-    const [data] = await connecttion.promise().query(statement, [user_id, type, to_id, message]);
+    const [data] = await connecttion.promise().query(statement, [user_id, type, to_id, message, currentTime, currentTime]);
     return data;
 }

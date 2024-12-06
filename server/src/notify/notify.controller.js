@@ -12,12 +12,15 @@ export const getNotifyList = async (req, res, next) => {
     // 当前页码
     const { current, size, userId } = req.body;
 
+    // 每页内容数量
+    const limit = parseInt(size, 10) || parseInt(PAGE_SIZE, 10);
+
     // 偏移量
-    const offset = (current - 1) * parseInt(size, 10) || parseInt(PAGE_SIZE, 10);
+    const offset = (current - 1) * limit;
 
     try {
 
-        const notifyList = await notifyService.getNotifyList({userId, size, offset});
+        const notifyList = await notifyService.getNotifyList({userId, limit, offset});
 
         // 总条数
         const total = await notifyService.getNotifyTotal(userId);

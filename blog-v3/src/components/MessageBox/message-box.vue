@@ -146,7 +146,7 @@ onMounted(async () => {
       direction="ltr"
       :before-close="handleClose"
       :append-to-body="true"
-      :z-index="9999"
+      :z-index="2005"
     >
       <el-card class="p-[15px] mt-[10px] card-hover" v-for="item in messageList" :key="item.id">
         <div class="flex items-center" @click="jump(item)">

@@ -68,7 +68,7 @@ watch(
           listArticle.push(".article" + i);
         }
       }
-      gsapTransY(listArticle, 30, 0.6, "none");
+      gsapTransY(listArticle, 30, 0.3, "none");
     });
   }
 );
@@ -97,7 +97,12 @@ watch(
           :key="item.id"
         >
           <el-card class="card-hover">
-            <div class="article-box">
+            <div
+              class="article-box"
+              :style="{
+                'flex-direction': index % 2 == 0 ? 'row' : 'row-reverse',
+              }"
+            >
               <div
                 :class="['article-cover', 'article-cover' + index]"
                 @click="operate('detail', item)"
@@ -129,17 +134,6 @@ watch(
                     <span class="meta-label">置顶</span>
                   </span>
                   <span v-if="item.is_top == 1" class="article-meta__separator"></span>
-                  <span class="to_pointer">
-                    <i class="iconfont icon-calendar2"></i>
-                    <span class="meta-label">发表于</span>
-                    <span class="meta-value">{{ item.createdAt }}</span>
-                  </span>
-                  <span class="to_pointer">
-                    <i class="iconfont icon-schedule"></i>
-                    <span class="meta-label">更新于</span>
-                    <span class="meta-value">{{ item.updatedAt }}</span>
-                  </span>
-                  <span class="article-meta__separator"></span>
                   <span class="to_pointer" @click="operate('category', item)">
                     <i class="iconfont icon-folder"></i>
                     <span class="meta-value">{{ item.categoryName }}</span>
@@ -187,6 +181,18 @@ watch(
                   :lineHeight="3"
                   :name="item.article_description"
                 />
+                <div class="meta meta-time">
+                  <span class="to_pointer">
+                    <i class="iconfont icon-calendar2"></i>
+                    <span class="meta-label">发表于</span>
+                    <span class="meta-value">{{ item.createdAt }}</span>
+                  </span>
+                  <span class="to_pointer" style="float: right;">
+                    <i class="iconfont icon-schedule"></i>
+                    <span class="meta-label">更新于</span>
+                    <span class="meta-value">{{ item.updatedAt }}</span>
+                  </span>
+                </div>
               </div>
             </div>
             <!-- 图片 -->
@@ -198,6 +204,7 @@ watch(
       </template>
     </template>
     <Pagination
+      class="!mt-[2rem]"
       :size="param.size"
       :current="param.current"
       :layout="layout"
@@ -229,13 +236,14 @@ watch(
 }
 
 .article-info {
+  flex: 1;
   .title {
     display: inline-block;
     width: 100%;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     color: var(--font-color);
     font-weight: 600;
-    line-height: 3;
+    line-height: 2.4;
     transition: 0.2s ease-in-out;
 
     &:hover {
@@ -294,22 +302,27 @@ watch(
   }
 }
 
+.meta-time{
+  font-size: 0.9rem;
+}
+
 @media screen and (max-width: 768px) {
   .article-box {
     display: flex;
     justify-content: space-around;
-    flex-direction: column;
+    flex-direction: column !important;
     align-items: center;
-    height: 30rem;
+    height: 28rem;
   }
 
   .article-cover {
     width: 100%;
-    height: 18rem;
+    height: 14rem;
     overflow: hidden;
   }
 
   .article-info {
+    flex: 1;
     width: 100%;
     padding: 1rem 1.5rem;
     overflow: hidden;
@@ -322,18 +335,18 @@ watch(
   .article-box {
     display: flex;
     align-items: center;
-    height: 20rem;
+    height: 16rem;
   }
 
   .article-cover {
-    width: 45%;
+    width: 40%;
     height: 100%;
     overflow: hidden;
   }
 
   .article-info {
     width: 55%;
-    padding: 0 40px;
+    padding: 0 20px;
     overflow: hidden;
     display: inline-block;
   }

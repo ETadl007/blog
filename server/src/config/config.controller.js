@@ -10,7 +10,6 @@ const errorCodeConfig = ERRORCODE.CONFIG;
 export const updateConfig = async (req, res, next) => {
   try {
     const { id } = req.body;
-    console.log(req.body);
     
     const one = await configService.getConfigById(id);
     let data;

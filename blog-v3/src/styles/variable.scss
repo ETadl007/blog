@@ -22,7 +22,7 @@
   --music-main-active: #62c28a;
   --music-main-bg: #101827;
   --shadow-mask-bg: rgba(0, 0, 0, 0.5);
-  --shadow-button-bg: #fff;
+  --shadow-button-bg: rgba(236, 236, 236, 0.5);
   --global-font-size: 14px;
   --card-box-shadow: 0 3px 6px 3px rgba(7, 17, 27, 0.06);
   --card-hover-box-shadow: 0 3px 6px 3px rgba(7, 17, 27, 0.15);
@@ -73,6 +73,8 @@ html.dark {
   --music-main-bg: #303030;
 
   --menu-color: var(--font-color);
+
+  --shadow-button-bg: rgba(19, 19, 19, 0.2);
 
   --button-linear-gradient: linear-gradient(300deg, #a286a2 0%, #648faf 100%);
   --button-linear-gradient-h: linear-gradient(300deg, #648faf 0%, #a286a2 100%);

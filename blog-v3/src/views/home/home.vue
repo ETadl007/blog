@@ -15,6 +15,8 @@ import MobileTopSkeleton from "@/components/RightSide/components/skeleton/mobile
 import RightSideItem from "@/components/RightSide/components/item/right-side-item.vue";
 import RightSideTop from "@/components/RightSide/components/item/right-side-top.vue";
 import RightSideSkeletonItem from "@/components/RightSide/components/skeleton/right-side-skeleton-item.vue";
+import HomeLatestNotice from "@/components/HomeLatestNotice/index.vue"
+
 import { gsapTransY } from "@/utils/transform";
 
 const userStore = user();
@@ -148,6 +150,9 @@ onMounted(async () => {
   <PageHeader />
   <div class="home_center_box">
     <el-row>
+      <el-col :xs="24" :sm="24">
+        <HomeLatestNotice />
+      </el-col>
       <el-col :xs="24" :sm="18">
         <el-card
           class="mobile-top-card mobile-card info-card animate__animated animate__fadeIn"

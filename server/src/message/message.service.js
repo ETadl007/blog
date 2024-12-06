@@ -1,5 +1,5 @@
 import { connecttion } from "../app/database/mysql.js";
-import { getIsLikeByIdAndType } from "../like/like.service.js"
+import { getIsLikeByIdAndType, getIsLikeByIpAndType } from "../like/like.service.js"
 
 import moment from "moment";
 
@@ -7,7 +7,8 @@ import moment from "moment";
  * 获取留言列表
  */
 
-export const getMessageList = async ({ limit, offset, user_id, tag, message }) => {
+export const getMessageList = async ({ limit, offset, user_id, tag, message, ip }) => {
+
     let whereClause = '';
     let params = [];
 
@@ -62,18 +63,29 @@ export const getMessageList = async ({ limit, offset, user_id, tag, message }) =
 
     const [data] = await connecttion.promise().query(messageSql, params);
 
-    // 判断当前登录的用户是否已点赞
-    const isLikePromises = data.map(async (item) => {
-        return getIsLikeByIdAndType({ for_id: item.id, type: 3, user_id: user_id || item.ip });
-    });
+    if (user_id) {
+        // 判断当前登录的用户是否已点赞
+        const isLikePromises = data.map(async (item) => {
+            return getIsLikeByIdAndType({ for_id: item.id, type: 3, user_id: user_id });
+        });
 
-    const likeResults = await Promise.all(isLikePromises);
-    data.forEach((item, index) => {
-        item.is_like = likeResults[index];
-    });
+        const likeResults = await Promise.all(isLikePromises);
+        data.forEach((item, index) => {
+            item.is_like = likeResults[index];
+        });
+    } else {
+        // 判断当前 IP 是否已点赞
+        const isLikePromises = data.map(async (item) => {
+            return getIsLikeByIpAndType({ for_id: item.id, type: 3, ip: ip });
+        });
 
+        const likeResults = await Promise.all(isLikePromises);
+        data.forEach((item, index) => {
+            item.is_like = likeResults[index];
+        });
+    }
     return data;
-};
+}
 
 /**
  * 获取热门标签

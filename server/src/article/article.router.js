@@ -86,17 +86,6 @@ router.get('/article/getHotArticle', articleController.getArticleHot);
 router.get('/article/getArticleListByContent/:content', articleController.getArticleBySearch);
 
 /**
- * 文章点赞
- */
-router.post('/like/addLike', likeControllerfrom.addLike)
-
-
-/**
- * 取消点赞
- */
-router.post('/like/cancelLike', likeControllerfrom.cancelLike)
-
-/**
  *文章增加阅读时长 
  */
 router.put('/article/addReadingDuration/:id/:duration', articleController.addReadingDuration)

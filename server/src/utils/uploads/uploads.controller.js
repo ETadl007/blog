@@ -43,9 +43,9 @@ export const userUpload = async (req, res, next) => {
 
         // 提交事务
         await connection.commit();
-    } catch (error) {
+    } catch (err) {
         if (connection) await connection.rollback();
-        console.log(error);
+        console.log(err);
         return next(errorResult(errorCode, "文件上传失败", 500))
     } finally {
         if (connection) connection.release();
@@ -86,9 +86,9 @@ export const upload = async (req, res, next) => {
         // 提交事务
         await connection.commit();
 
-    } catch (error) {
+    } catch (err) {
         if (connection) await connection.rollback();
-        console.log(error);
+        console.log(err);
         return next(errorResult(errorCode, "文件上传失败", 500))
     } finally {
         if (connection) connection.release();

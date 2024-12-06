@@ -1,7 +1,7 @@
 import express from 'express';
 import * as likeController from './like.controller.js';
 import { TimesLimiter } from '../app/app.middleware.js'
-import { authGuard, validateUserIdMiddleware } from '../auth/auth.middleware.js';
+import { validateUserIdMiddleware } from './like.middleware.js';
 
 const router = express.Router({
     prefixKey: "/like"
@@ -23,15 +23,14 @@ router.post('/like/addLike',
         windowMs: 60 * 1000,
     }),
     (req, res, next) => {
-        // 文章点赞可游客点赞
         if (req.body.type === 1) {
-            return next();
-        }else {
-            authGuard(req, res, () => validateUserIdMiddleware(req, res, next));
+            next();
+        } else {
+            return validateUserIdMiddleware(req, res, next)
         }
     },
     likeController.addLike
-);
+)
 
 /**
  * 取消点赞
@@ -41,7 +40,16 @@ router.post('/like/cancelLike', TimesLimiter({
     message: "小黑子你在刷取消赞，被我发现了！",
     limit: 10,
     windowMs: 60 * 1000,
-}), likeController.cancelLike);
+}),
+    (req, res, next) => {
+        if (req.body.type === 1) {
+            next();
+        } else {
+            return validateUserIdMiddleware(req, res, next)
+        }
+    },
+    likeController.cancelLike
+);
 
 /**
  * 导出路由

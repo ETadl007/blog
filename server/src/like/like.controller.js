@@ -50,6 +50,7 @@ const typeMap = {
 
 export const addLike = async (req, res, next) => {
     try {
+        
         const { for_id, type, user_id } = req.body;
 
         let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
@@ -58,10 +59,12 @@ export const addLike = async (req, res, next) => {
         const mappedType = typeMap[type];
 
         // 判断文章/说说/留言是否存在
-        const exists = await likeService.blogLikeExists({ type, likeType: mappedType });
-        
-        if (exists) {
-            return next(errorResult(errorCode, "文章/说说/留言不存在", 500))
+        const exists = await likeService.blogLikeExists({ likeType: mappedType });
+
+        const msg = type == 1? "文章" : type == 2? "说说" : type == 3? "留言" : "评论";
+
+        if (!exists) {
+            return next(errorResult(errorCode, msg + "不存在", 500))
         }
 
         if (!for_id) {
@@ -78,13 +81,14 @@ export const addLike = async (req, res, next) => {
             if (isLike) {
                 return next(errorResult(errorCode, "小黑子，你已经点过赞了，不要贪心哦！", 500))
             }
-            data = await likeService.addLike({ for_id, type, ip });
+            data = await likeService.addLike({ for_id, type, user_id, ip });
+            
         } else {
             let isLike = await likeService.getIsLikeByIdAndType({ for_id, type, user_id });
             if (isLike) {
                 return next(errorResult(errorCode, "小黑子，你已经点过赞了，不要贪心哦！", 500))
             }
-            data = await likeService.addLike({ for_id, type, user_id });
+            data = await likeService.addLike({ for_id, type, user_id, ip });
         }
 
         if (!data) {
@@ -97,8 +101,8 @@ export const addLike = async (req, res, next) => {
         }
 
         res.send(result("点赞成功", data))
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
         return next(errorResult(errorCode, "点赞失败", 500))
     }
 }
@@ -109,7 +113,7 @@ export const addLike = async (req, res, next) => {
 
 export const cancelLike = async (req, res, next) => {
 
-    try {
+    try {    
         const { for_id, type, user_id } = req.body;
 
         let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
@@ -121,8 +125,10 @@ export const cancelLike = async (req, res, next) => {
         // 判断文章/说说/留言是否存在
         const exists = await likeService.blogLikeExists({ type, likeType: mappedType });
 
-        if (exists) {
-            return next(errorResult(errorCode, "文章/说说/留言不存在", 500))
+        const msg = type == 1? "文章" : type == 2? "说说" : type == 3? "留言" : "评论";
+
+        if (!exists) {
+            return next(errorResult(errorCode, msg + "不存在", 500))
         }
 
         if (!for_id) {
@@ -154,8 +160,8 @@ export const cancelLike = async (req, res, next) => {
 
         res.send(result("取消点赞成功", data))
 
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
         return next(errorResult(errorCode, "取消点赞失败", 500))
     }
 }

@@ -78,7 +78,7 @@ export const getArticleDetail = async (req, res, next) => {
         const articleDetail = await articleService.blogArticleByIdService(id);
         // 如果文章不存在，直接返回失败响应
         if (!articleDetail) {
-            return next(errorResult(errorCode, "获取文章详情失败", 500))
+            return next(errorResult(errorCode, "当前文章不存在", 500))
         }
         res.send(result("获取文章详情成功", articleDetail));
 
@@ -125,10 +125,6 @@ export const getArticleByTagId = async (req, res, next) => {
     try {
         const articleByTagId = await articleService.blogArticleByTagIdService({ id, limit, offset });
         const total = await articleService.blogArticleByTagIdTotalService(id);
-        // 如果文章不存在，直接返回失败响应
-        if (!articleByTagId.length) {
-            return next(errorResult(errorCode, "标签获取文章列表失败", 500))
-        }
 
         res.send(result("标签获取文章列表成功", { current, size, list: articleByTagId, total }));
 
@@ -193,7 +189,7 @@ export const getArticleHot = async (req, res, next) => {
 
 export const getArticleBySearch = async (req, res, next) => {
     const { content } = req.params;
-
+    
     try {
         const articleBySearch = await articleService.blogArticleSearchService(content);
 

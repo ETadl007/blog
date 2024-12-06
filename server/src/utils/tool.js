@@ -25,14 +25,31 @@ export function randomNickname(prefix, randomLength) {
   return name;
 }
 
-export function getIpAddress(ip) {
+// 获取当前type类型数字的公共方法
+export const getCurrentTypeName = (type) => {
 
-  const ipnetInstance = ipnet();  
-  const arr = ipnetInstance.find(ip);
+  let res = 0;
+  switch (type + '') {
+    case "1":
+      res = "文章";
+      break;
+    case "2":
+      res = "说说";
+      break;
+    case "3":
+      res = "留言";
+      break;
+  }
+  return res;
+}
+
+
+export function getIpAddress(ip) { 
+  const arr = ipnet().find(ip);
 
   if (!arr || arr.length === 0) {
     return "本机地址";
   }
 
-  return arr[1] || arr[0]
+  return arr[1] || arr[0];
 }

@@ -24,7 +24,7 @@ export const blogArticleListService = async ({ limit, offset }) => {
         a.thumbs_up_times,
         a.reading_duration, 
         a.order AS article_order,
-        JSON_ARRAYAGG(IFNULL(t.tag_name, '')) AS tagNameList,
+        JSON_ARRAYAGG(IFNULL(t.tag_name, null)) AS tagNameList,
         c.category_name AS categoryName
     FROM 
         blog_article a 
@@ -373,6 +373,7 @@ export const blogArticleByTagIdService = async ({id, limit, offset}) => {
  */
 
 export const blogArticleByTagIdTotalService = async (id) => {
+    
     const ArticleByTagIdTotalSql = `
     SELECT 
         COUNT(*) AS total_count
@@ -471,11 +472,24 @@ export const blogArticleSearchService = async (content) => {
         article_content LIKE CONCAT('%', ?, '%') AND status = 1
     ORDER BY
         view_times DESC
+    LIMIT 8
         
     `;
 
     const [ArticleSearchResult] = await connecttion.promise().query(ArticleSearchSql, content);
-    return ArticleSearchResult
+
+    const result = ArticleSearchResult.map(item => {
+        const { id, article_title, article_content } = item;
+        const index = article_content.indexOf(content);
+        const previous = index;
+        const next = index + content.length + 12;
+        return {
+            id,
+            article_title,
+            article_content: article_content.substring(previous, next)
+        }
+    })
+    return result
 }
 
 /**

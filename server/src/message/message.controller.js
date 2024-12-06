@@ -14,16 +14,18 @@ const errorCode = ERRORCODE.MESSAGE;
 export const getMessage = async (req, res, next) => {
 
     try {
-        // 当前页码
-        let { current = 1, size, user_id = null, tag = '', message = '' } = req.body;
+        let { current, size, user_id = null, tag, message } = req.body;
+
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
 
         // 每页内容数量
-        const limit = parseInt(PAGE_SIZE, 10) || 6;
+        const limit = parseInt(size, 10) || parseInt(PAGE_SIZE, 10);
 
         // 偏移量
         const offset = (current - 1) * limit;
 
-        const data = await messageService.getMessageList({ limit, offset, user_id, tag, message });
+        const data = await messageService.getMessageList({ limit, offset, user_id, tag, message, ip });
         const total = await messageService.getMessageTotal({ tag, message });
 
         res.send(result("获取留言列表成功", { current, size, list: data, total }))

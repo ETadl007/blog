@@ -28,7 +28,8 @@ const clickSearchIcon = async () => {
       return {
         id: r.id,
         article_title: r.article_title,
-        icon: numberList[index],
+        view_times: r.view_times,
+        iconNumber: numberList[index],
       };
     });
   }
@@ -166,15 +167,19 @@ const goToArticle = (id) => {
                   </div>
                   <div
                     class="hot-box__recommend"
-                    style="margin: 0.3rem"
+                    style="margin-top: 0.3rem"
                     v-for="hot in hotSearchList"
                     :key="hot.id"
                   >
                     <span :title="hot.article_title" class="title" @click="goToArticle(hot.id)">
-                      <span v-html="hot.icon" class="number-icon"></span>
+                      <span v-html="hot.iconNumber" class="number-icon"></span>
                       <span :title="hot.article_title" class="article-title text_overflow">{{
                         hot.article_title
                       }}</span>
+                      <div class="hot">
+                        <svg-icon name="hot" :width="1.2" :height="1.2"></svg-icon>
+                        <span :title="hot.view_times">{{ hot.view_times }}</span>
+                      </div>
                     </span>
                   </div>
                 </div>
@@ -281,22 +286,18 @@ const goToArticle = (id) => {
   }
   &__recommend {
     height: 2rem;
-    display: flex;
-    align-items: center;
     .title {
-      position: absolute;
-      padding-left: 1rem;
-      display: inline-block;
+      display: flex;
+      align-items: center;
+      line-height: 2rem;
     }
     .number-icon {
-      position: absolute;
-      top: 0;
-      left: -0.4rem;
+      line-height: 2rem;
+      margin-right: 5px;
       color: var(--hot-color);
     }
-    .article-title {
-      display: inline-block;
-      width: 180px;
+    .hot{
+      margin-left: auto;
     }
   }
 }

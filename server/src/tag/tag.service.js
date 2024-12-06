@@ -49,9 +49,9 @@ export const getTagList = async ({ tag_name, limit, offset }) => {
 
         const [data] = await connecttion.promise().query(tagListSql, params);
         return data;
-    } catch (error) {
-        console.log(error);
-        throw error;
+    } catch (err) {
+        console.log(err);
+        throw err;
     }
 
 }
@@ -146,9 +146,9 @@ export const deleteTag = async ({ tagIdList }) => {
             (?)`;
         const [data] = await connecttion.promise().query(deleteTagSql, [tagIdList]);
         return data.affectedRows > 0 ? true : false;
-    } catch (error) {
-        console.log(error);
-        throw error;
+    } catch (err) {
+        console.log(err);
+        throw err;
     }
 
 }

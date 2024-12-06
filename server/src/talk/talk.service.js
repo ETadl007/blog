@@ -68,9 +68,9 @@ export const blogGetTalkList = async ({ limit, offset, user_id }) => {
         }));
 
         return { current, size, list, total: totalCount };
-    } catch (error) {
-        console.log(error)
-        throw error
+    } catch (err) {
+        console.log(err)
+        throw err
     }
 }
 
@@ -157,9 +157,9 @@ export const getTalkList = async ({ limit, offset, user_id, status }) => {
         }));
 
         return { current, size, list, total: totalCount };
-    } catch (error) {
-        console.log(error);
-        throw error;
+    } catch (err) {
+        console.log(err);
+        throw err;
     }
 };
 

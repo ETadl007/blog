@@ -8,11 +8,7 @@ import { storeToRefs } from "pinia";
 import MdEditor from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
 
-import {
-  getArticleById,
-  getRecommendArticleById,
-  readingDuration,
-} from "@/api/article";
+import { getArticleById, getRecommendArticleById, readingDuration } from "@/api/article";
 import { addLike, cancelLike, getIsLikeByIdOrIpAndType } from "@/api/like";
 
 import Comment from "@/components/Comment/Comment.vue";
@@ -23,7 +19,8 @@ import GsapCount from "@/components/GsapCount/index";
 const MdCatalog = MdEditor.MdCatalog;
 let setUpTimes = null;
 let lastArticleId = null;
-let comment = null,observe = null; // 用于监听评论是否出现在可视区域内
+let comment = null,
+  observe = null; // 用于监听评论是否出现在可视区域内
 const commentRef = ref(null);
 const commentIsOpen = ref(false);
 
@@ -115,15 +112,14 @@ const getArticleDetails = async (id) => {
   if (res.code == 0) {
     mdState.text = res.data.article_content;
     articleInfo.value = res.data;
-    if (getUserInfo.value.id) {
-      const res = await getIsLikeByIdOrIpAndType({
-        for_id: articleInfo.value.id,
-        type: 1,
-        user_id: getUserInfo.value.id,
-      });
-      if (res.code == 0) {
-        isLike.value = res.data;
-      }
+
+    const Lres = await getIsLikeByIdOrIpAndType({
+      for_id: articleInfo.value.id,
+      type: 1,
+      user_id: getUserInfo.value.id,
+    });
+    if (Lres.code == 0) {
+      isLike.value = Lres.data;
     }
   }
 };

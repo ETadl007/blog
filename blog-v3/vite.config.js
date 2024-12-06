@@ -76,6 +76,7 @@ export default defineConfig({
       // 本地后端代理
       "/api": {
         //要访问的跨域的域名
+        
         target: "http://localhost:8888",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),

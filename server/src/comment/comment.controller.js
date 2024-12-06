@@ -4,6 +4,8 @@ import { sqlFragment } from './comment.provider.js';
 import { addNotify } from "../notify/notify.controller.js";
 import { filterSensitive } from "../utils/sensitive.js";
 
+import { getCurrentTypeName } from '../utils/tool.js';
+
 import { result, ERRORCODE, errorResult } from '../result/index.js'
 const errorCode = ERRORCODE.COMMENT;
 
@@ -17,7 +19,7 @@ export const getCommentTotal = async (req, res, next) => {
 
     try {
         const commentTotal = await commentService.blogCommentTotalService(for_id, type);
-        
+
         res.send(result("获取评论总数成功", commentTotal))
 
     } catch (err) {
@@ -27,13 +29,16 @@ export const getCommentTotal = async (req, res, next) => {
 }
 
 /**
- * 分页查找父级评论成功
+ * 前台分页查找父级评论成功
  * type: 1 文章评论 2 说说评论
  */
 
 export const getParentCommentList = async (req, res, next) => {
     // 当前页码
     let { current, size, for_id, order, type, user_id } = req.body;
+
+    let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+    ip = ip.split(":").pop();
 
     // 每页评论数量
     const limit = parseInt(PARENT_COMMENT_PAGE_SIZE, 10) || 3;
@@ -45,7 +50,7 @@ export const getParentCommentList = async (req, res, next) => {
     const orderArr = order == 'new' ? sqlFragment.commentOrderNew : sqlFragment.commentOrderHot
 
     try {
-        const list = await commentService.blogCommentParentListService({ for_id, type, orderArr, limit, offset, user_id });
+        const list = await commentService.blogCommentParentListService({ for_id, type, orderArr, limit, offset, user_id, ip });
         const total = await commentService.blogCommentService(for_id, type);
 
         res.send(result("分页查找父评论成功", { current, size, total, list }))
@@ -57,12 +62,15 @@ export const getParentCommentList = async (req, res, next) => {
 }
 
 /**
- * 获取子级评论列表
+ * 前台获取子级评论列表
  */
 
 export const getChildCommentList = async (req, res, next) => {
     try {
         const { current, size, type, for_id, user_id, parent_id } = req.body;
+
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
 
         // 每页内容数量
         const limit = parseInt(PARENT_COMMENT_PAGE_SIZE, 10) || 3;
@@ -70,7 +78,7 @@ export const getChildCommentList = async (req, res, next) => {
         // 偏移量
         const offset = (current - 1) * limit;
 
-        const list = await commentService.blogCommentChildrenListService({ parent_id, limit, offset, user_id });
+        const list = await commentService.blogCommentChildrenListService({ parent_id, limit, offset, user_id, ip });
         const total = await commentService.blogCommentService(for_id, type, parent_id);
 
         res.send(result("分页查找子评论成功", { current, size, total, list }))
@@ -111,15 +119,25 @@ export const addComment = async (req, res, next) => {
 
     try {
         let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
-        
+
         req.body.content = await filterSensitive(req.body.content);
 
         const comment = { ...req.body, ip: ip.split(':').pop() };
 
         const data = await commentService.blogCommentAddService(comment);
-        const userinfo = await commentService.getUserInfoByUserId(req.body.from_id);
 
-        res.send(result("添加评论成功", {res: userinfo}))
+        let { type, for_id, author_id, from_name, from_id, content } = req.body;
+
+        if (from_id !== author_id) {
+            await addNotify({
+                user_id: author_id,
+                type: type,
+                to_id: for_id,
+                message: `您的${getCurrentTypeName(type)}收到了来自于：${from_name} 的评论: ${content}！`,
+            });
+        }
+
+        res.send(result("添加评论成功", { res: data }))
 
     } catch (err) {
         console.log(err);
@@ -135,12 +153,12 @@ export const addReplyComment = async (req, res, next) => {
     try {
 
         let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
-        
+
         req.body.content = await filterSensitive(req.body.content);
 
         const comment = { ...req.body, ip: ip.split(':').pop() };
 
-        const { type, for_id, from_name, content, from_id, to_id } = req.body;
+        let { type, for_id, from_name, content, from_id, to_id } = req.body;
 
         const data = await commentService.applyComment(comment)
 
@@ -149,11 +167,11 @@ export const addReplyComment = async (req, res, next) => {
                 user_id: to_id,
                 type: type,
                 to_id: for_id,
-                message: `您收到了来自 ${from_name} 的评论回复: ${content}！`,
+                message: `您的收到了来自于：${from_name} 的评论回复: ${content}！`,
             });
         }
 
-        res.send(result("添加回复评论成功", {res: data}))
+        res.send(result("添加回复评论成功", { res: data }))
 
     } catch (err) {
         console.log(err);
@@ -171,7 +189,7 @@ export const deleteComment = async (req, res, next) => {
     try {
         const data = await commentService.deleteComment(id, parent_id);
 
-        res.send(result("删除评论成功", {res: data}))
+        res.send(result("删除评论成功", { res: data }))
 
     } catch (err) {
         console.log(err);
@@ -189,10 +207,10 @@ export const backDeleteComment = async (req, res, next) => {
         const { idList } = req.body;
         const data = await commentService.backDeleteComment(idList);
 
-        res.send(result("批量删除评论成功", {res: data}))
+        res.send(result("批量删除评论成功", { res: data }))
 
     } catch (err) {
         console.log(err);
-       return next(errorResult(errorCode, "批量删除评论失败", 500))
+        return next(errorResult(errorCode, "批量删除评论失败", 500))
     }
 }

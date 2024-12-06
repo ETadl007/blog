@@ -14,18 +14,18 @@ const __dirname = path.dirname(__filename);
  * 用户注册
  */
 
-export const createUser = async ({ username, password, role, nick_name }) => {
+export const createUser = async ({ username, password, role, nick_name, avatar }) => {
 
     // 手动设置时间
     const currentTime = moment().format('YYYY-MM-DD HH:mm:ss')
 
     const statment = `
         INSERT INTO blog_user 
-        (username, password, role, nick_name, createdAt, updatedAt)
+        (username, password, role, nick_name, avatar, createdAt, updatedAt)
         VALUES
-        (?, ?, ?, ?, ?, ?)
+        (?, ?, ?, ?, ?, ?, ?)
     `
-    const [data] = await connecttion.promise().query(statment, [username, password, role, nick_name, currentTime, currentTime]);
+    const [data] = await connecttion.promise().query(statment, [username, password, role, nick_name, avatar, currentTime, currentTime]);
 
     // 获取插入的 ID
     const userId = data.insertId;

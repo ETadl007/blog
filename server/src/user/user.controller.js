@@ -73,7 +73,7 @@ export const store = async (req, res, next) => {
         // 随机生成昵称
         nick_name = nick_name ? nick_name : randomNickname("007的小迷弟");
 
-        const avatar = "http://mrzym.top/online/9bb507f4bd065759a3d093d04.webp";
+        const avatar = "http://47.122.25.63/images/aG9FxM0_Xfdk6FaYb5Opmw.png";
 
         const user = await userService.createUser({ username, password, role, nick_name, avatar });
 

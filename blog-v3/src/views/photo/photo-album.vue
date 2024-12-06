@@ -31,43 +31,50 @@ onMounted(() => {
 </script>
 
 <template>
-  <PageHeader />
+  <PageHeader :loading="loading" />
   <div class="albumList">
     <el-row class="center_box">
       <el-col :span="24">
         <el-card class="albumList-card">
-          <el-row v-if="loading" class="row-space">
-            <el-col class="col-space" :xs="12" :sm="6" v-for="item in 8" :key="item">
-              <div class="flex_center">
-                <el-skeleton animated>
-                  <template #template>
-                    <SkeletonItem variant="image" width="100%" height="8rem" />
-                  </template>
-                </el-skeleton>
+          <el-skeleton v-if="loading" :loading="loading" animated>
+            <template #template>
+              <div class="flex_r_between">
+                <SkeletonItem variant="text" width="10rem" height="4rem" />
+                <SkeletonItem variant="text" width="8rem" height="2rem" />
               </div>
-            </el-col>
-          </el-row>
-          <el-row v-else class="row-space">
-            <el-col class="col-space" :xs="12" :sm="6" v-for="item in albumList" :key="item.id">
-              <div
-                v-image="item.album_cover"
-                class="albumList-box flex_center"
-                @click="goToPhotos(item)"
-              >
-                <div class="albumList-box__mask">
-                  <span class="name text_overflow"> {{ item.album_name }}</span>
-                  <span class="desc text_overflow">{{ item.description }}</span>
+              <div class="flex_r_between skeleton-item">
+                <div v-for="i in 4" :key="i">
+                  <SkeletonItem variant="image" width="15rem" height="6rem" />
+                  <SkeletonItem variant="text" width="12rem" top="1rem" height="20px" />
+                  <SkeletonItem variant="text" width="14rem" top="1.5rem" height="15px" />
                 </div>
-                <el-image class="albumList-box__image" :src="item.album_cover" fit="cover" lazy>
-                  <template #error>
-                    <div class="w-[100%] h-[100%] grid place-items-center">
-                      <svg-icon name="image404" :width="8" :height="6"></svg-icon>
-                    </div>
-                  </template>
-                </el-image>
               </div>
-            </el-col>
-          </el-row>
+            </template>
+          </el-skeleton>
+          <template v-else>
+            <el-row v-if="albumList.length > 0" class="row-space">
+              <el-col class="col-space" :xs="12" :sm="6" v-for="item in albumList" :key="item.id">
+                <div
+                  v-image="item.album_cover"
+                  class="albumList-box flex_center"
+                  @click="goToPhotos(item)"
+                >
+                  <div class="albumList-box__mask">
+                    <span class="name text_overflow"> {{ item.album_name }}</span>
+                    <span class="desc text_overflow">{{ item.description }}</span>
+                  </div>
+                  <el-image class="albumList-box__image" :src="item.album_cover" fit="cover" lazy>
+                    <template #error>
+                      <div class="w-[100%] h-[100%] grid place-items-center">
+                        <svg-icon name="image404" :width="8" :height="6"></svg-icon>
+                      </div>
+                    </template>
+                  </el-image>
+                </div>
+              </el-col>
+            </el-row>
+            <div v-else class="album-list__empty">暂无相册</div>
+          </template>
         </el-card>
       </el-col>
     </el-row>
@@ -132,7 +139,12 @@ onMounted(() => {
 .col-space {
   padding: 5px 2px !important;
 }
-
+.album-list__empty{
+  text-align: center;
+  font-size: 1.4rem;
+  color: var(--font-color);
+  margin-top: 5rem;
+}
 @media screen and (max-width: 768px) {
   .albumList-box {
     width: 12rem;

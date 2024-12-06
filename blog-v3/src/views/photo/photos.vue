@@ -76,33 +76,41 @@ watch(
             </div>
           </el-col>
         </el-row>
-        <el-row v-else-if="photoList.length" class="row-space">
-          <el-col
-            class="col-space"
-            :xs="12"
-            :sm="8"
-            v-for="(item, index) in photoList"
-            :key="item.id"
-          >
-            <div v-image="item.url" class="image-box flex_center animate__animated animate__fadeIn">
-              <el-image
-                class="image"
-                :src="item.url"
-                fit="cover"
-                lazy
-                preview-teleported
-                :initial-index="index"
-                :preview-src-list="photoList.map((v) => v.url)"
+        <template v-if="photoList.length">
+          <el-row class="row-space">
+            <el-col
+              class="col-space"
+              :xs="12"
+              :sm="8"
+              v-for="(item, index) in photoList"
+              :key="item.id"
+            >
+              <div
+                v-image="item.url"
+                class="image-box flex_center animate__animated animate__fadeIn"
               >
-                <template #error>
-                  <div class="w-[100%] h-[100%] grid place-items-center">
-                    <svg-icon name="image404" :width="8" :height="6"></svg-icon>
-                  </div>
-                </template>
-              </el-image>
-            </div>
-          </el-col>
-        </el-row>
+                <el-image
+                  class="image"
+                  :src="item.url"
+                  fit="cover"
+                  lazy
+                  preview-teleported
+                  :initial-index="index"
+                  :preview-src-list="photoList.map((v) => v.url)"
+                >
+                  <template #error>
+                    <div class="w-[100%] h-[100%] grid place-items-center">
+                      <svg-icon name="image404" :width="8" :height="6"></svg-icon>
+                    </div>
+                  </template>
+                </el-image>
+              </div>
+            </el-col>
+          </el-row>
+        </template>
+        <template v-else>
+          <div class="photo-list__empty">暂无图片...</div>
+        </template>
       </div>
     </div>
   </div>
@@ -142,6 +150,9 @@ watch(
 <style lang="scss" scoped>
 .photoList {
   .photoList-card {
+    align-items: center;
+    justify-content: center;
+    display: flex;
     min-height: 8rem;
     border-radius: 8px;
     background-color: var(--shadow-button-bg);
@@ -213,7 +224,10 @@ watch(
     font-size: 1.8rem;
   }
 }
-
+.photo-list__empty {
+  font-size: 1.4rem;
+  color: var(--font-color);
+}
 // pc
 @media screen and (min-width: 769px) {
   .image {

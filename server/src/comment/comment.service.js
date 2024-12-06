@@ -1,5 +1,5 @@
 import { connecttion } from "../app/database/mysql.js";
-import { getIsLikeByIdAndType } from "../like/like.service.js"
+import { getIsLikeByIdAndType, getIsLikeByIpAndType } from "../like/like.service.js"
 
 import { getIpAddress } from "../utils/tool.js";
 
@@ -36,9 +36,9 @@ export const blogCommentService = async (for_id, type, parent_id) => {
     `;
         const [data] = await connecttion.promise().query(commentTotalSql, params);
         return data[0]["count"];
-    } catch (error) {
-        console.log(error);
-        throw error
+    } catch (err) {
+        console.log(err);
+        throw err
     }
 }
 
@@ -59,9 +59,9 @@ export const blogCommentTotalService = async (for_id, type) => {
     `;
         const [data] = await connecttion.promise().query(commentTotalSql, [for_id, type]);
         return data[0]["count"];
-    } catch (error) {
-        console.log(error);
-        throw error
+    } catch (err) {
+        console.log(err);
+        throw err
     }
 }
 
@@ -70,7 +70,7 @@ export const blogCommentTotalService = async (for_id, type) => {
  * 前台分页获取父级评论列表
  */
 
-export const blogCommentParentListService = async ({ for_id, type, limit, offset, orderArr, user_id }) => {
+export const blogCommentParentListService = async ({ for_id, type, limit, offset, orderArr, user_id, ip }) => {
 
     try {
         const commentParentListSql = `
@@ -103,25 +103,38 @@ export const blogCommentParentListService = async ({ for_id, type, limit, offset
         `;
         const [data] = await connecttion.promise().query(commentParentListSql, [for_id, type, limit, offset]);
 
-        // 判断当前登录的用户是否以点赞
-        const isLikePromises = data.map(async (item) => {
-            return getIsLikeByIdAndType({ for_id: item.id, type: 4, user_id: user_id });
-        });
+        if (user_id) {
+            // 判断当前登录的用户是否以点赞
+            const isLikePromises = data.map(async (item) => {
+                return getIsLikeByIdAndType({ for_id: item.id, type: 4, user_id: user_id });
+            });
 
-        const likeResults = await Promise.all(isLikePromises);
-        data.forEach((item, index) => {
-            item.is_like = likeResults[index];
-        });
+            const likeResults = await Promise.all(isLikePromises);
+            data.forEach((item, index) => {
+                item.is_like = likeResults[index];
+            });
+        } else {
+            // 判断当前登录的用户是否以点赞
+            const isLikePromises = data.map(async (item) => {
+                return getIsLikeByIpAndType({ for_id: item.id, type: 4, ip: ip });
+            });
+
+            const likeResults = await Promise.all(isLikePromises);
+            data.forEach((item, index) => {
+                item.is_like = likeResults[index];
+            });
+        }
+
 
         data.forEach((item) => {
             item.ipAddress = getIpAddress(item.ip);
         })
 
         return data;
-    } catch (error) {
-        console.log(error);
+    } catch (err) {
+        console.log(err);
 
-        throw error
+        throw err
     }
 
 }
@@ -130,7 +143,8 @@ export const blogCommentParentListService = async ({ for_id, type, limit, offset
  * 前台分页获取子级评论列表
  */
 
-export const blogCommentChildrenListService = async ({ parent_id, limit, offset, user_id }) => {
+export const blogCommentChildrenListService = async ({ parent_id, limit, offset, user_id, ip }) => {
+    
     const commentChildrenListSql = `
     SELECT
         comment.id,
@@ -154,23 +168,34 @@ export const blogCommentChildrenListService = async ({ parent_id, limit, offset,
         blog_user AS user ON comment.from_id = user.id
     WHERE
         comment.parent_id = ?
-    ORDER BY
-        comment.createdAt DESC
     LIMIT ?
     OFFSET ?
     `;
 
     const [data] = await connecttion.promise().query(commentChildrenListSql, [parent_id, limit, offset]);
 
-    // 判断当前登录的用户是否以点赞
-    const isLikePromises = data.map(async (item) => {
-        return getIsLikeByIdAndType({ for_id: item.id, type: 4, user_id: user_id || item.ip });
-    });
+    if (user_id) {
+        // 判断当前登录的用户是否以点赞
+        const isLikePromises = data.map(async (item) => {
+            return getIsLikeByIdAndType({ for_id: item.id, type: 4, user_id: user_id });
+        });
 
-    const likeResults = await Promise.all(isLikePromises);
-    data.forEach((item, index) => {
-        item.is_like = likeResults[index];
-    });
+        const likeResults = await Promise.all(isLikePromises);
+        data.forEach((item, index) => {
+            item.is_like = likeResults[index];
+        });
+    } else {
+        // 判断当前登录的用户是否以点赞
+        const isLikePromises = data.map(async (item) => {
+            return getIsLikeByIpAndType({ for_id: item.id, type: 4, ip: ip });
+        });
+
+        const likeResults = await Promise.all(isLikePromises);
+        data.forEach((item, index) => {
+            item.is_like = likeResults[index];
+        });
+    }
+
 
     data.forEach((item) => {
         item.ipAddress = getIpAddress(item.ip);
@@ -242,75 +267,13 @@ export const blogCommentAllListService = async ({ limit, offset, type, comment }
     }
 };
 
-
 /**
- * 添加评论
+ * 通过用户id查询用户信息
  */
 
-export const blogCommentAddService = async (comment) => {
+const getUserInfoByUserId = async (userId) => {
 
-    const { type, for_id, from_id, from_name, from_avatar, content, ip } = comment
-
-    // 手动设置时间
-    const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
-    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
-
-    const commentAddSql = `
-    INSERT INTO
-        blog_comment
-
-    SET
-        type = ?,
-        for_id = ?,
-        from_id = ?,
-        from_name = ?,
-        from_avatar = ?,
-        content = ?,
-        ip = ?,
-        createdAt = ?,
-        updatedAt = ?
-    `;
-
-    const [data] = await connecttion.promise().query(commentAddSql, [type, for_id, from_id, from_name, from_avatar, content, ip, createdAt, updatedAt]);
-    return data;
-}
-
-/**
- * 添加回复评论
- */
-
-export const applyComment = async (comment) => {
-
-    const { parent_id, type, for_id, from_id, from_avatar, from_name, to_id, to_name, to_avatar, content, ip } = comment;
-
-    console.log(ip);
-    
-    // 手动设置时间
-    const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
-    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
-
-    const commentAddSql = `
-    INSERT INTO
-        blog_comment
-
-    SET
-        parent_id = ?,
-        type = ?,
-        for_id = ?,
-        from_id = ?,
-        from_avatar = ?,
-        from_name = ?,
-        to_id = ?,
-        to_name = ?,
-        to_avatar = ?,
-        content = ?,
-        ip = ?,
-        createdAt = ?,
-        updatedAt = ?
-    `;
-
-
-    // 查询当前评论用户信息
+    // 查询当前评论的用户信息
     const userInfoSql = `
     SELECT
         blog_comment.id AS comment_id,        
@@ -341,11 +304,83 @@ export const applyComment = async (comment) => {
         user.id = ?;
     `;
 
+    const [data] = await connecttion.promise().query(userInfoSql, [userId]);
+    return data;
+}
+
+/**
+ * 添加评论
+ */
+
+export const blogCommentAddService = async (comment) => {
+
+    const { type, for_id, from_id, from_name, from_avatar, content, ip } = comment
+
+    // 手动设置时间
+    const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
+    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
+
+    const commentAddSql = `
+    INSERT INTO
+        blog_comment
+
+    SET
+        type = ?,
+        for_id = ?,
+        from_id = ?,
+        from_name = ?,
+        from_avatar = ?,
+        content = ?,
+        ip = ?,
+        createdAt = ?,
+        updatedAt = ?
+    `;
+
+    const [data] = await connecttion.promise().query(commentAddSql, [type, for_id, from_id, from_name, from_avatar, content, ip, createdAt, updatedAt]);
+
+    const [userInfo] = await getUserInfoByUserId(from_id);
+
+    return userInfo;
+}
+
+/**
+ * 添加回复评论
+ */
+
+export const applyComment = async (comment) => {
+
+    const { parent_id, type, for_id, from_id, from_avatar, from_name, to_id, to_name, to_avatar, content, ip } = comment;
+
+    // 手动设置时间
+    const createdAt = moment().format('YYYY-MM-DD HH:mm:ss');
+    const updatedAt = moment().format('YYYY-MM-DD HH:mm:ss');
+
+    const commentAddSql = `
+    INSERT INTO
+        blog_comment
+
+    SET
+        parent_id = ?,
+        type = ?,
+        for_id = ?,
+        from_id = ?,
+        from_avatar = ?,
+        from_name = ?,
+        to_id = ?,
+        to_name = ?,
+        to_avatar = ?,
+        content = ?,
+        ip = ?,
+        createdAt = ?,
+        updatedAt = ?
+    `;
+
     try {
         const [data] = await connecttion.promise().query(commentAddSql, [parent_id, type, for_id, from_id, from_avatar, from_name, to_id, to_name, to_avatar, content, ip, createdAt, updatedAt]);
-        const [userInfo] = await connecttion.promise().query(userInfoSql, [comment.from_id]);
+        const [userInfo] = await getUserInfoByUserId(from_id);
 
-        return userInfo[0];
+        return userInfo;
+
     } catch (error) {
         throw error
     }
@@ -393,32 +428,4 @@ export const backDeleteComment = async (ids) => {
         console.error('Error deleting comments:', error);
         throw error;
     }
-}
-
-/**
- * 通过用户id查询用户信息
- */
-
-export const getUserInfoByUserId = async (userId) => {
-    const sql = `
-    SELECT
-        thumbs_up,
-        id,
-        type,
-        for_id,
-        from_id,
-        from_name,
-        from_avatar,
-        content,
-        ip,
-        updatedAt,
-        createdAt
-    FROM
-        blog_comment
-    WHERE
-        from_id = ?
-    `;
-
-    const [data] = await connecttion.promise().query(sql, [userId]);
-    return data[0];
 }
