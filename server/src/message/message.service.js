@@ -158,7 +158,7 @@ export const addMessage = async ({ message, nick_name, user_id, color, font_size
     INSERT INTO 
         blog_message (message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt, updatedAt)
     VALUES 
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
     const [data] = await connecttion.promise().query(createMessageSql, [message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt, updatedAt]);
     return data.affectedRows > 0 ? true : false;
 }

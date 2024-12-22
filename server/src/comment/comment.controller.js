@@ -41,7 +41,7 @@ export const getParentCommentList = async (req, res, next) => {
     ip = ip.split(":").pop();
 
     // 每页评论数量
-    const limit = parseInt(PARENT_COMMENT_PAGE_SIZE, 10) || 3;
+    const limit = parseInt(size, 10) || parseInt(PARENT_COMMENT_PAGE_SIZE, 10) || 5;
 
     // 偏移量
     const offset = (current - 1) * limit;
@@ -73,7 +73,7 @@ export const getChildCommentList = async (req, res, next) => {
         ip = ip.split(":").pop();
 
         // 每页内容数量
-        const limit = parseInt(PARENT_COMMENT_PAGE_SIZE, 10) || 3;
+        const limit = parseInt(size, 10) || parseInt(PARENT_COMMENT_PAGE_SIZE, 10) || 5;
 
         // 偏移量
         const offset = (current - 1) * limit;

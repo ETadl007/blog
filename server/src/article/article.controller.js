@@ -213,9 +213,9 @@ export const addReadingDuration = async (req, res, next) => {
             return res.status(400).json({ error: '错误' });
         }
 
-        const result = await articleService.addReadingDuration(id, duration);
+        const data = await articleService.addReadingDuration(id, duration);
 
-        res.send(result("增加阅读时长成功", articleRecommend));
+        res.send(result("增加阅读时长成功", data));
 
     } catch (err) {
         console.log(err);

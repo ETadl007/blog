@@ -73,7 +73,7 @@ const jump = async (item) => {
       break;
     // 友情链接
     case "4":
-      window.open("http://mrzym.top/admin");
+      window.open("http://47.122.25.63/admin");
       break;
   }
 

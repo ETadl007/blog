@@ -1,11 +1,11 @@
 <script setup>
-import { ref, watch, reactive, h, nextTick } from "vue";
+import { ref, watch, reactive, h, nextTick, onBeforeUnmount } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElNotification } from "element-plus";
 import { staticData, user } from "@/store/index.js";
 import { storeToRefs } from "pinia";
 
-import MdEditor from "md-editor-v3";
+import { MdPreview, MdCatalog } from "md-editor-v3";
 import "md-editor-v3/lib/style.css";
 
 import { getArticleById, getRecommendArticleById, readingDuration } from "@/api/article";
@@ -16,7 +16,6 @@ import Tooltip from "@/components/ToolTip/tooltip.vue";
 import PageHeader from "@/components/PageHeader/index.vue";
 import GsapCount from "@/components/GsapCount/index";
 
-const MdCatalog = MdEditor.MdCatalog;
 let setUpTimes = null;
 let lastArticleId = null;
 let comment = null,
@@ -113,13 +112,13 @@ const getArticleDetails = async (id) => {
     mdState.text = res.data.article_content;
     articleInfo.value = res.data;
 
-    const Lres = await getIsLikeByIdOrIpAndType({
+    const LRes = await getIsLikeByIdOrIpAndType({
       for_id: articleInfo.value.id,
       type: 1,
       user_id: getUserInfo.value.id,
     });
-    if (Lres.code == 0) {
-      isLike.value = Lres.data;
+    if (LRes.code == 0) {
+      isLike.value = LRes.data;
     }
   }
 };
@@ -175,9 +174,7 @@ const observeBox = () => {
 watch(
   () => route,
   (newV) => {
-    if (setUpTimes && lastArticleId) {
-      addReadingDuration(lastArticleId); // 添加阅读时长
-    }
+    // 初始化的时候 记录进来的时间
     setUpTimes = new Date();
     lastArticleId = newV.query.id;
 
@@ -190,6 +187,12 @@ watch(
     deep: true,
   }
 );
+// 用户离开页面时增加阅读时长
+onBeforeUnmount(() => {
+  if (setUpTimes) {
+    addReadingDuration(lastArticleId); // 添加阅读时长
+  }
+});
 </script>
 
 <template>
@@ -199,20 +202,19 @@ watch(
       <el-col :xs="24" :sm="18">
         <el-skeleton v-if="loading" :loading="loading" :rows="8" animated />
         <el-card v-else class="md-preview">
-          <MdEditor
+          <MdPreview
             class="md-preview-v3"
             v-model="mdState.text"
             :editorId="mdState.id"
-            :previewOnly="true"
             :preview-theme="previewTheme"
             :code-theme="codeTheme"
             :theme="mainTheme ? 'dark' : 'light'"
-          ></MdEditor>
+          ></MdPreview>
           <div class="article-info">
             <div class="article-info-inner">
               <div>
                 <span>文章作者：</span>
-                <a class="to_pointer" href="https://github.com/ETadl007/">{{
+                <a class="to_pointer" href="https://gitee.com/mrzym">{{
                   articleInfo.authorName
                 }}</a>
               </div>
@@ -232,7 +234,7 @@ watch(
                 <span>本文链接：</span>
                 <a class="to_pointer" v-copy="currentUrl">{{ currentUrl }}</a>
               </div>
-              <p>声明: 此文章版权归 ETadl007 所有，如有转载，请注明来自原作者</p>
+              <p>声明: 此文章版权归 Mr M 所有，如有转载，请注明来自原作者</p>
             </div>
           </div>
           <div :class="['like', isLike ? 'is-like' : '']" @click="like">
@@ -481,7 +483,7 @@ watch(
         scale: 1.2;
       }
       .recommend-box-item {
-        background-color: var(--shadow-mask-bg);
+        background-color: var(--mask-bg);
       }
     }
 
