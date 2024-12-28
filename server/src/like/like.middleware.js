@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { PUBLIC_KEY } from "../app/app.config.js";
 
 const tokenErrorCode = ERRORCODE.AUTHTOKEN;
+const TIPSCode = ERRORCODE.TIPS;
 const errorCode = ERRORCODE.LIKE;
 
 export const validateUserIdMiddleware = (req, res, next) => {
@@ -10,12 +11,12 @@ export const validateUserIdMiddleware = (req, res, next) => {
     const authorization = req.header('Authorization');
 
     // 验证token
-    if (!authorization) return next(errorResult(errorCode, '小黑子，请先登录', 403));
+    if (!authorization) return next(errorResult(TIPSCode, '小黑子，请先登录', 429));
 
     // 提取 JWT 令牌
     const token = authorization ? authorization.replace("Bearer ", "") : undefined;
 
-    if (!token) return next(errorResult(errorCode, '小黑子，请先登录', 403));
+    if (!token) return next(errorResult(TIPSCode, '小黑子，请先登录', 429));
 
     // 验证令牌
     jwt.verify(token, PUBLIC_KEY, { algorithms: ['RS256'] }, (err, decoded) => {

@@ -15,7 +15,9 @@ export const requestUrl = (req, res, next) => {
  *  默认异常处理
  */
 export const defaultErrorHandler = (err, req, res, next) => {
-    let status = err.status || 500;  // 设置默认状态码
+
+    // 设置默认状态码
+    let status = err.status || 500;
 
     // 根据错误代码判断具体状态码
     switch (err.code) {
@@ -27,6 +29,10 @@ export const defaultErrorHandler = (err, req, res, next) => {
             // token 过期 需要重新登录
             status = 401;
             break;
+        case "111111":
+            // 用户提示信息
+            status = 429;
+            break;
         default:
             status = 500;  // 默认为 500
     }
@@ -36,6 +42,8 @@ export const defaultErrorHandler = (err, req, res, next) => {
         code: err.code,
         message: err.message
     });
+    console.error(err);
+    
 };
 
 
@@ -52,7 +60,7 @@ export const TimesLimiter = (options) => {
         windowMs: 1 * 60 * 1000, // 1分钟
         prefixKey: "",
         limit: 10, // 10次
-        message: "小黑子，你在刷接口，请稍后再试！", 
+        message: "小黑子，你在刷接口，请稍后再试！",
         handler: (req, res, /*next*/) => {
             return res.status(429).send({ error: options.message || defaultOptions.message });
         },

@@ -118,71 +118,82 @@ const goToArticle = (id) => {
           <div class="empty">
             <div class="hot-box">
               <div class="hot-box__search">
-                <div class="history">
-                  <div class="search-result-box" v-if="searchResult.length">
-                    <div
-                      class="!mt-[5px]"
-                      v-for="(article, index) in searchResult"
-                      :key="index"
-                      @click="goToArticle(article.id)"
-                    >
-                      <div class="text_overflow title cursor-pointer">
-                        {{ article.article_title }}
+                <el-row>
+                  <!-- 响应式布局 -->
+                  <el-col :xs="24" :sm="24" :md="12" :lg="12">
+                    <div class="history">
+                      <div class="search-result-box" v-if="searchResult.length">
+                        <div class="flex_r_between">
+                          <span>搜索结果</span>
+                          <span>共{{ searchResult.length }}条</span>
+                        </div>
+                        <div
+                          class="article-item"
+                          v-for="(article, index) in searchResult"
+                          :key="index"
+                          @click="goToArticle(article.id)"
+                        >
+                          <div class="text_overflow title cursor-pointer">
+                            {{ article.article_title }}
+                          </div>
+                          <div class="flex items-center">
+                            <span class="text_overflow content highlight">
+                              {{ article.highlight_content }}
+                            </span>
+                            <span class="text_overflow content">{{ article.rest_content }}</span>
+                          </div>
+                        </div>
                       </div>
-                      <div class="flex items-center">
-                        <span class="text_overflow content highlight">{{
-                          article.highlight_content
-                        }}</span>
-                        <span class="text_overflow content">{{ article.rest_content }}</span>
+                      <div v-else>
+                        <div class="flex_r_between">
+                          <span>搜索历史</span>
+                          <span
+                            v-if="historySearchList.length"
+                            class="clear-history"
+                            @click="clearHistorySearch"
+                          >
+                            清空搜索历史
+                            <i class="iconfont icon-off-search"></i>
+                          </span>
+                        </div>
+                        <span
+                          class="history-search"
+                          v-for="history in historySearchList"
+                          :key="history"
+                        >
+                          <el-tag class="history-search-tag" @click="clickHistoryTag(history)">
+                            {{ history }}
+                          </el-tag>
+                        </span>
                       </div>
                     </div>
-                  </div>
-                  <div v-else>
-                    <div class="flex_r_between">
-                      <span>搜索历史</span>
-                      <span
-                        v-if="historySearchList.length"
-                        class="clear-history"
-                        @click="clearHistorySearch"
+                  </el-col>
+                  <el-col :xs="24" :sm="24" :md="12" :lg="12">
+                    <div class="hot-search">
+                      <div class="flex_r_between">
+                        热门推荐
+                        <i class="iconfont icon-hot"></i>
+                      </div>
+                      <div
+                        class="hot-box__recommend"
+                        style="margin-top: 0.3rem"
+                        v-for="hot in hotSearchList"
+                        :key="hot.id"
                       >
-                        清空搜索历史
-                        <i class="iconfont icon-off-search"></i>
-                      </span>
-                    </div>
-                    <span
-                      class="history-search"
-                      v-for="history in historySearchList"
-                      :key="history"
-                    >
-                      <el-tag class="history-search-tag" @click="clickHistoryTag(history)">{{
-                        history
-                      }}</el-tag>
-                    </span>
-                  </div>
-                </div>
-                <div class="hot-search">
-                  <div class="flex_r_between">
-                    热门推荐
-                    <i class="iconfont icon-hot"></i>
-                  </div>
-                  <div
-                    class="hot-box__recommend"
-                    style="margin-top: 0.3rem"
-                    v-for="hot in hotSearchList"
-                    :key="hot.id"
-                  >
-                    <span :title="hot.article_title" class="title" @click="goToArticle(hot.id)">
-                      <span v-html="hot.iconNumber" class="number-icon"></span>
-                      <span :title="hot.article_title" class="article-title text_overflow">{{
-                        hot.article_title
-                      }}</span>
-                      <div class="hot">
-                        <svg-icon name="hot" :width="1.2" :height="1.2"></svg-icon>
-                        <span :title="hot.view_times">{{ hot.view_times }}</span>
+                        <span :title="hot.article_title" class="title" @click="goToArticle(hot.id)">
+                          <span v-html="hot.iconNumber" class="number-icon"></span>
+                          <span :title="hot.article_title" class="article-title text_overflow">
+                            {{ hot.article_title }}
+                          </span>
+                          <div class="hot">
+                            <svg-icon name="hot" :width="1.2" :height="1.2"></svg-icon>
+                            <span :title="hot.view_times">{{ hot.view_times }}</span>
+                          </div>
+                        </span>
                       </div>
-                    </span>
-                  </div>
-                </div>
+                    </div>
+                  </el-col>
+                </el-row>
               </div>
             </div>
           </div>
@@ -218,6 +229,14 @@ const goToArticle = (id) => {
 .search-result-box {
   max-height: 250px;
   overflow: auto;
+  .article-item {
+    margin-top: 5px !important;
+    transition: background-color 0.3s ease, border-radius 0.3s ease;
+    &:hover {
+      background: #e4e4e4;
+      border-radius: 0.2rem;
+    }
+  }
 }
 .search-input {
   height: 35px;
@@ -239,8 +258,6 @@ const goToArticle = (id) => {
   cursor: pointer;
   &__search {
     font-weight: 500;
-    display: flex;
-    justify-content: space-between;
     align-items: flex-start;
   }
   .icon-hot {
@@ -248,8 +265,7 @@ const goToArticle = (id) => {
     color: var(--hot-color);
   }
   .history {
-    width: 50%;
-    height: 100%;
+    width: 100%;
     padding: 0 0.5rem;
     overflow: auto;
     .clear-history,
@@ -279,8 +295,7 @@ const goToArticle = (id) => {
     }
   }
   .hot-search {
-    width: 50%;
-    height: 100%;
+    width: 100%;
     padding: 0 0.5rem;
     overflow: hidden;
   }
@@ -296,7 +311,7 @@ const goToArticle = (id) => {
       margin-right: 5px;
       color: var(--hot-color);
     }
-    .hot{
+    .hot {
       margin-left: auto;
     }
   }

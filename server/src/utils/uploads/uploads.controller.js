@@ -37,9 +37,7 @@ export const userUpload = async (req, res, next) => {
 
         const data = await uploadService.userUploadFile(file, id, nick_name);
 
-        const fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-
-        res.send(result("头像更新成功", {url: fileUrl}))
+        res.send(result("头像更新成功", {url: "http://localhost/images/" + path.basename(file.filename)}))
 
         // 提交事务
         await connection.commit();
@@ -78,10 +76,7 @@ export const upload = async (req, res, next) => {
 
         const data = await uploadService.upoadFile(file, user_id, nick_name);
 
-        const fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-
-        res.send(result("头像更新成功", {url: fileUrl}))
-
+        res.send(result("图片上传成功", {url: "http://localhost/images/" + path.basename(file.filename)}))
         
         // 提交事务
         await connection.commit();

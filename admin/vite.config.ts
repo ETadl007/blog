@@ -52,12 +52,12 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
       // 本地跨域代理 https://cn.vitejs.dev/config/server-options.html#server-proxy
       proxy: {
         "/api": {
-          target: "http://127.0.0.1:8888",
+          target: "http://etadl007.top:8888",
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, "")
         },
         "/images": {
-          target: "http://127.0.0.1:8888/images",
+          target: "http://etadl007.top:8888/images",
           changeOrigin: true,
           rewrite: path => path.replace(/^\/images/, "")
         }

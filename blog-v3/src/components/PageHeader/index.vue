@@ -66,7 +66,7 @@ const addZero = (time) => {
 const getBgCover = computed(() => {
   const bgList = getPageHeaderList.value;
   let url;
-  let myUrl = "http://47.122.25.63/images/uh_C0EvxXI9bIUEJMZCCag.png";
+  let myUrl = "http://etadl007.top/images/uh_C0EvxXI9bIUEJMZCCag.png";
 
   if (route.path == "/article") {
     url = props.article.article_cover || myUrl;

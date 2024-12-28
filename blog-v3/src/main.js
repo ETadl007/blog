@@ -20,3 +20,4 @@ const app = createApp(App);
 app.directive("copy", vCopy);
 app.directive("image", image);
 app.use(router).use(createPinia().use(piniaPluginPersist)).mount("#app");
+

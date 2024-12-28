@@ -56,7 +56,7 @@ const getBgCover = computed(() => {
   const bgList = getPageHeaderList.value;
   // 做一个根据路由来判断判断页面背景图片
   let url;
-  let myUrl = "http://img.mrzym.top/FvmVKfygxBKoJbFVXJwzjgAASL9S";
+  let myUrl = "http://etadl007.top/images/uh_C0EvxXI9bIUEJMZCCag.png";
 
   let index = bgList.findIndex((bg) => bg.route_name == route.name);
   url = index == -1 ? myUrl : bgList[index].bg_url;

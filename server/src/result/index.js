@@ -47,10 +47,10 @@ export const tipsResult = (message) => {
 /**
  * 公共抛出错误方法
  */
-export const errorResult = (code, message) => {
+export const errorResult = (code, message, status = 500) => {
     return {
         code,
         message,
-        status: 500
+        status
     };
 };

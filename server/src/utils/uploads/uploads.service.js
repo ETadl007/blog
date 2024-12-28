@@ -80,11 +80,11 @@ export const upoadFile = async (file, id, nick_name) => {
 
         const sql = `
             INSERT INTO 
-                blog_files (user_id, fieldname, filename, originalname, mimetype, size, path, nick_name ) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                blog_files (user_id, fieldname, filename, originalname, mimetype, size, path, nick_name, createdAt, updatedAt ) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
 
-        const [result] = await connecttion.promise().query(sql, [id, fieldname, filename, originalname, mimetype, size, path, nick_name]);
+        const [result] = await connecttion.promise().query(sql, [id, fieldname, filename, originalname, mimetype, size, path, nick_name, currentTime, currentTime]);
 
         return result;
     } catch (error) {

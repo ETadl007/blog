@@ -84,7 +84,7 @@ onMounted(() => {
     </el-row>
     <div class="filings">
       <a class="change-color" href="http://beian.miit.gov.cn/" target="_blank"
-        >蜀ICP备12345678号</a
+        >桂ICP备2024050485号</a
       >
     </div>
   </el-card>
