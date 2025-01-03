@@ -1,6 +1,10 @@
 import * as talkService from './talk.service.js';
 import { PAGE_SIZE } from '../app/app.config.js';
 
+import { addActivityLog } from '../activityLogs/activity.service.js';
+
+import { getIpAddress } from "../utils/tool.js";
+
 import { result, ERRORCODE, errorResult } from "../result/index.js"
 const errorCode = ERRORCODE.TALK;
 
@@ -54,9 +58,28 @@ export const getTalkList = async (req, res, next) => {
  */
 export const publishTalk = async (req, res, next) => {
     try {
+
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
+
+        const { content } = req.body;
         const data = await talkService.publishTalk(req.body);
 
         res.send(result("发布说说成功", data))
+
+        // 新增动态日志
+        await addActivityLog({
+            actor_id: req.user.id,
+            action: "发布了",
+            target_id: data,
+            target_type: "说说",
+            target_name: content,
+            changes: {},
+            metadata: {
+                ip: ip,
+                ipaddress: getIpAddress(ip)
+            }
+        })
     } catch (err) {
         console.log(err);
         return next(errorResult(errorCode, "发布说说失败", 500))

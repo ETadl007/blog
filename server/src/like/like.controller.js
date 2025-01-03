@@ -3,6 +3,15 @@ import * as likeService from './like.service.js';
 import { result, ERRORCODE, errorResult } from "../result/index.js"
 const errorCode = ERRORCODE.LIKE;
 
+import { addActivityLog } from '../activityLogs/activity.service.js';
+
+import { getIpAddress } from "../utils/tool.js";
+
+import { getArticleTitle } from "../article/article.service.js";
+import { getTalkContentById } from "../talk/talk.service.js";
+import { getMessageById } from "../message/message.service.js";
+import { getCommentById } from "../comment/comment.service.js";
+
 /**
  * 获取当前用户对当前文章/说说/留言 是否点赞
  */
@@ -101,6 +110,24 @@ export const addLike = async (req, res, next) => {
         }
 
         res.send(result("点赞成功", data))
+
+        // 新增动态日志
+        await addActivityLog({
+            actor_id: user_id,
+            action: "点赞了",
+            target_type: msg,
+            target_id: for_id,
+            target_name: `${type == 1?
+                 await getArticleTitle(for_id) : type == 2? 
+                 await getTalkContentById(for_id) : type == 3? 
+                 await getMessageById(for_id)  : 
+                 await getCommentById(for_id)}`,
+            changes:{},
+            metadata: {
+                ip: ip,
+                ipaddress: getIpAddress(ip)
+            }
+        })
     } catch (err) {
         console.log(err);
         return next(errorResult(errorCode, "点赞失败", 500))
@@ -159,6 +186,24 @@ export const cancelLike = async (req, res, next) => {
         }
 
         res.send(result("取消点赞成功", data))
+
+        // 新增动态日志
+        await addActivityLog({
+            actor_id: user_id,
+            action: "取消了点赞",
+            target_type: msg,
+            target_id: for_id,
+            target_name: `${type == 1?
+                 await getArticleTitle(for_id) : type == 2? 
+                 await getTalkContentById(for_id) : type == 3? 
+                 await getMessageById(for_id)  : 
+                 await getCommentById(for_id)}`,
+            changes:{},
+            metadata: {
+                ip: ip,
+                ipaddress: getIpAddress(ip)
+            }
+        })
 
     } catch (err) {
         console.log(err);

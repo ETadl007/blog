@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from "vue";
 import HomeCard from "@/components/HomeCard/home-card.vue";
 import { getStatistic } from "@/api/home";
 import WordCloud from "./components/WordCloud.vue";
+import latestNewsData from "./components/latestNewsData.vue";
 import biaoqian from "@/assets/svg/biaoqian.svg?component";
 import fenlei from "@/assets/svg/fenlei.svg?component";
 import wenzhang from "@/assets/svg/wenzhang.svg?component";
@@ -14,11 +15,10 @@ const staticsData = ref({
   articleCount: 0,
   categoryCount: 0,
   tagCount: 0,
-  userCount: 0,
+  userCount: 0
 });
 
-const codeMapChartRef = ref(null);
-const barChartRef = ref(null);
+const latestNewsDataRef = ref(null);
 const cloudChartRef = ref(null);
 
 // 静态数据
@@ -31,8 +31,7 @@ const getStatisticData = async () => {
 
 const resize = debounce(() => {
   // resize echarts
-  codeMapChartRef.value && codeMapChartRef.value.init();
-  barChartRef.value && barChartRef.value.resize();
+  latestNewsDataRef.value && latestNewsDataRef.value.resize();
   cloudChartRef.value && cloudChartRef.value.resize();
 }, 300);
 
@@ -78,7 +77,18 @@ onMounted(() => {
     <el-row>
       <el-col :xs="24" :sm="12">
         <el-card class="m-[5px]">
+          <div class="flex justify-between">
+            <span class="text-md font-medium">热门标签</span>
+          </div>
           <WordCloud ref="cloudChartRef" />
+        </el-card>
+      </el-col>
+      <el-col :xs="24" :sm="12">
+        <el-card class="m-[5px]">
+          <div class="flex justify-between">
+            <span class="text-md font-medium">最新动态</span>
+          </div>
+          <latest-news-data ref="latestNewsData" />
         </el-card>
       </el-col>
     </el-row>

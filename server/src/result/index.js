@@ -18,6 +18,7 @@ export const ERRORCODE = {
     AUTHTOKEN: "100016", // 用户登录过期
     NOTIFY: "100017", // 消息推送
     LIKE: "100018", // 点赞
+    ACTIVITY: "100019", // 活动
     CHAT: "100019", // 聊天
     TIPS: "111111", // 提示
     UPLOAD_FILE: "100020"

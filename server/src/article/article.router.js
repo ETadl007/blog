@@ -1,6 +1,5 @@
 import express from 'express';
 import * as articleController from './article.controller.js';
-import * as likeControllerfrom from '../like/like.controller.js';
 import { authGuard, needAdminAuthNotNeedSuper } from '../auth/auth.middleware.js';
 import { verifyArticleParam, createJudgeTitleExist, updateJudgeTitleExist, verifyTopParam, verifyDelParam } from './article.middleware.js';
 
@@ -21,22 +20,22 @@ router.put('/article/update', authGuard, needAdminAuthNotNeedSuper, verifyArticl
 /**
  * 删除文章
  */
-router.delete('/article/delete/:id/:status', authGuard, needAdminAuthNotNeedSuper, verifyDelParam, articleController.deleteArticle)
+router.delete('/article/delete/:articleId/:status', authGuard, needAdminAuthNotNeedSuper, verifyDelParam, articleController.deleteArticle)
 
 /**
  * 修改文章置顶信息
  */
-router.put('/article/updateTop/:id/:is_top', authGuard, needAdminAuthNotNeedSuper, verifyTopParam, articleController.updateTop)
+router.put('/article/updateTop/:articleId/:is_top', authGuard, needAdminAuthNotNeedSuper, verifyTopParam, articleController.updateTop)
 
 /**
  * 切换文章私密性
  */
-router.put('/article/isPublic/:id/:status', authGuard, needAdminAuthNotNeedSuper, articleController.toggleArticlePublic)
+router.put('/article/isPublic/:articleId/:status', authGuard, needAdminAuthNotNeedSuper, articleController.toggleArticlePublic)
 
 /**
  * 恢复文章
  */
-router.put('/article/revert/:id', authGuard, needAdminAuthNotNeedSuper, articleController.revertArticle)
+router.put('/article/revert/:articleId', authGuard, needAdminAuthNotNeedSuper, articleController.revertArticle)
 
 
 /**

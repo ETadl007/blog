@@ -161,9 +161,13 @@ export function useColumns() {
   async function changeTop(val) {
     if (val) {
       const { id, is_top } = val;
-      const res = await updateArticleTop(id, is_top);
+
+      const is_top_num = is_top == 1 ? 2 : 1;
+      
+      const res = await updateArticleTop(id, is_top_num);
+      
       if (res.code == 0) {
-        message(`${is_top == 1 ? "置顶" : "取消置顶"} 成功`, {
+        message(`${is_top_num == 1 ? "置顶" : "取消置顶"} 成功`, {
           type: "success"
         });
         return true;

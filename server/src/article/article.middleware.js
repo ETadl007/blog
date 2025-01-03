@@ -58,8 +58,8 @@ export const updateJudgeTitleExist = async (req, res, next) => {
  * 效验置顶参数
  */
 export const verifyTopParam = async (req, res, next) => {
-    const { id, is_top } = req.params
-    if (!/^[0-9]+$/.test(id) || !/^[0-9]+$/.test(is_top)) {
+    const { articleId, is_top } = req.params
+    if (!/^[0-9]+$/.test(articleId) || !/^[0-9]+$/.test(is_top)) {
         console.log("参数只能为数字");
         return next(errorResult(errorCode, "参数只能为数字", 500))
     }
@@ -70,13 +70,10 @@ export const verifyTopParam = async (req, res, next) => {
  * 效验删除参数
  */
 export const verifyDelParam = async (req, res, next) => {
-    const { id, status } = req.params
-    if (!/^[0-9]+$/.test(id) || !/^[0-9]+$/.test(status)) {
+    const { articleId, status } = req.params
+    if (!/^[0-9]+$/.test(articleId) || !/^[0-9]+$/.test(status)) {
         console.log("参数只能为数字");
-        return res.status(400).json({
-            status: 1,
-            message: '参数只能为数字'
-        });
+        return next(errorResult(errorCode, "参数只能为数字", 500));
     }
     next();
 }

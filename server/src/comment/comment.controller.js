@@ -4,6 +4,12 @@ import { sqlFragment } from './comment.provider.js';
 import { addNotify } from "../notify/notify.controller.js";
 import { filterSensitive } from "../utils/sensitive.js";
 
+import { getArticleTitle } from '../article/article.service.js'
+
+import { addActivityLog } from '../activityLogs/activity.service.js';
+
+import { getIpAddress } from "../utils/tool.js";
+
 import { getCurrentTypeName } from '../utils/tool.js';
 
 import { result, ERRORCODE, errorResult } from '../result/index.js'
@@ -137,7 +143,25 @@ export const addComment = async (req, res, next) => {
             });
         }
 
+        const articleTitle = await getArticleTitle(for_id);
+
         res.send(result("添加评论成功", { res: data }))
+
+        // 新增动态
+        await addActivityLog({
+            actor_id: author_id,
+            action: "评论了",
+            target_type: getCurrentTypeName(type),
+            target_id: for_id,
+            target_name: articleTitle,
+            changes: {
+                content: content
+            },
+            metadata: {
+                ip: ip.split(':').pop(),
+                ipaddress: getIpAddress(ip)
+            }
+        })
 
     } catch (err) {
         console.log(err);
@@ -171,7 +195,25 @@ export const addReplyComment = async (req, res, next) => {
             });
         }
 
+        const articleTitle = await getArticleTitle(for_id);
+
         res.send(result("添加回复评论成功", { res: data }))
+
+        // 新增动态
+        await addActivityLog({
+            actor_id: to_id,
+            action: "回复了",
+            target_type: getCurrentTypeName(type),
+            target_id: for_id,
+            target_name: articleTitle,
+            changes: {
+                content: content
+            },
+            metadata: {
+                ip: ip.split(':').pop(),
+                ipaddress: getIpAddress(ip)
+            }
+        })
 
     } catch (err) {
         console.log(err);
@@ -184,13 +226,12 @@ export const addReplyComment = async (req, res, next) => {
  */
 
 export const deleteComment = async (req, res, next) => {
-    const { id, parent_id } = req.params;
-
+    
     try {
+        const { id, parent_id } = req.params;
         const data = await commentService.deleteComment(id, parent_id);
 
         res.send(result("删除评论成功", { res: data }))
-
     } catch (err) {
         console.log(err);
         return next(errorResult(errorCode, "删除评论失败", 500))

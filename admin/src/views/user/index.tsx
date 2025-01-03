@@ -147,7 +147,6 @@ export function useColumns() {
   async function changeRole(user) {
     
     const { id, role } = user;
-    
     const res = await updateUserRole(id, role === 1? 2 : 1);
     
     if (res.code == 0) {

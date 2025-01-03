@@ -3,6 +3,10 @@ import { PAGE_SIZE } from '../app/app.config.js'
 import { connecttion } from "../app/database/mysql.js"
 import { createCategoryOrReturn, createArticleTagByArticleId, deleteArticleTag } from './article.common.js'
 
+import { addActivityLog } from '../activityLogs/activity.service.js';
+
+import { getIpAddress } from "../utils/tool.js";
+
 import { result, ERRORCODE, errorResult } from '../result/index.js'
 const errorCode = ERRORCODE.ARTICLE;
 
@@ -267,12 +271,16 @@ export const createArticle = async (req, res, next) => {
     // 用于管理事务的连接
     let connection;
     try {
+
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
+        
         // 从连接池获取连接
         connection = await connecttion.promise().getConnection();
         // 开启事务 方便回滚
         await connection.beginTransaction();
 
-        const { tagList, category, ...articleRest } = req.body
+        const { author_id, tagList, category, ...articleRest } = req.body
 
         // 若分类不存在先创建分类
         const { id, category_name } = category;
@@ -289,6 +297,20 @@ export const createArticle = async (req, res, next) => {
 
         // 提交事务
         await connection.commit();
+
+        // 新增动态
+        await addActivityLog({
+            author_id: author_id,
+            action: "新增了",
+            target_type: "文章",
+            target_id: newArticle.id,
+            target_name: newArticle.article_title,
+            changes: {},
+            metadata: {
+                ip: ip
+            }
+        })
+
     } catch (err) {
         if (connection) await connection.rollback();
         console.log(err);
@@ -307,6 +329,10 @@ export const updateArticle = async (req, res, next) => {
     // 用于管理事务的连接
     let connection;
     try {
+
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
+        
         // 从连接池获取连接
         connection = await connecttion.promise().getConnection();
         // 开启事务 方便回滚
@@ -328,6 +354,21 @@ export const updateArticle = async (req, res, next) => {
 
         // 提交事务
         await connection.commit();
+
+        // 新增动态
+        await addActivityLog({
+            actor_id: articleRest.author_id,
+            action: "修改了",
+            target_type: "文章",
+            target_id: articleRest.id,
+            target_name: articleRest.article_title,
+            changes: {},
+            metadata: {
+                ip: ip,
+                ipaddress: getIpAddress(ip)
+            }
+        })
+
     } catch (err) {
         if (connection) await connection.rollback();
         console.log(err);
@@ -344,11 +385,31 @@ export const updateArticle = async (req, res, next) => {
 
 export const deleteArticle = async (req, res, next) => {
     try {
-        const { id, status } = req.params;
 
-        const data = await articleService.deleteArticle(id, status);
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
+        
+        const { articleId, status } = req.params;
+
+        const data = await articleService.deleteArticle(articleId, status);
 
         res.send(result("删除文章成功", data))
+
+        // 新增动态
+        await addActivityLog({
+            actor_id: req.user.id,
+            action: "删除了",
+            target_type: "文章",
+            target_id: articleId,
+            target_name: data.article_title,
+            changes: {
+                reason: "不再需要"
+            },
+            metadata: {
+                ip: ip,
+                ipaddress: getIpAddress(ip)
+            }
+        })
     } catch (err) {
         console.log(err);
         return next(errorResult(errorCode, "删除文章失败", 500))
@@ -360,11 +421,31 @@ export const deleteArticle = async (req, res, next) => {
  */
 export const updateTop = async (req, res, next) => {
     try {
-        const { id, is_top } = req.params;
 
-        const data = await articleService.updateTop(id, is_top);
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
 
+        const { articleId, is_top } = req.params;
+        
+        const data = await articleService.updateTop(articleId, is_top);
+        
         res.send(result("修改文章置顶信息成功", data))
+
+        // 新增动态
+        await addActivityLog({
+            actor_id: req.user.id,
+            action: `${is_top == 1 ? "置顶了" : "取消置顶了"}`,
+            target_type: "文章",
+            target_id: articleId,
+            target_name: data.article_title,
+            changes: {
+                reason: `${is_top == 1 ? "想让大家看到" : "公开却不显眼低调存在。"}`
+            },
+            metadata: {
+                ip: ip,
+                ipaddress: getIpAddress(ip)
+            }
+        })
     } catch (err) {
         console.log(err);
         return next(errorResult(errorCode, "修改文章置顶信息失败", 500))
@@ -376,13 +457,30 @@ export const updateTop = async (req, res, next) => {
  */
 export const toggleArticlePublic = async (req, res, next) => {
     try {
-        const { id, status } = req.params;
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
 
-        const data = await articleService.toggleArticlePublic(id, status);
+        const { articleId, status } = req.params;
+
+        const data = await articleService.toggleArticlePublic(articleId, status);
 
         let message = Number(status) === 1 ? "隐藏文章" : "公开文章";
         res.send(result(message + "成功", data))
-
+        // 新增动态
+        await addActivityLog({
+            actor_id: req.user.id,
+            action: `${message}了`,
+            target_type: "文章",
+            target_id: articleId,
+            target_name: data.article_title,
+            changes: {
+                reason: `${Number(status) === 1 ? "这个嘛，咱就偷偷藏着吧！" : "公开了。"}`
+            },
+            metadata: {
+                ip: ip,
+                ipaddress: getIpAddress(ip)
+            }
+        })
     } catch (err) {
         console.log(err);
         return next(errorResult(errorCode, message + "失败", 500))
@@ -395,10 +493,28 @@ export const toggleArticlePublic = async (req, res, next) => {
 
 export const revertArticle = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const data = await articleService.revertArticle(id);
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
+
+        const { articleId } = req.params;
+        const data = await articleService.revertArticle(articleId);
 
         res.send(result("恢复文章成功", data))
+        // 新增动态
+        await addActivityLog({
+            actor_id: req.user.id,
+            action: "恢复了",
+            target_type: "文章",
+            target_id: articleId,
+            target_name: data.article_title,
+            changes: {
+                reason: "误删了，还原回来了。"
+            },
+            metadata: {
+                ip: ip,
+                ipaddress: getIpAddress(ip)
+            }
+        })
     } catch (err) {
         console.log(err);
         return next(errorResult(errorCode, "恢复文章失败", 500))

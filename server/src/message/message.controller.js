@@ -4,6 +4,10 @@ import { randomNickname } from '../utils/tool.js'
 import { filterSensitive } from '../utils/sensitive.js'
 import { addNotify } from '../notify/notify.controller.js'
 
+import { addActivityLog } from '../activityLogs/activity.service.js';
+
+import { getIpAddress } from "../utils/tool.js";
+
 import { result, ERRORCODE, errorResult } from "../result/index.js"
 const errorCode = ERRORCODE.MESSAGE;
 
@@ -57,6 +61,9 @@ export const addMessage = async (req, res, next) => {
 
     try {
 
+        let ip = req.get("X-Real-IP") || req.get("X-Forwarded-For") || req.ip;
+        ip = ip.split(":").pop();
+
         let { message, user_id, nick_name, color, font_size, font_weight, bg_color, bg_url, tag } = req.body
 
         if (!user_id) {
@@ -78,6 +85,20 @@ export const addMessage = async (req, res, next) => {
         }
 
         res.send(result("发布留言成功", data))
+
+        // 新增动态日志
+        await addActivityLog({
+            actor_id: user_id,
+            action: "留言了",
+            target_type: "留言",
+            target_id: data.id,
+            target_name : message,
+            changes: {},
+            metadata : {
+                ip: ip,
+                ipaddress: getIpAddress(ip)
+            }
+        })
 
     } catch (err) {
         console.log(err);

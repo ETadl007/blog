@@ -18,6 +18,7 @@ import likeRouter from '../like/like.router.js';
 import uploadRouter from '../utils/uploads/uploads.router.js';
 import { TimesLimiter } from '../app/app.middleware.js';
 import header from '../header/header.router.js'
+import activityRouter from '../activityLogs/activity.router.js'
 
 /**
  *  创建应用
@@ -60,6 +61,7 @@ app.use(notifyRouter);
 app.use(likeRouter);
 app.use(uploadRouter);
 app.use(header)
+app.use(activityRouter)
 
 /**
  *  默认异常处理

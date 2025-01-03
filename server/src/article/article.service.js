@@ -344,7 +344,7 @@ export const blogArticleRecommendService = async (id) => {
  * 通过标签id 获取到文章列表
  */
 
-export const blogArticleByTagIdService = async ({id, limit, offset}) => {
+export const blogArticleByTagIdService = async ({ id, limit, offset }) => {
     const ArticleByTagIdSql = `
     SELECT 
         ba.createdAt,
@@ -373,7 +373,7 @@ export const blogArticleByTagIdService = async ({id, limit, offset}) => {
  */
 
 export const blogArticleByTagIdTotalService = async (id) => {
-    
+
     const ArticleByTagIdTotalSql = `
     SELECT 
         COUNT(*) AS total_count
@@ -585,6 +585,17 @@ export const getArticleInfoByTitle = async ({ id, article_title }) => {
 }
 
 /**
+ * 通过id查询文章标题
+ */
+export const getArticleTitle = async (articleId) => {
+    // 查询文章
+    const [result] = await connecttion.promise().query('SELECT article_title FROM blog_article WHERE id = ?', [articleId]);
+    
+    return result[0].article_title
+}
+
+
+/**
  * 新增文章
  */
 export const createArticle = async (article) => {
@@ -725,18 +736,20 @@ export const updateArticle = async (article) => {
 /**
  * 删除文章
  */
-export const deleteArticle = async (id, status) => {
+export const deleteArticle = async (articleId, status) => {
     let res;
 
     if (Number(status) !== 3) {
-        const [result] = await connecttion.promise().query('UPDATE blog_article SET status = 3 WHERE id = ?', [id]);
-        res = result.affectedRows > 0 ? true : false;
+        const [result] = await connecttion.promise().query('UPDATE blog_article SET status = 3 WHERE id = ?', [articleId]);
+        res = {
+            result: result.affectedRows > 0 ? true : false,
+            article_title: await getArticleTitle(articleId)
+        }
     } else {
         // 删除文章
-        const [result] = await connecttion.promise().query('DELETE FROM blog_article WHERE id = ?', [id]);
-        res = result.affectedRows > 0 ? true : false;
+        const [result] = await connecttion.promise().query('DELETE FROM blog_article WHERE id = ?', [articleId]);
         // 删除文章标签关系
-        await connecttion.promise().query('DELETE FROM blog_article_tag WHERE article_id = ?', [id]);
+        await connecttion.promise().query('DELETE FROM blog_article_tag WHERE article_id = ?', [articleId]);
     }
 
     return res
@@ -745,24 +758,33 @@ export const deleteArticle = async (id, status) => {
 /**
  * 修改文章置顶信息
  */
-export const updateTop = async (id, is_top) => {
-    const [result] = await connecttion.promise().query('UPDATE blog_article SET is_top = ? WHERE id = ?', [is_top, id]);
-    return result.affectedRows > 0 ? true : false;
+export const updateTop = async (articleId, is_top) => {
+    const [result] = await connecttion.promise().query('UPDATE blog_article SET is_top = ? WHERE id = ?', [is_top, articleId]);
+    return {
+        result: result.affectedRows > 0 ? true : false,
+        article_title: await getArticleTitle(articleId)
+    }
 }
 
 /**
  * 公开或隐藏文章
  */
-export const toggleArticlePublic = async (id, status) => {
+export const toggleArticlePublic = async (articleId, status) => {
     status = Number(status) === 2 ? 1 : 2;
-    const [result] = await connecttion.promise().query('UPDATE blog_article SET status = ? WHERE id = ?', [status, id]);
-    return result.affectedRows > 0 ? true : false;
+    const [result] = await connecttion.promise().query('UPDATE blog_article SET status = ? WHERE id = ?', [status, articleId]);
+    return {
+        result: result.affectedRows > 0 ? true : false,
+        article_title: await getArticleTitle(articleId)
+    }
 }
 
 /**
  * 恢复文章
  */
-export const revertArticle = async (id) => {
-    const [result] = await connecttion.promise().query('UPDATE blog_article SET status = 1 WHERE id = ?', [id]);
-    return result.affectedRows > 0 ? true : false;
+export const revertArticle = async (articleId) => {
+    const [result] = await connecttion.promise().query('UPDATE blog_article SET status = 1 WHERE id = ?', [articleId]);
+    return {
+        result: result.affectedRows > 0 ? true : false,
+        article_title: await getArticleTitle(articleId)
+    }
 }

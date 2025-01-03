@@ -1,9 +1,8 @@
 import * as userService from './user.service.js';
 import { filterSensitive } from '../utils/sensitive.js'
 import { randomNickname } from '../utils/tool.js'
-import { PAGE_SIZE, PRIVATE_KEY, ADMIN_PASSWORD } from '../app/app.config.js'
+import { PAGE_SIZE, ADMIN_PASSWORD } from '../app/app.config.js'
 import { signToken } from "../auth/auth.service.js";
-import jwt from 'jsonwebtoken';
 
 import { connecttion } from '../app/database/mysql.js';
 

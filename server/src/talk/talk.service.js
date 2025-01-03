@@ -211,6 +211,14 @@ export const cancelTalkLike = async (talk_id) => {
 }
 
 /**
+ * 通过id查找说说内容
+ */
+export const getTalkContentById = async (for_id) => {
+    const [data] = await connecttion.promise().query("SELECT content FROM blog_talk WHERE id = ?", [for_id]);
+    return data[0].content;
+}
+
+/**
  * 发布说说
  */
 export const publishTalk = async (talk) => {

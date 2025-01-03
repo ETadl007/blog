@@ -309,6 +309,14 @@ const getUserInfoByUserId = async (userId) => {
 }
 
 /**
+ * 通过id查询评论内容
+ */
+export const getCommentById = async (for_id) => {
+    const [data] = await connecttion.promise().query(`SELECT content FROM blog_comment WHERE id = ?`, [for_id]);
+    return data[0].content;
+}
+
+/**
  * 添加评论
  */
 

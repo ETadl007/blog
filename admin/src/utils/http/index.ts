@@ -75,14 +75,14 @@ class PureHttp {
         return whiteList.some(v => config.url.indexOf(v) > -1)
           ? config
           : new Promise(resolve => {
-              const data = getToken();
-              if (data) {
-                config.headers["Authorization"] = data.token;
-                resolve(config);
-              } else {
-                resolve(config);
-              }
-            });
+            const data = getToken();
+            if (data) {
+              config.headers["Authorization"] = data.token;
+              resolve(config);
+            } else {
+              resolve(config);
+            }
+          });
       },
       error => {
         return Promise.reject(error);
@@ -123,6 +123,10 @@ class PureHttp {
             break;
           case "404":
             router.push("/error/404");
+            break;
+          case "401":
+            message("登录已过期，请重新登录", { type: "error" });
+            router.push("/Login");
             break;
           case "500":
             message(data.message, { type: "error" });

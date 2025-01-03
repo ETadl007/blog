@@ -2,6 +2,7 @@ import { connecttion } from "../app/database/mysql.js";
 import { getIsLikeByIdAndType, getIsLikeByIpAndType } from "../like/like.service.js"
 
 import moment from "moment";
+import { result } from "../result/index.js";
 
 /**
  * 获取留言列表
@@ -145,9 +146,16 @@ export const getMessageTotal = async ({ tag = '', message = '' }) => {
 }
 
 /**
+ * 通过id查找留言内容
+ */
+export const getMessageById = async (for_id) => {
+    const [data] = await connecttion.promise().query(`SELECT message FROM blog_message WHERE id = ?`, [for_id]);
+    return data[0].message;
+}
+
+/**
  * 发布留言
  */
-
 export const addMessage = async ({ message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag }) => {
 
     // 手动设置时间
@@ -160,7 +168,7 @@ export const addMessage = async ({ message, nick_name, user_id, color, font_size
     VALUES 
         (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`;
     const [data] = await connecttion.promise().query(createMessageSql, [message, nick_name, user_id, color, font_size, font_weight, bg_color, bg_url, tag, createdAt, updatedAt]);
-    return data.affectedRows > 0 ? true : false;
+    return { id: data.insertId, result: data.affectedRows > 0 ? true : false };
 }
 
 /**
